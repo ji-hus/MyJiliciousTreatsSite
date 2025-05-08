@@ -57,7 +57,6 @@ function useMenuForm(initialState: Partial<MenuItem>) {
       console.log('Current dietary info:', formState.dietaryInfo);
       console.log('New dietary info:', value);
       setFormState(prev => {
-        // Ensure we maintain all existing dietary restrictions
         const updatedDietaryInfo = {
           ...prev.dietaryInfo,
           ...value
@@ -84,7 +83,7 @@ function useMenuForm(initialState: Partial<MenuItem>) {
         [field]: value
       }));
     }
-  }, [formState.dietaryInfo, formState.allergens]);
+  }, []);
 
   const resetForm = useCallback(() => {
     const initialDietaryInfo = {
@@ -677,9 +676,12 @@ export function MenuManager() {
                         checked={isChecked}
                         onCheckedChange={(checked) => {
                           console.log('Changing dietary restriction:', restriction, checked);
-                          handleNewItemChange('dietaryInfo', {
+                          const updatedDietaryInfo = {
+                            ...newItem.dietaryInfo,
                             [restriction]: checked
-                          });
+                          };
+                          console.log('Updated dietary info:', updatedDietaryInfo);
+                          handleNewItemChange('dietaryInfo', updatedDietaryInfo);
                         }}
                       />
                       <Label htmlFor={restriction} className="capitalize">
