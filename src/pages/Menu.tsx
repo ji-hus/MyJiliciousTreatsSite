@@ -27,13 +27,15 @@ const Menu = () => {
   }, [menuItems, selectedCategory, searchQuery]);
 
   const categoryTabs = useMemo(() => (
-    <TabsList className="grid grid-cols-5 mb-8">
-      {['All', ...new Set(menuItems.map(item => item.category))].map(category => (
-        <TabsTrigger key={category} value={category}>
-          {category}
-        </TabsTrigger>
-      ))}
-    </TabsList>
+    <div className="overflow-x-auto pb-2">
+      <TabsList className="inline-flex min-w-full mb-8">
+        {['All', ...new Set(menuItems.map(item => item.category))].map(category => (
+          <TabsTrigger key={category} value={category} className="whitespace-nowrap">
+            {category}
+          </TabsTrigger>
+        ))}
+      </TabsList>
+    </div>
   ), [menuItems]);
 
   const menuItemsContent = useMemo(() => (
