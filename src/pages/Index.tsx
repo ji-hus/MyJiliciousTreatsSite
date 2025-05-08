@@ -41,7 +41,7 @@ const Index = () => {
                 <div className="flex items-start gap-4">
                   <MapPin className="h-6 w-6 text-bakery-gold flex-shrink-0 mt-1" />
                   <div>
-                    <h3 className="font-serif font-semibold text-xl text-bakery-brown mb-2">None At This Time</h3>
+                    <h3 className="font-serif font-semibold text-xl text-bakery-brown mb-2">Farmer's Market Pop Up Soon!</h3>
                     <p className="text-gray-600 mb-4">Not Available</p>
                     <div className="flex items-center text-gray-600 mb-4">
                       <Clock className="h-4 w-4 mr-2" />
