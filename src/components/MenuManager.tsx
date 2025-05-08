@@ -136,6 +136,7 @@ export function MenuManager() {
   const selectedItem = useMenuItem(selectedItemId || '');
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [localDietaryInfo, setLocalDietaryInfo] = useState<Record<string, boolean>>({});
 
   const initialFormState = useMemo(() => ({
     name: '',
@@ -163,6 +164,21 @@ export function MenuManager() {
   const { formState: newItem, handleChange: handleNewItemChange, resetForm } = useMenuForm(
     isAddingNew ? initialFormState : selectedItem || initialFormState
   );
+
+  // Initialize local dietary info when selected item changes
+  useEffect(() => {
+    if (selectedItem) {
+      const initialDietaryInfo = {
+        vegan: Boolean(selectedItem.dietaryInfo?.vegan),
+        glutenFree: Boolean(selectedItem.dietaryInfo?.glutenFree),
+        nutFree: Boolean(selectedItem.dietaryInfo?.nutFree),
+        dairyFree: Boolean(selectedItem.dietaryInfo?.dairyFree),
+        halal: Boolean(selectedItem.dietaryInfo?.halal),
+        kosher: Boolean(selectedItem.dietaryInfo?.kosher)
+      };
+      setLocalDietaryInfo(initialDietaryInfo);
+    }
+  }, [selectedItem]);
 
   // Reset form when selectedItem changes
   useEffect(() => {
@@ -302,6 +318,36 @@ export function MenuManager() {
       setEditingCell(null);
     }
   };
+
+  const handleDietaryChange = useCallback((restriction: string, checked: boolean) => {
+    console.log('Changing dietary restriction:', restriction, checked);
+    setLocalDietaryInfo(prev => {
+      const updated = {
+        ...prev,
+        [restriction]: checked
+      };
+      console.log('Updated local dietary info:', updated);
+      return updated;
+    });
+  }, []);
+
+  const handleSave = useCallback(() => {
+    if (selectedItem) {
+      const updates = {
+        ...newItem,
+        dietaryInfo: {
+          vegan: Boolean(localDietaryInfo.vegan),
+          glutenFree: Boolean(localDietaryInfo.glutenFree),
+          nutFree: Boolean(localDietaryInfo.nutFree),
+          dairyFree: Boolean(localDietaryInfo.dairyFree),
+          halal: Boolean(localDietaryInfo.halal),
+          kosher: Boolean(localDietaryInfo.kosher)
+        }
+      };
+      console.log('Saving updates:', updates);
+      debouncedUpdateItem(selectedItem.id, updates);
+    }
+  }, [selectedItem, newItem, localDietaryInfo, debouncedUpdateItem]);
 
   const menuTable = useMemo(() => (
     <Table>
@@ -661,11 +707,10 @@ export function MenuManager() {
                     const newDietary = prompt('Enter new dietary restriction name:');
                     if (newDietary) {
                       addDietaryRestriction(newDietary);
-                      const updatedDietaryInfo = {
-                        ...newItem.dietaryInfo,
+                      setLocalDietaryInfo(prev => ({
+                        ...prev,
                         [newDietary]: false
-                      };
-                      handleNewItemChange('dietaryInfo', updatedDietaryInfo);
+                      }));
                     }
                   }}
                 >
@@ -673,30 +718,18 @@ export function MenuManager() {
                 </Button>
               </div>
               <div className="grid grid-cols-2 gap-2">
-                {dietaryRestrictions.map(restriction => {
-                  const isChecked = Boolean(newItem.dietaryInfo?.[restriction]);
-                  console.log(`Dietary restriction ${restriction} is checked:`, isChecked);
-                  return (
-                    <div key={restriction} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={restriction}
-                        checked={isChecked}
-                        onCheckedChange={(checked) => {
-                          console.log('Changing dietary restriction:', restriction, checked);
-                          const updatedDietaryInfo = {
-                            ...newItem.dietaryInfo,
-                            [restriction]: Boolean(checked)
-                          };
-                          console.log('Updated dietary info:', updatedDietaryInfo);
-                          handleNewItemChange('dietaryInfo', updatedDietaryInfo);
-                        }}
-                      />
-                      <Label htmlFor={restriction} className="capitalize">
-                        {restriction.replace(/([A-Z])/g, ' $1').trim()}
-                      </Label>
-                    </div>
-                  );
-                })}
+                {dietaryRestrictions.map(restriction => (
+                  <div key={restriction} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={restriction}
+                      checked={Boolean(localDietaryInfo[restriction])}
+                      onCheckedChange={(checked) => handleDietaryChange(restriction, Boolean(checked))}
+                    />
+                    <Label htmlFor={restriction} className="capitalize">
+                      {restriction.replace(/([A-Z])/g, ' $1').trim()}
+                    </Label>
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -779,7 +812,7 @@ export function MenuManager() {
                   if (isAddingNew) {
                     handleAddItem();
                   } else if (selectedItem) {
-                    debouncedUpdateItem(selectedItem.id, newItem);
+                    handleSave();
                   }
                 }}
               >
