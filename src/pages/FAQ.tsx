@@ -6,11 +6,11 @@ const FAQPage = () => {
   const faqs = [
     {
       question: "How do I place an order?",
-      answer: "You can place an order through our website by selecting items from our menu and following the checkout process. All orders must be placed at least 24 hours in advance."
+      answer: "You can place an order through our website by selecting items from our menu and following the checkout process. For made-to-order items, orders must be placed before Wednesday at 6pm for Saturday pickup."
     },
     {
       question: "What are your pickup times?",
-      answer: "Regular pickup is available every Saturday from 9:00 AM to 4:00 PM at our main location. We also have pop-up locations at various farmers markets - check our homepage for upcoming dates and times."
+      answer: "In-stock items are available for pickup Monday through Friday from 9am to 5pm. Made-to-order items are available for pickup on Saturday between 9am and 5pm, but must be ordered before Wednesday at 6pm."
     },
     {
       question: "Do you offer delivery?",
@@ -18,7 +18,7 @@ const FAQPage = () => {
     },
     {
       question: "What is your order deadline?",
-      answer: "Orders close Thursdays at 6pm for Saturday pickup. This ensures we have enough time to prepare your fresh baked goods."
+      answer: "Orders close Wednesdays at 6pm for Saturday pickup. This ensures we have enough time to prepare your fresh baked goods."
     },
     {
       question: "Do you accommodate dietary restrictions?",
@@ -30,11 +30,11 @@ const FAQPage = () => {
     },
     {
       question: "What payment methods do you accept?",
-      answer: "We accept cash and credit cards at pickup. Payment is collected when you pick up your order."
+      answer: "We accept cash and Zelle only. Payment is collected when you pick up your order."
     },
     {
       question: "Can I modify or cancel my order?",
-      answer: "Orders can be modified or cancelled up until the order deadline (Thursday at 6pm). Please contact us as soon as possible if you need to make changes."
+      answer: "Orders can be modified or cancelled up until the order deadline (Wednesday at 6pm). Please contact us as soon as possible if you need to make changes."
     },
     {
       question: "Do you offer custom orders?",
