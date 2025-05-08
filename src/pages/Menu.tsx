@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Vegan, EggOff, MilkOff, WheatOff, Star } from 'lucide-react';
@@ -14,43 +14,93 @@ const Menu = () => {
   const { menuItems, dietaryRestrictions } = useMenu();
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
-  console.log('Menu Items:', menuItems);
-  console.log('Dietary Restrictions:', dietaryRestrictions);
-  console.log('Selected Category:', selectedCategory);
+  // Debug logging
+  useEffect(() => {
+    console.log('=== Menu Component Debug Info ===');
+    console.log('Menu Items:', menuItems);
+    console.log('Menu Items Length:', menuItems?.length);
+    console.log('Menu Items Type:', typeof menuItems);
+    console.log('Is Menu Items Array?', Array.isArray(menuItems));
+    console.log('Dietary Restrictions:', dietaryRestrictions);
+    console.log('Selected Category:', selectedCategory);
+    console.log('Search Query:', searchQuery);
+    console.log('==============================');
+  }, [menuItems, dietaryRestrictions, selectedCategory, searchQuery]);
 
   const categories = useMemo(() => {
-    const cats = ['All', ...new Set(menuItems.map(item => item.category))];
-    console.log('Categories:', cats);
-    return cats;
+    try {
+      if (!Array.isArray(menuItems)) {
+        console.error('menuItems is not an array:', menuItems);
+        return ['All'];
+      }
+      const cats = ['All', ...new Set(menuItems.map(item => item.category))];
+      console.log('Categories:', cats);
+      return cats;
+    } catch (err) {
+      console.error('Error generating categories:', err);
+      return ['All'];
+    }
   }, [menuItems]);
 
   const filteredItems = useMemo(() => {
-    console.log('Filtering items...');
-    console.log('Total items before filtering:', menuItems.length);
-    
-    const filtered = menuItems
-      .filter(item => {
-        const isActive = item.active;
-        console.log(`Item ${item.name} active status:`, isActive);
-        return isActive;
-      })
-      .filter(item => {
-        const matchesCategory = selectedCategory === "All" || item.category === selectedCategory;
-        console.log(`Item ${item.name} category match:`, matchesCategory, 'Item category:', item.category, 'Selected:', selectedCategory);
-        return matchesCategory;
-      })
-      .filter(item => {
-        const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          item.description.toLowerCase().includes(searchQuery.toLowerCase());
-        console.log(`Item ${item.name} search match:`, matchesSearch);
-        return matchesSearch;
-      });
-    
-    console.log('Filtered items count:', filtered.length);
-    console.log('Filtered items:', filtered);
-    return filtered;
+    try {
+      if (!Array.isArray(menuItems)) {
+        console.error('menuItems is not an array in filteredItems:', menuItems);
+        return [];
+      }
+
+      console.log('Filtering items...');
+      console.log('Total items before filtering:', menuItems.length);
+      
+      const filtered = menuItems
+        .filter(item => {
+          if (!item) {
+            console.error('Found null/undefined item in menuItems');
+            return false;
+          }
+          const isActive = item.active;
+          console.log(`Item ${item.name} active status:`, isActive);
+          return isActive;
+        })
+        .filter(item => {
+          const matchesCategory = selectedCategory === "All" || item.category === selectedCategory;
+          console.log(`Item ${item.name} category match:`, matchesCategory, 'Item category:', item.category, 'Selected:', selectedCategory);
+          return matchesCategory;
+        })
+        .filter(item => {
+          const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            item.description.toLowerCase().includes(searchQuery.toLowerCase());
+          console.log(`Item ${item.name} search match:`, matchesSearch);
+          return matchesSearch;
+        });
+      
+      console.log('Filtered items count:', filtered.length);
+      console.log('Filtered items:', filtered);
+      return filtered;
+    } catch (err) {
+      console.error('Error filtering items:', err);
+      setError('Error loading menu items. Please try refreshing the page.');
+      return [];
+    }
   }, [menuItems, selectedCategory, searchQuery]);
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center text-red-600">
+          <p>{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="mt-4 px-4 py-2 bg-bakery-brown text-white rounded-md"
+          >
+            Refresh Page
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -82,7 +132,19 @@ const Menu = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredItems.length === 0 ? (
           <div className="col-span-full text-center py-8 text-gray-500">
-            No items found in this category.
+            {menuItems.length === 0 ? (
+              <div>
+                <p>No menu items available.</p>
+                <button 
+                  onClick={() => window.location.reload()} 
+                  className="mt-4 px-4 py-2 bg-bakery-brown text-white rounded-md"
+                >
+                  Refresh Page
+                </button>
+              </div>
+            ) : (
+              'No items found in this category.'
+            )}
           </div>
         ) : (
           filteredItems.map(item => (
