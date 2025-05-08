@@ -37,8 +37,9 @@ function useMenuForm(initialState: Partial<MenuItem>) {
       dairyFree: false,
       halal: false,
       kosher: false,
-      ...initialState.dietaryInfo
-    }
+      ...(initialState.dietaryInfo || {})
+    },
+    allergens: initialState.allergens || {}
   });
   
   const handleChange = useCallback((field: keyof MenuItem, value: any) => {
@@ -46,25 +47,30 @@ function useMenuForm(initialState: Partial<MenuItem>) {
     if (field === 'dietaryInfo') {
       console.log('Current dietary info:', formState.dietaryInfo);
       console.log('New dietary info:', value);
+      setFormState(prev => ({
+        ...prev,
+        dietaryInfo: {
+          ...prev.dietaryInfo,
+          ...value
+        }
+      }));
+    } else if (field === 'allergens') {
+      console.log('Current allergens:', formState.allergens);
+      console.log('New allergens:', value);
+      setFormState(prev => ({
+        ...prev,
+        allergens: {
+          ...prev.allergens,
+          ...value
+        }
+      }));
+    } else {
+      setFormState(prev => ({
+        ...prev,
+        [field]: value
+      }));
     }
-    setFormState(prev => {
-      if (field === 'dietaryInfo') {
-        return {
-          ...prev,
-          dietaryInfo: {
-            vegan: false,
-            glutenFree: false,
-            nutFree: false,
-            dairyFree: false,
-            halal: false,
-            kosher: false,
-            ...value
-          }
-        };
-      }
-      return { ...prev, [field]: value };
-    });
-  }, [formState.dietaryInfo]);
+  }, [formState.dietaryInfo, formState.allergens]);
 
   const resetForm = useCallback(() => {
     setFormState({
@@ -76,8 +82,9 @@ function useMenuForm(initialState: Partial<MenuItem>) {
         dairyFree: false,
         halal: false,
         kosher: false,
-        ...initialState.dietaryInfo
-      }
+        ...(initialState.dietaryInfo || {})
+      },
+      allergens: initialState.allergens || {}
     });
   }, [initialState]);
 
@@ -134,6 +141,7 @@ export function MenuManager() {
   // Reset form when selectedItem changes
   useEffect(() => {
     if (selectedItem) {
+      console.log('Selected item:', selectedItem);
       handleNewItemChange('name', selectedItem.name);
       handleNewItemChange('description', selectedItem.description);
       handleNewItemChange('price', selectedItem.price);
@@ -143,8 +151,24 @@ export function MenuManager() {
       handleNewItemChange('madeToOrder', selectedItem.stock === 0);
       handleNewItemChange('available', selectedItem.stock >= 0);
       handleNewItemChange('active', selectedItem.active);
-      handleNewItemChange('dietaryInfo', selectedItem.dietaryInfo);
-      handleNewItemChange('allergens', selectedItem.allergens);
+      
+      // Ensure dietary info is properly initialized
+      const dietaryInfo = {
+        vegan: Boolean(selectedItem.dietaryInfo?.vegan),
+        glutenFree: Boolean(selectedItem.dietaryInfo?.glutenFree),
+        nutFree: Boolean(selectedItem.dietaryInfo?.nutFree),
+        dairyFree: Boolean(selectedItem.dietaryInfo?.dairyFree),
+        halal: Boolean(selectedItem.dietaryInfo?.halal),
+        kosher: Boolean(selectedItem.dietaryInfo?.kosher)
+      };
+      console.log('Setting dietary info:', dietaryInfo);
+      handleNewItemChange('dietaryInfo', dietaryInfo);
+      
+      // Ensure allergens are properly initialized
+      const allergens = { ...selectedItem.allergens };
+      console.log('Setting allergens:', allergens);
+      handleNewItemChange('allergens', allergens);
+      
       handleNewItemChange('isSpecial', selectedItem.isSpecial);
       handleNewItemChange('bestSeller', selectedItem.bestSeller);
       handleNewItemChange('seasonal', selectedItem.seasonal);
@@ -582,12 +606,14 @@ export function MenuManager() {
                   <div key={allergen} className="flex items-center space-x-2">
                     <Checkbox
                       id={allergen}
-                      checked={newItem.allergens?.[allergen]}
+                      checked={Boolean(newItem.allergens?.[allergen])}
                       onCheckedChange={(checked) => {
+                        console.log('Changing allergen:', allergen, checked);
                         const updatedAllergens = {
                           ...newItem.allergens,
-                          [allergen]: checked as boolean
+                          [allergen]: checked
                         };
+                        console.log('Updated allergens:', updatedAllergens);
                         handleNewItemChange('allergens', updatedAllergens);
                       }}
                     />
@@ -620,18 +646,17 @@ export function MenuManager() {
                   <Plus className="h-4 w-4 mr-1" /> Add Dietary Restriction
                 </Button>
               </div>
-              <div className="space-y-2">
+              <div className="grid grid-cols-2 gap-2">
                 {dietaryRestrictions.map(restriction => (
                   <div key={restriction} className="flex items-center space-x-2">
                     <Checkbox
                       id={restriction}
-                      checked={newItem.dietaryInfo?.[restriction]}
+                      checked={Boolean(newItem.dietaryInfo?.[restriction])}
                       onCheckedChange={(checked) => {
                         console.log('Changing dietary restriction:', restriction, checked);
-                        console.log('Current dietary info:', newItem.dietaryInfo);
                         const updatedDietaryInfo = {
                           ...newItem.dietaryInfo,
-                          [restriction]: checked as boolean
+                          [restriction]: checked
                         };
                         console.log('Updated dietary info:', updatedDietaryInfo);
                         handleNewItemChange('dietaryInfo', updatedDietaryInfo);

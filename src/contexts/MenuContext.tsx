@@ -92,18 +92,19 @@ export function MenuProvider({ children }: { children: ReactNode }) {
         // Deduplicate menu items by keeping only the first occurrence of each ID
         const uniqueItems = parsed.reduce((acc: MenuItem[], item: MenuItem) => {
           if (!acc.find(existing => existing.id === item.id)) {
-            // Normalize dietary info casing
-            const dietaryInfo = (item.dietaryInfo || {}) as DietaryInfo;
+            // Ensure all dietary restrictions are initialized
+            const dietaryInfo = {
+              vegan: Boolean(item.dietaryInfo?.vegan),
+              glutenFree: Boolean(item.dietaryInfo?.glutenFree),
+              nutFree: Boolean(item.dietaryInfo?.nutFree),
+              dairyFree: Boolean(item.dietaryInfo?.dairyFree),
+              halal: Boolean(item.dietaryInfo?.halal),
+              kosher: Boolean(item.dietaryInfo?.kosher)
+            };
+            
             const normalizedItem = {
               ...item,
-              dietaryInfo: {
-                vegan: Boolean(dietaryInfo.vegan),
-                glutenFree: Boolean(dietaryInfo.glutenFree),
-                nutFree: Boolean(dietaryInfo.nutFree),
-                dairyFree: Boolean(dietaryInfo.dairyFree),
-                halal: Boolean(dietaryInfo.halal),
-                kosher: Boolean(dietaryInfo.kosher)
-              }
+              dietaryInfo
             };
             acc.push(normalizedItem);
           }
@@ -210,9 +211,22 @@ export function MenuProvider({ children }: { children: ReactNode }) {
 
   const addMenuItem = useCallback((item: MenuItem) => {
     setMenuItems(items => {
-      const updated = [...items, { ...item, active: true }];
-      batchedStorage.set(STORAGE_KEY, updated);
-      return updated;
+      // Ensure all dietary restrictions are initialized for the new item
+      const dietaryInfo = {
+        vegan: Boolean(item.dietaryInfo?.vegan),
+        glutenFree: Boolean(item.dietaryInfo?.glutenFree),
+        nutFree: Boolean(item.dietaryInfo?.nutFree),
+        dairyFree: Boolean(item.dietaryInfo?.dairyFree),
+        halal: Boolean(item.dietaryInfo?.halal),
+        kosher: Boolean(item.dietaryInfo?.kosher)
+      };
+      
+      const newItem = {
+        ...item,
+        dietaryInfo
+      };
+      
+      return [...items, newItem];
     });
   }, []);
 
