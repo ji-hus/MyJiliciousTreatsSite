@@ -51,7 +51,13 @@ function useMenuForm(initialState: Partial<MenuItem>) {
         ...prev,
         dietaryInfo: {
           ...prev.dietaryInfo,
-          ...value
+          ...value,
+          vegan: Boolean(value.vegan),
+          glutenFree: Boolean(value.glutenFree),
+          nutFree: Boolean(value.nutFree),
+          dairyFree: Boolean(value.dairyFree),
+          halal: Boolean(value.halal),
+          kosher: Boolean(value.kosher)
         }
       }));
     } else if (field === 'allergens') {
@@ -147,19 +153,19 @@ export function MenuManager() {
       handleNewItemChange('price', selectedItem.price);
       handleNewItemChange('category', selectedItem.category);
       handleNewItemChange('stock', selectedItem.stock);
-      // Auto-set madeToOrder and available based on stock
       handleNewItemChange('madeToOrder', selectedItem.stock === 0);
       handleNewItemChange('available', selectedItem.stock >= 0);
       handleNewItemChange('active', selectedItem.active);
       
-      // Ensure dietary info is properly initialized
+      // Ensure dietary info is properly initialized with all restrictions
       const dietaryInfo = {
-        vegan: Boolean(selectedItem.dietaryInfo?.vegan),
-        glutenFree: Boolean(selectedItem.dietaryInfo?.glutenFree),
-        nutFree: Boolean(selectedItem.dietaryInfo?.nutFree),
-        dairyFree: Boolean(selectedItem.dietaryInfo?.dairyFree),
-        halal: Boolean(selectedItem.dietaryInfo?.halal),
-        kosher: Boolean(selectedItem.dietaryInfo?.kosher)
+        vegan: false,
+        glutenFree: false,
+        nutFree: false,
+        dairyFree: false,
+        halal: false,
+        kosher: false,
+        ...selectedItem.dietaryInfo
       };
       console.log('Setting dietary info:', dietaryInfo);
       handleNewItemChange('dietaryInfo', dietaryInfo);
@@ -656,7 +662,7 @@ export function MenuManager() {
                         console.log('Changing dietary restriction:', restriction, checked);
                         const updatedDietaryInfo = {
                           ...newItem.dietaryInfo,
-                          [restriction]: checked
+                          [restriction]: Boolean(checked)
                         };
                         console.log('Updated dietary info:', updatedDietaryInfo);
                         handleNewItemChange('dietaryInfo', updatedDietaryInfo);
