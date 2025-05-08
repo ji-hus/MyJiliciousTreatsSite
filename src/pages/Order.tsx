@@ -219,7 +219,7 @@ const OrderPage = () => {
       // For in-stock items only
       const isWeekday = date.getDay() >= 1 && date.getDay() <= 5; // Monday through Friday
       const minPickupDate = new Date(today);
-      minPickupDate.setDate(today.getDate() + 1); // At least 24 hours after order
+      minPickupDate.setDate(today.getDate() + 1); // Next day pickup
       
       return isWeekday && date >= minPickupDate;
     }
@@ -719,17 +719,10 @@ const OrderPage = () => {
               <CardHeader>
                 <CardTitle className="font-serif">Customer Information</CardTitle>
                 <CardDescription>
-                  {hasMadeToOrderItems ? (
-                    <div className="text-amber-600 font-sans text-lg">
-                      <p>Made-to-order items can only be picked up on Saturdays between 9 AM and 5 PM.</p>
-                      <p>Please allow at least 24 hours between order and pickup.</p>
-                    </div>
-                  ) : (
-                    <div className="font-sans text-lg">
-                      <p>In-stock items can be picked up Monday-Friday, 9 AM - 5 PM.</p>
-                      <p>Please allow at least 24 hours between order and pickup.</p>
-                    </div>
-                  )}
+                  <div className="font-sans text-lg">
+                    <p>In-stock items can be picked up Monday-Friday, 9 AM - 5 PM.</p>
+                    <p>Made to Order items can be ordered before Wednesday 6pm and can be picked up on Saturdays between 9am-5pm.</p>
+                  </div>
                 </CardDescription>
               </CardHeader>
               <CardContent>

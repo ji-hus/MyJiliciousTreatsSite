@@ -34,6 +34,7 @@ const AdminPage = () => {
   } = useMenu();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [newStock, setNewStock] = useState<number>(0);
+  const [newPrice, setNewPrice] = useState<number>(0);
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [newDietaryRestriction, setNewDietaryRestriction] = useState('');
@@ -85,16 +86,18 @@ const AdminPage = () => {
       .trim();
   };
 
-  const handleEdit = (id: string, currentStock: number) => {
-    console.log('Editing stock for item:', id, currentStock);
+  const handleEdit = (id: string, currentStock: number, currentPrice: number) => {
+    console.log('Editing item:', id, currentStock, currentPrice);
     setEditingId(id);
     setNewStock(currentStock);
+    setNewPrice(currentPrice);
   };
 
   const handleSave = (id: string) => {
-    console.log('Saving stock update for item:', id, newStock);
+    console.log('Saving updates for item:', id, newStock, newPrice);
     updateMenuItem(id, { 
       stock: newStock,
+      price: newPrice,
       madeToOrder: newStock === 0 
     });
     setEditingId(null);
@@ -706,6 +709,7 @@ const AdminPage = () => {
                 <div>
                   <CardTitle className="font-serif">{item.name}</CardTitle>
                   <CardDescription>{item.category}</CardDescription>
+                  <p className="text-sm text-gray-600 mt-2">{item.description}</p>
                 </div>
                 <div className="flex gap-2">
                   <Button
@@ -755,13 +759,31 @@ const AdminPage = () => {
                   <p className="text-base text-gray-600 font-sans">${item.price.toFixed(2)}</p>
                   {editingId === item.id ? (
                     <div className="flex items-center gap-2">
-                      <Input
-                        type="number"
-                        min="0"
-                        value={newStock}
-                        onChange={(e) => setNewStock(parseInt(e.target.value) || 0)}
-                        className="w-24"
-                      />
+                      <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-2">
+                          <Label htmlFor="stock" className="text-sm">Stock:</Label>
+                          <Input
+                            id="stock"
+                            type="number"
+                            min="0"
+                            value={newStock}
+                            onChange={(e) => setNewStock(parseInt(e.target.value) || 0)}
+                            className="w-24"
+                          />
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Label htmlFor="price" className="text-sm">Price: $</Label>
+                          <Input
+                            id="price"
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value={newPrice}
+                            onChange={(e) => setNewPrice(parseFloat(e.target.value) || 0)}
+                            className="w-24"
+                          />
+                        </div>
+                      </div>
                       <div className="flex gap-2">
                         <Button 
                           size="sm"
@@ -794,7 +816,7 @@ const AdminPage = () => {
                       <Button 
                         size="sm"
                         variant="outline"
-                        onClick={() => handleEdit(item.id, item.stock)}
+                        onClick={() => handleEdit(item.id, item.stock, item.price)}
                         className="border-bakery-brown text-bakery-brown hover:bg-bakery-brown hover:text-white"
                       >
                         Edit
