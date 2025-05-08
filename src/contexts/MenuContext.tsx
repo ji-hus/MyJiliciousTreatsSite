@@ -16,6 +16,7 @@ interface MenuContextType {
   addAllergen: (allergen: string) => void;
   removeAllergen: (allergen: string) => void;
   getMenuItem: (id: string) => MenuItem | undefined;
+  clearMenuItems: () => void;
 }
 
 const MenuContext = createContext<MenuContextType | null>(null);
@@ -86,11 +87,6 @@ export function MenuProvider({ children }: { children: ReactNode }) {
       const stored = localStorage.getItem(STORAGE_KEY);
       console.log('=== Menu Items Loading Debug ===');
       console.log('Raw stored data:', stored);
-      
-      // Check if we're on a mobile device
-      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-      console.log('Is Mobile Device:', isMobile);
-      console.log('User Agent:', navigator.userAgent);
       
       if (stored) {
         try {
@@ -365,6 +361,12 @@ export function MenuProvider({ children }: { children: ReactNode }) {
     return menuItems.find(item => item.id === id);
   };
 
+  const clearMenuItems = useCallback(() => {
+    console.log('Clearing menu items from localStorage');
+    localStorage.removeItem(STORAGE_KEY);
+    setMenuItems(initialMenuItems);
+  }, []);
+
   // Memoize context value
   const contextValue = useMemo(() => ({
     menuItems,
@@ -380,7 +382,8 @@ export function MenuProvider({ children }: { children: ReactNode }) {
     removeCategory,
     addAllergen,
     removeAllergen,
-    getMenuItem
+    getMenuItem,
+    clearMenuItems
   }), [
     menuItems,
     dietaryRestrictions,
@@ -395,7 +398,8 @@ export function MenuProvider({ children }: { children: ReactNode }) {
     removeCategory,
     addAllergen,
     removeAllergen,
-    getMenuItem
+    getMenuItem,
+    clearMenuItems
   ]);
 
   // Cleanup storage on unmount
