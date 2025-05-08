@@ -25,10 +25,10 @@ const Index = () => {
                   <MapPin className="h-6 w-6 text-bakery-gold flex-shrink-0 mt-1" />
                   <div>
                     <h3 className="font-serif font-semibold text-xl text-bakery-brown mb-2">Regular Pickup Location</h3>
-                    <p className="text-gray-600 mb-4">3118 Hickory Lawn Rd., Rochester Hills, MI 48307</p>
+                    <p className="text-gray-600 mb-4">Contact for Pickup Location</p>
                     <div className="flex items-center text-gray-600 mb-4">
                       <Clock className="h-4 w-4 mr-2" />
-                      <span>Call to Confirm Pickup</span>
+                      <span>Call/Text to Confirm Pickup</span>
                     </div>
                   </div>
                 </div>

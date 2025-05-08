@@ -167,8 +167,7 @@ const ContactPage = () => {
                 <Home className="h-5 w-5 mr-4 text-bakery-gold mt-0.5" />
                 <div>
                   <h3 className="font-medium mb-1">Address</h3>
-                  <p className="text-gray-600">3118 Hickory Lawn Rd.</p>
-                  <p className="text-gray-600">Rochester Hills, MI 48307</p>
+                  <p className="text-gray-600">Contact for Pickup Location</p>
                 </div>
               </div>
               
