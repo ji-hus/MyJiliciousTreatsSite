@@ -216,6 +216,7 @@ export function MenuManager() {
 
   const handleAddItem = useCallback(() => {
     try {
+      console.log('Adding new menu item:', newItem);
       const itemToAdd: MenuItem = {
         id: crypto.randomUUID(),
         name: newItem.name || '',
@@ -240,7 +241,9 @@ export function MenuManager() {
         seasonal: newItem.seasonal || false,
         image: newItem.image || ''
       };
+      console.log('Created menu item:', itemToAdd);
       addMenuItem(itemToAdd);
+      console.log('Menu item added successfully');
       setIsAddingNew(false);
       resetForm();
     } catch (error) {
@@ -256,6 +259,7 @@ export function MenuManager() {
         console.log('Full updates:', updates);
         console.log('Dietary info in updates:', updates.dietaryInfo);
         updateMenuItem(id, updates);
+        console.log('Menu item updated successfully');
         setSelectedItemId(null);
       } catch (error) {
         console.error('Error updating menu item:', error);

@@ -82,45 +82,51 @@ const batchedStorage = {
 
 export function MenuProvider({ children }: { children: ReactNode }) {
   const [menuItems, setMenuItems] = useState<MenuItem[]>(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    console.log('=== Menu Items Loading Debug ===');
-    console.log('Raw stored data:', stored);
-    
-    // Check if we're on a mobile device
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    console.log('Is Mobile Device:', isMobile);
-    console.log('User Agent:', navigator.userAgent);
-    
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        console.log('Successfully parsed menu items:', parsed);
-        console.log('Number of items:', parsed.length);
-        
-        // Ensure all menu items have proper dietary info
-        const normalizedItems = parsed.map((item: MenuItem) => ({
-          ...item,
-          dietaryInfo: {
-            vegan: Boolean(item.dietaryInfo?.vegan),
-            glutenFree: Boolean(item.dietaryInfo?.glutenFree),
-            nutFree: Boolean(item.dietaryInfo?.nutFree),
-            dairyFree: Boolean(item.dietaryInfo?.dairyFree),
-            halal: Boolean(item.dietaryInfo?.halal),
-            kosher: Boolean(item.dietaryInfo?.kosher),
-            ...item.dietaryInfo
-          }
-        }));
-        
-        console.log('Normalized menu items:', normalizedItems);
-        console.log('Number of normalized items:', normalizedItems.length);
-        return normalizedItems;
-      } catch (e) {
-        console.error('Failed to parse stored menu items:', e);
-        console.error('Error details:', e.message);
-        console.error('Error stack:', e.stack);
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      console.log('=== Menu Items Loading Debug ===');
+      console.log('Raw stored data:', stored);
+      
+      // Check if we're on a mobile device
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      console.log('Is Mobile Device:', isMobile);
+      console.log('User Agent:', navigator.userAgent);
+      
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          console.log('Successfully parsed menu items:', parsed);
+          console.log('Number of items:', parsed.length);
+          
+          // Ensure all menu items have proper dietary info
+          const normalizedItems = parsed.map((item: MenuItem) => ({
+            ...item,
+            dietaryInfo: {
+              vegan: Boolean(item.dietaryInfo?.vegan),
+              glutenFree: Boolean(item.dietaryInfo?.glutenFree),
+              nutFree: Boolean(item.dietaryInfo?.nutFree),
+              dairyFree: Boolean(item.dietaryInfo?.dairyFree),
+              halal: Boolean(item.dietaryInfo?.halal),
+              kosher: Boolean(item.dietaryInfo?.kosher),
+              ...item.dietaryInfo
+            }
+          }));
+          
+          console.log('Normalized menu items:', normalizedItems);
+          console.log('Number of normalized items:', normalizedItems.length);
+          return normalizedItems;
+        } catch (e) {
+          console.error('Failed to parse stored menu items:', e);
+          console.error('Error details:', e.message);
+          console.error('Error stack:', e.stack);
+          // If parsing fails, clear the corrupted data
+          localStorage.removeItem(STORAGE_KEY);
+        }
+      } else {
+        console.log('No stored menu items found in localStorage');
       }
-    } else {
-      console.log('No stored menu items found in localStorage');
+    } catch (e) {
+      console.error('Error accessing localStorage:', e);
     }
     
     // If no stored items or parsing failed, use initial items
@@ -129,6 +135,19 @@ export function MenuProvider({ children }: { children: ReactNode }) {
     console.log('Number of initial items:', initialMenuItems.length);
     return initialMenuItems;
   });
+
+  // Save to localStorage whenever menuItems changes
+  useEffect(() => {
+    try {
+      console.log('Saving menu items to storage:', menuItems);
+      const serialized = JSON.stringify(menuItems);
+      console.log('Serialized data:', serialized);
+      localStorage.setItem(STORAGE_KEY, serialized);
+      console.log('Successfully saved to localStorage');
+    } catch (e) {
+      console.error('Error saving menu items to localStorage:', e);
+    }
+  }, [menuItems]);
 
   // Add effect to initialize menu items if empty
   useEffect(() => {
@@ -176,12 +195,6 @@ export function MenuProvider({ children }: { children: ReactNode }) {
     }
     return initialAllergens;
   });
-
-  // Save to localStorage whenever menuItems changes
-  useEffect(() => {
-    console.log('Saving menu items to storage:', menuItems);
-    batchedStorage.set(STORAGE_KEY, menuItems);
-  }, [menuItems]);
 
   // Save to localStorage whenever dietaryRestrictions changes
   useEffect(() => {

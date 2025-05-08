@@ -199,9 +199,7 @@ const Menu = () => {
                         return (
                           <Tooltip key={restriction}>
                             <TooltipTrigger>
-                              <Badge variant="secondary" className="flex items-center gap-1 p-2">
-                                {icon}
-                              </Badge>
+                              {icon}
                             </TooltipTrigger>
                             <TooltipContent>
                               <p className="capitalize">{restriction.replace(/([A-Z])/g, ' $1').trim()}</p>
