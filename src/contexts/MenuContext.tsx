@@ -89,30 +89,22 @@ export function MenuProvider({ children }: { children: ReactNode }) {
         const parsed = JSON.parse(stored);
         console.log('Parsed menu items:', parsed);
         
-        // Deduplicate menu items by keeping only the first occurrence of each ID
-        const uniqueItems = parsed.reduce((acc: MenuItem[], item: MenuItem) => {
-          if (!acc.find(existing => existing.id === item.id)) {
-            // Ensure all dietary restrictions are initialized
-            const dietaryInfo = {
-              vegan: Boolean(item.dietaryInfo?.vegan),
-              glutenFree: Boolean(item.dietaryInfo?.glutenFree),
-              nutFree: Boolean(item.dietaryInfo?.nutFree),
-              dairyFree: Boolean(item.dietaryInfo?.dairyFree),
-              halal: Boolean(item.dietaryInfo?.halal),
-              kosher: Boolean(item.dietaryInfo?.kosher)
-            };
-            
-            const normalizedItem = {
-              ...item,
-              dietaryInfo
-            };
-            acc.push(normalizedItem);
+        // Ensure all menu items have proper dietary info
+        const normalizedItems = parsed.map((item: MenuItem) => ({
+          ...item,
+          dietaryInfo: {
+            vegan: Boolean(item.dietaryInfo?.vegan),
+            glutenFree: Boolean(item.dietaryInfo?.glutenFree),
+            nutFree: Boolean(item.dietaryInfo?.nutFree),
+            dairyFree: Boolean(item.dietaryInfo?.dairyFree),
+            halal: Boolean(item.dietaryInfo?.halal),
+            kosher: Boolean(item.dietaryInfo?.kosher),
+            ...item.dietaryInfo
           }
-          return acc;
-        }, []);
+        }));
         
-        console.log('Deduplicated menu items:', uniqueItems);
-        return uniqueItems;
+        console.log('Normalized menu items:', normalizedItems);
+        return normalizedItems;
       } catch (e) {
         console.error('Failed to parse stored menu items:', e);
       }
@@ -125,7 +117,10 @@ export function MenuProvider({ children }: { children: ReactNode }) {
     const stored = localStorage.getItem(DIETARY_STORAGE_KEY);
     if (stored) {
       try {
-        return JSON.parse(stored);
+        const parsed = JSON.parse(stored);
+        // Ensure all initial restrictions are included
+        const allRestrictions = new Set([...initialDietaryRestrictions, ...parsed]);
+        return Array.from(allRestrictions);
       } catch (e) {
         console.error('Failed to parse stored dietary restrictions:', e);
       }
@@ -197,14 +192,24 @@ export function MenuProvider({ children }: { children: ReactNode }) {
       const updated = items.map(item => {
         if (item.id === id) {
           console.log('MenuContext: Current item', item);
-          const newItem = { ...item, ...updates };
-          console.log('MenuContext: Updated item', newItem);
+          const newItem = {
+            ...item,
+            ...updates,
+            dietaryInfo: {
+              vegan: Boolean(updates.dietaryInfo?.vegan ?? item.dietaryInfo?.vegan),
+              glutenFree: Boolean(updates.dietaryInfo?.glutenFree ?? item.dietaryInfo?.glutenFree),
+              nutFree: Boolean(updates.dietaryInfo?.nutFree ?? item.dietaryInfo?.nutFree),
+              dairyFree: Boolean(updates.dietaryInfo?.dairyFree ?? item.dietaryInfo?.dairyFree),
+              halal: Boolean(updates.dietaryInfo?.halal ?? item.dietaryInfo?.halal),
+              kosher: Boolean(updates.dietaryInfo?.kosher ?? item.dietaryInfo?.kosher),
+              ...(updates.dietaryInfo || {})
+            }
+          };
+          console.log('MenuContext: New item', newItem);
           return newItem;
         }
         return item;
       });
-      console.log('MenuContext: Saving to storage', updated);
-      batchedStorage.set(STORAGE_KEY, updated);
       return updated;
     });
   }, []);
