@@ -17,6 +17,7 @@ const Menu = () => {
 
   console.log('Menu Items:', menuItems);
   console.log('Dietary Restrictions:', dietaryRestrictions);
+  console.log('Selected Category:', selectedCategory);
 
   const categories = useMemo(() => {
     const cats = ['All', ...new Set(menuItems.map(item => item.category))];
@@ -25,14 +26,29 @@ const Menu = () => {
   }, [menuItems]);
 
   const filteredItems = useMemo(() => {
+    console.log('Filtering items...');
+    console.log('Total items before filtering:', menuItems.length);
+    
     const filtered = menuItems
-      .filter(item => item.active) // Only show active items
-      .filter(item => selectedCategory === "All" || item.category === selectedCategory)
-      .filter(item => 
-        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.description.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    console.log('Filtered Items:', filtered);
+      .filter(item => {
+        const isActive = item.active;
+        console.log(`Item ${item.name} active status:`, isActive);
+        return isActive;
+      })
+      .filter(item => {
+        const matchesCategory = selectedCategory === "All" || item.category === selectedCategory;
+        console.log(`Item ${item.name} category match:`, matchesCategory, 'Item category:', item.category, 'Selected:', selectedCategory);
+        return matchesCategory;
+      })
+      .filter(item => {
+        const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.description.toLowerCase().includes(searchQuery.toLowerCase());
+        console.log(`Item ${item.name} search match:`, matchesSearch);
+        return matchesSearch;
+      });
+    
+    console.log('Filtered items count:', filtered.length);
+    console.log('Filtered items:', filtered);
     return filtered;
   }, [menuItems, selectedCategory, searchQuery]);
 
@@ -46,7 +62,10 @@ const Menu = () => {
           {categories.map(category => (
             <button
               key={category}
-              onClick={() => setSelectedCategory(category)}
+              onClick={() => {
+                console.log('Category clicked:', category);
+                setSelectedCategory(category);
+              }}
               className={`px-4 py-2 rounded-md whitespace-nowrap ${
                 selectedCategory === category
                   ? 'bg-bakery-brown text-white'
