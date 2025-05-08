@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { menuItems, categories } from '@/data/menu-items';
+import { menuItems } from '@/data/menu-items';
 import { 
   Card, 
   CardContent, 
@@ -42,6 +42,7 @@ import { Badge } from '@/components/ui/badge';
 import emailjs from '@emailjs/browser';
 import { orderEmailTemplate } from '@/email-templates';
 import { useMenu } from '@/contexts/MenuContext';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 // Initialize EmailJS
 emailjs.init("jRgg2OkLA0U1pS4WQ");
@@ -105,8 +106,7 @@ const dietaryOptions = [
   { id: "vegan", label: "Vegan", icon: <Vegan className="mr-1.5" /> },
   { id: "glutenFree", label: "Gluten Free", icon: <WheatOff className="mr-1.5" /> },
   { id: "dairyFree", label: "Dairy Free", icon: <MilkOff className="mr-1.5" /> },
-  { id: "nutFree", label: "Nut Free", icon: <EggOff className="mr-1.5" /> },
-  { id: "halal", label: "Halal", icon: <img src="/images/halalwhite.jpg" alt="Halal" className="w-4 h-4 mr-1.5" /> }
+  { id: "nutFree", label: "Nut Free", icon: <EggOff className="mr-1.5" /> }
 ];
 
 const OrderPage = () => {
@@ -115,7 +115,7 @@ const OrderPage = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedDietary, setSelectedDietary] = useState<string[]>([]);
   const { toast } = useToast();
-  const { menuItems } = useMenu();
+  const { menuItems, categories } = useMenu();
 
   // Split cart items into in-stock and made-to-order
   const inStockItems = cart.filter(item => {
@@ -572,23 +572,48 @@ const OrderPage = () => {
                                   <div className="flex items-center">
                                     <p className="font-medium font-sans text-lg">{item.name}</p>
                                     <div className="flex ml-2 gap-1">
-                                      {item.dietaryInfo.vegan && (
-                                        <span title="Vegan - Contains no animal products"><Vegan size={16} className="text-green-600" /></span>
-                                      )}
-                                      {item.dietaryInfo.glutenFree && (
-                                        <span title="Gluten Free - No wheat, rye, or barley"><WheatOff size={16} className="text-yellow-600" /></span>
-                                      )}
-                                      {item.dietaryInfo.nutFree && (
-                                        <span title="Nut Free - No nuts or nut products"><EggOff size={16} className="text-yellow-600" /></span>
-                                      )}
-                                      {item.dietaryInfo.dairyFree && (
-                                        <span title="Dairy Free - No milk or dairy products"><MilkOff size={16} className="text-blue-600" /></span>
-                                      )}
-                                      {item.dietaryInfo.halal && (
-                                        <span title="Halal - Prepared according to Islamic dietary laws">
-                                          <img src="/images/halalwhite.jpg" alt="Halal" className="w-4 h-4" />
-                                        </span>
-                                      )}
+                                      <TooltipProvider>
+                                        {item.dietaryInfo.vegan && (
+                                          <Tooltip>
+                                            <TooltipTrigger>
+                                              <Vegan size={16} className="text-green-600" />
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                              <p>Vegan - Contains no animal products</p>
+                                            </TooltipContent>
+                                          </Tooltip>
+                                        )}
+                                        {item.dietaryInfo.glutenFree && (
+                                          <Tooltip>
+                                            <TooltipTrigger>
+                                              <WheatOff size={16} className="text-yellow-600" />
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                              <p>Gluten Free - No wheat, rye, or barley</p>
+                                            </TooltipContent>
+                                          </Tooltip>
+                                        )}
+                                        {item.dietaryInfo.nutFree && (
+                                          <Tooltip>
+                                            <TooltipTrigger>
+                                              <EggOff size={16} className="text-yellow-600" />
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                              <p>Nut Free - No nuts or nut products</p>
+                                            </TooltipContent>
+                                          </Tooltip>
+                                        )}
+                                        {item.dietaryInfo.dairyFree && (
+                                          <Tooltip>
+                                            <TooltipTrigger>
+                                              <MilkOff size={16} className="text-blue-600" />
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                              <p>Dairy Free - No milk or dairy products</p>
+                                            </TooltipContent>
+                                          </Tooltip>
+                                        )}
+                                      </TooltipProvider>
                                     </div>
                                   </div>
                                   <div className="flex items-center gap-2">

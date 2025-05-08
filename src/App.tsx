@@ -22,16 +22,16 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <MenuProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Layout><HomePage /></Layout>} />
-              <Route path="/menu" element={<Layout><MenuPage /></Layout>} />
-              <Route path="/order" element={<Layout><OrderPage /></Layout>} />
-              <Route path="/faq" element={<Layout><FAQPage /></Layout>} />
-              <Route path="/contact" element={<Layout><ContactPage /></Layout>} />
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Layout><HomePage /></Layout>} />
+          <Route path="/menu" element={<Layout><MenuPage /></Layout>} />
+          <Route path="/order" element={<Layout><OrderPage /></Layout>} />
+          <Route path="/faq" element={<Layout><FAQPage /></Layout>} />
+          <Route path="/contact" element={<Layout><ContactPage /></Layout>} />
               <Route path="/login" element={<Layout><LoginPage /></Layout>} />
               <Route 
                 path="/admin" 
@@ -43,10 +43,10 @@ const App = () => (
                   </Layout>
                 } 
               />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
+    </TooltipProvider>
       </MenuProvider>
     </AuthProvider>
   </QueryClientProvider>

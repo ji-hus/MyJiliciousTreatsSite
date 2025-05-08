@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { categories, MenuItem, initialAllergens } from '@/data/menu-items';
 import { useAuth } from '@/contexts/AuthContext';
@@ -18,6 +18,49 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+interface FormState extends Omit<MenuItem, 'dietaryInfo'> {
+  dietaryInfo: {
+    vegan: boolean;
+    glutenFree: boolean;
+    nutFree: boolean;
+    dairyFree: boolean;
+  };
+}
+
+function useMenuForm(initialState: Partial<FormState>) {
+  const [formState, setFormState] = useState<Partial<FormState>>(initialState);
+  
+  const handleChange = useCallback((field: keyof FormState, value: any) => {
+    if (field === 'dietaryInfo') {
+      const dietaryInfo = {
+        vegan: false,
+        glutenFree: false,
+        nutFree: false,
+        dairyFree: false,
+        ...(value as FormState['dietaryInfo'])
+      };
+      setFormState(prev => ({
+        ...prev,
+        dietaryInfo
+      }));
+    } else {
+      setFormState(prev => ({ ...prev, [field]: value }));
+    }
+  }, []);
+
+  const resetForm = useCallback(() => {
+    setFormState(initialState);
+  }, [initialState]);
+
+  return { formState, handleChange, resetForm };
+}
 
 const AdminPage = () => {
   const { 
@@ -40,16 +83,29 @@ const AdminPage = () => {
   const [newDietaryRestriction, setNewDietaryRestriction] = useState('');
   const [newAllergen, setNewAllergen] = useState('');
   const [allergens, setAllergens] = useState<string[]>(initialAllergens);
-  const [newItem, setNewItem] = useState<Partial<MenuItem>>({
+
+  const initialFormState = useMemo<Partial<FormState>>(() => ({
     name: '',
     description: '',
     price: 0,
     stock: 0,
     category: 'Breads',
-    dietaryInfo: {},
+    dietaryInfo: {
+      vegan: false,
+      glutenFree: false,
+      nutFree: false,
+      dairyFree: false
+    },
     allergens: {},
-    isSpecial: false
-  });
+    isSpecial: false,
+    available: true,
+    image: '/images/placeholder.jpg',
+    bestSeller: false,
+    seasonal: false
+  }), []);
+
+  const { formState: newItem, handleChange: handleNewItemChange, resetForm } = useMenuForm(initialFormState);
+
   const { logout } = useAuth();
   const navigate = useNavigate();
   const [newCategory, setNewCategory] = useState('');
@@ -114,38 +170,31 @@ const AdminPage = () => {
   };
 
   const handleAddNew = () => {
-    if (!newItem.name || !newItem.category || !newItem.price || !newItem.description) return;
-
     const newMenuItem: MenuItem = {
-      id: Date.now().toString(),
-      name: newItem.name,
-      category: newItem.category,
-      description: newItem.description,
-      price: Number(newItem.price),
-      stock: Number(newItem.stock),
-      madeToOrder: newItem.stock === 0,
+      id: crypto.randomUUID(),
+      name: newItem.name || '',
+      category: newItem.category || 'Breads',
+      description: newItem.description || '',
+      price: Number(newItem.price) || 0,
+      stock: Number(newItem.stock) || 0,
+      madeToOrder: newItem.madeToOrder || false,
       isSpecial: newItem.isSpecial || false,
-      dietaryInfo: newItem.dietaryInfo || {},
+      dietaryInfo: {
+        vegan: newItem.dietaryInfo.vegan,
+        glutenFree: newItem.dietaryInfo.glutenFree,
+        nutFree: newItem.dietaryInfo.nutFree,
+        dairyFree: newItem.dietaryInfo.dairyFree
+      },
       allergens: newItem.allergens || {},
-      available: true,
-      image: '/images/placeholder.jpg'
+      available: newItem.available || true,
+      image: newItem.image || '/images/placeholder.jpg',
+      bestSeller: false,
+      seasonal: false
     };
 
     addMenuItem(newMenuItem);
     setIsAddingNew(false);
-    setNewItem({
-      name: '',
-      category: '',
-      description: '',
-      price: 0,
-      stock: 0,
-      madeToOrder: false,
-      isSpecial: false,
-      dietaryInfo: {},
-      allergens: {},
-      available: true,
-      image: '/images/placeholder.jpg'
-    });
+    resetForm();
   };
 
   const handleDelete = (id: string) => {
@@ -156,22 +205,24 @@ const AdminPage = () => {
   const handleEditItem = (item: MenuItem) => {
     console.log('Editing item:', item);
     setEditingItem(item);
-    setNewItem({
-      name: item.name,
-      category: item.category,
-      description: item.description,
-      price: item.price,
-      stock: item.stock,
-      madeToOrder: item.madeToOrder,
-      isSpecial: item.isSpecial,
-      dietaryInfo: {
-        vegan: item.dietaryInfo.vegan,
-        glutenFree: item.dietaryInfo.glutenFree,
-        nutFree: item.dietaryInfo.nutFree,
-        dairyFree: item.dietaryInfo.dairyFree
-      },
-      allergens: { ...item.allergens }
+    handleNewItemChange('name', item.name);
+    handleNewItemChange('category', item.category);
+    handleNewItemChange('description', item.description);
+    handleNewItemChange('price', item.price);
+    handleNewItemChange('stock', item.stock);
+    handleNewItemChange('madeToOrder', item.madeToOrder);
+    handleNewItemChange('isSpecial', item.isSpecial);
+    handleNewItemChange('dietaryInfo', {
+      vegan: item.dietaryInfo.vegan,
+      glutenFree: item.dietaryInfo.glutenFree,
+      nutFree: item.dietaryInfo.nutFree,
+      dairyFree: item.dietaryInfo.dairyFree
     });
+    handleNewItemChange('allergens', { ...item.allergens });
+    handleNewItemChange('available', item.available);
+    handleNewItemChange('image', item.image);
+    handleNewItemChange('bestSeller', item.bestSeller);
+    handleNewItemChange('seasonal', item.seasonal);
   };
 
   const handleSaveEdit = (item: MenuItem) => {
@@ -181,7 +232,15 @@ const AdminPage = () => {
       ...item,
       price: Number(item.price),
       stock: Number(item.stock),
-      madeToOrder: item.stock === 0
+      madeToOrder: item.stock === 0,
+      dietaryInfo: {
+        vegan: item.dietaryInfo.vegan,
+        glutenFree: item.dietaryInfo.glutenFree,
+        nutFree: item.dietaryInfo.nutFree,
+        dairyFree: item.dietaryInfo.dairyFree
+      },
+      bestSeller: item.bestSeller || false,
+      seasonal: item.seasonal || false
     };
 
     updateMenuItem(item.id, updatedItem);
@@ -233,7 +292,7 @@ const AdminPage = () => {
                 if (isEditing && editingItem) {
                   setEditingItem({ ...editingItem, name: e.target.value });
                 } else {
-                  setNewItem({ ...newItem, name: e.target.value });
+                  handleNewItemChange('name', e.target.value);
                 }
               }}
               placeholder="Item name"
@@ -247,7 +306,7 @@ const AdminPage = () => {
                 if (isEditing && editingItem) {
                   setEditingItem({ ...editingItem, category: value });
                 } else {
-                  setNewItem({ ...newItem, category: value });
+                  handleNewItemChange('category', value);
                 }
               }}
             >
@@ -274,7 +333,7 @@ const AdminPage = () => {
               if (isEditing && editingItem) {
                 setEditingItem({ ...editingItem, description: e.target.value });
               } else {
-                setNewItem({ ...newItem, description: e.target.value });
+                handleNewItemChange('description', e.target.value);
               }
             }}
             placeholder="Item description"
@@ -294,7 +353,7 @@ const AdminPage = () => {
                 if (isEditing && editingItem) {
                   setEditingItem({ ...editingItem, price: value });
                 } else {
-                  setNewItem({ ...newItem, price: value });
+                  handleNewItemChange('price', value);
                 }
               }}
               placeholder="0.00"
@@ -315,11 +374,7 @@ const AdminPage = () => {
                     madeToOrder: value === 0
                   });
                 } else {
-                  setNewItem({ 
-                    ...newItem, 
-                    stock: value,
-                    madeToOrder: value === 0
-                  });
+                  handleNewItemChange('stock', value);
                 }
               }}
               placeholder="0"
@@ -341,10 +396,7 @@ const AdminPage = () => {
                       madeToOrder: checked === true
                     });
                   } else {
-                    setNewItem({
-                      ...newItem,
-                      madeToOrder: checked === true
-                    });
+                    handleNewItemChange('madeToOrder', checked === true);
                   }
                 }}
               />
@@ -361,10 +413,7 @@ const AdminPage = () => {
                       isSpecial: checked === true
                     });
                   } else {
-                    setNewItem({
-                      ...newItem,
-                      isSpecial: checked === true
-                    });
+                    handleNewItemChange('isSpecial', checked === true);
                   }
                 }}
               />
@@ -389,10 +438,7 @@ const AdminPage = () => {
                           category: category
                         });
                       } else {
-                        setNewItem({
-                          ...newItem,
-                          category: category
-                        });
+                        handleNewItemChange('category', category);
                       }
                     }
                   }}
@@ -415,7 +461,10 @@ const AdminPage = () => {
                   checked={item.dietaryInfo?.[restriction] || false}
                   onCheckedChange={(checked) => {
                     const newDietaryInfo = {
-                      ...(item.dietaryInfo || {}),
+                      vegan: item.dietaryInfo?.vegan || false,
+                      glutenFree: item.dietaryInfo?.glutenFree || false,
+                      nutFree: item.dietaryInfo?.nutFree || false,
+                      dairyFree: item.dietaryInfo?.dairyFree || false,
                       [restriction]: checked === true
                     };
                     if (isEditing && editingItem) {
@@ -424,10 +473,7 @@ const AdminPage = () => {
                         dietaryInfo: newDietaryInfo
                       });
                     } else {
-                      setNewItem({
-                        ...newItem,
-                        dietaryInfo: newDietaryInfo
-                      });
+                      handleNewItemChange('dietaryInfo', newDietaryInfo);
                     }
                   }}
                 />
@@ -458,10 +504,7 @@ const AdminPage = () => {
                         allergens: newAllergens
                       });
                     } else {
-                      setNewItem({
-                        ...newItem,
-                        allergens: newAllergens
-                      });
+                      handleNewItemChange('allergens', newAllergens);
                     }
                   }}
                 />
@@ -481,19 +524,7 @@ const AdminPage = () => {
                 setEditingItem(null);
               } else {
                 setIsAddingNew(false);
-                setNewItem({
-                  name: '',
-                  category: '',
-                  description: '',
-                  price: 0,
-                  stock: 0,
-                  madeToOrder: false,
-                  isSpecial: false,
-                  dietaryInfo: {},
-                  allergens: {},
-                  available: true,
-                  image: '/images/placeholder.jpg'
-                });
+                resetForm();
               }
             }}
           >
@@ -710,6 +741,20 @@ const AdminPage = () => {
                   <CardTitle className="font-serif">{item.name}</CardTitle>
                   <CardDescription>{item.category}</CardDescription>
                   <p className="text-sm text-gray-600 mt-2">{item.description}</p>
+                  {Object.entries(item.allergens).some(([_, value]) => value) && (
+                    <div className="mt-2">
+                      <p className="text-sm font-medium text-gray-700 mb-1">Contains:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {Object.entries(item.allergens).map(([allergen, present]) => 
+                          present && (
+                            <Badge key={allergen} variant="outline" className="text-red-600 border-red-600">
+                              {allergen.replace(/([A-Z])/g, ' $1').trim()}
+                            </Badge>
+                          )
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <div className="flex gap-2">
                   <Button
@@ -734,25 +779,49 @@ const AdminPage = () => {
             <CardContent>
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
-                  <p className="font-medium font-sans text-lg">{item.name}</p>
                   <div className="flex ml-2 gap-1">
-                    {item.dietaryInfo.vegan && (
-                      <span title="Vegan - Contains no animal products"><Vegan size={16} className="text-green-600" /></span>
-                    )}
-                    {item.dietaryInfo.glutenFree && (
-                      <span title="Gluten Free - No wheat, rye, or barley"><WheatOff size={16} className="text-yellow-600" /></span>
-                    )}
-                    {item.dietaryInfo.nutFree && (
-                      <span title="Nut Free - No nuts or nut products"><EggOff size={16} className="text-yellow-600" /></span>
-                    )}
-                    {item.dietaryInfo.dairyFree && (
-                      <span title="Dairy Free - No milk or dairy products"><MilkOff size={16} className="text-blue-600" /></span>
-                    )}
-                    {item.dietaryInfo.halal && (
-                      <span title="Halal - Prepared according to Islamic dietary laws">
-                        <img src="/images/halalwhite.jpg" alt="Halal" className="w-4 h-4" />
-                      </span>
-                    )}
+                    <TooltipProvider>
+                      {item.dietaryInfo.vegan && (
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <Vegan size={16} className="text-green-600" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Vegan - Contains no animal products</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      )}
+                      {item.dietaryInfo.glutenFree && (
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <WheatOff size={16} className="text-yellow-600" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Gluten Free - No wheat, rye, or barley</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      )}
+                      {item.dietaryInfo.nutFree && (
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <EggOff size={16} className="text-yellow-600" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Nut Free - No nuts or nut products</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      )}
+                      {item.dietaryInfo.dairyFree && (
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <MilkOff size={16} className="text-blue-600" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Dairy Free - No milk or dairy products</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      )}
+                    </TooltipProvider>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
