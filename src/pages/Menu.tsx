@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useFilteredMenuItems, useMenu } from '@/contexts/MenuContext';
-import { Vegan, EggOff, MilkOff, WheatOff } from 'lucide-react';
+import { Vegan, EggOff, MilkOff, WheatOff, Star } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/tooltip";
 
 const Menu = () => {
-  const { menuItems } = useMenu();
+  const { menuItems, dietaryRestrictions } = useMenu();
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -62,54 +62,46 @@ const Menu = () => {
                 <p className="text-gray-600 mb-4">{item.description}</p>
                 <div className="flex flex-wrap gap-2">
                   <TooltipProvider>
-                    {item.dietaryInfo.vegan && (
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <Badge variant="secondary" className="flex items-center gap-1 p-2">
-                            <Vegan size={16} className="text-green-600" />
-                          </Badge>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Vegan - Contains no animal products</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    )}
-                    {item.dietaryInfo.glutenFree && (
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <Badge variant="secondary" className="flex items-center gap-1 p-2">
-                            <WheatOff size={16} className="text-yellow-600" />
-                          </Badge>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Gluten Free - No wheat, rye, or barley</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    )}
-                    {item.dietaryInfo.nutFree && (
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <Badge variant="secondary" className="flex items-center gap-1 p-2">
-                            <EggOff size={16} className="text-yellow-600" />
-                          </Badge>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Nut Free - No nuts or nut products</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    )}
-                    {item.dietaryInfo.dairyFree && (
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <Badge variant="secondary" className="flex items-center gap-1 p-2">
-                            <MilkOff size={16} className="text-blue-600" />
-                          </Badge>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Dairy Free - No milk or dairy products</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    )}
+                    {dietaryRestrictions.map(restriction => {
+                      if (item.dietaryInfo[restriction]) {
+                        let icon;
+                        switch (restriction) {
+                          case 'vegan':
+                            icon = <Vegan size={16} className="text-green-600" />;
+                            break;
+                          case 'glutenFree':
+                            icon = <WheatOff size={16} className="text-yellow-600" />;
+                            break;
+                          case 'nutFree':
+                            icon = <EggOff size={16} className="text-yellow-600" />;
+                            break;
+                          case 'dairyFree':
+                            icon = <MilkOff size={16} className="text-blue-600" />;
+                            break;
+                          case 'halal':
+                            icon = <img src="/images/halalwhite.jpg" alt="Halal" className="w-4 h-4" />;
+                            break;
+                          case 'kosher':
+                            icon = <Star size={16} className="text-purple-600" />;
+                            break;
+                          default:
+                            return null;
+                        }
+                        return (
+                          <Tooltip key={restriction}>
+                            <TooltipTrigger>
+                              <Badge variant="secondary" className="flex items-center gap-1 p-2">
+                                {icon}
+                              </Badge>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="capitalize">{restriction.replace(/([A-Z])/g, ' $1').trim()}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        );
+                      }
+                      return null;
+                    })}
                   </TooltipProvider>
                 </div>
                 {Object.entries(item.allergens).some(([_, value]) => value) && (
@@ -132,7 +124,7 @@ const Menu = () => {
         </div>
       </TabsContent>
     ))
-  ), [filteredItems]);
+  ), [filteredItems, dietaryRestrictions]);
 
   return (
     <div className="container mx-auto px-4 py-8">
