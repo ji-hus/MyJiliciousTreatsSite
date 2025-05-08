@@ -28,9 +28,8 @@ import {
 
 // Form handling hook
 function useMenuForm(initialState: Partial<MenuItem>) {
-  const [formState, setFormState] = useState<Partial<MenuItem>>({
-    ...initialState,
-    dietaryInfo: {
+  const [formState, setFormState] = useState<Partial<MenuItem>>(() => {
+    const initialDietaryInfo = {
       vegan: false,
       glutenFree: false,
       nutFree: false,
@@ -38,8 +37,18 @@ function useMenuForm(initialState: Partial<MenuItem>) {
       halal: false,
       kosher: false,
       ...(initialState.dietaryInfo || {})
-    },
-    allergens: initialState.allergens || {}
+    };
+    
+    console.log('Initializing form state with:', {
+      ...initialState,
+      dietaryInfo: initialDietaryInfo
+    });
+    
+    return {
+      ...initialState,
+      dietaryInfo: initialDietaryInfo,
+      allergens: initialState.allergens || {}
+    };
   });
   
   const handleChange = useCallback((field: keyof MenuItem, value: any) => {
@@ -47,9 +56,8 @@ function useMenuForm(initialState: Partial<MenuItem>) {
     if (field === 'dietaryInfo') {
       console.log('Current dietary info:', formState.dietaryInfo);
       console.log('New dietary info:', value);
-      setFormState(prev => ({
-        ...prev,
-        dietaryInfo: {
+      setFormState(prev => {
+        const updatedDietaryInfo = {
           ...prev.dietaryInfo,
           ...value,
           vegan: Boolean(value.vegan),
@@ -58,8 +66,13 @@ function useMenuForm(initialState: Partial<MenuItem>) {
           dairyFree: Boolean(value.dairyFree),
           halal: Boolean(value.halal),
           kosher: Boolean(value.kosher)
-        }
-      }));
+        };
+        console.log('Updated dietary info:', updatedDietaryInfo);
+        return {
+          ...prev,
+          dietaryInfo: updatedDietaryInfo
+        };
+      });
     } else if (field === 'allergens') {
       console.log('Current allergens:', formState.allergens);
       console.log('New allergens:', value);
@@ -79,17 +92,24 @@ function useMenuForm(initialState: Partial<MenuItem>) {
   }, [formState.dietaryInfo, formState.allergens]);
 
   const resetForm = useCallback(() => {
+    const initialDietaryInfo = {
+      vegan: false,
+      glutenFree: false,
+      nutFree: false,
+      dairyFree: false,
+      halal: false,
+      kosher: false,
+      ...(initialState.dietaryInfo || {})
+    };
+    
+    console.log('Resetting form state to:', {
+      ...initialState,
+      dietaryInfo: initialDietaryInfo
+    });
+    
     setFormState({
       ...initialState,
-      dietaryInfo: {
-        vegan: false,
-        glutenFree: false,
-        nutFree: false,
-        dairyFree: false,
-        halal: false,
-        kosher: false,
-        ...(initialState.dietaryInfo || {})
-      },
+      dietaryInfo: initialDietaryInfo,
       allergens: initialState.allergens || {}
     });
   }, [initialState]);
@@ -653,26 +673,30 @@ export function MenuManager() {
                 </Button>
               </div>
               <div className="grid grid-cols-2 gap-2">
-                {dietaryRestrictions.map(restriction => (
-                  <div key={restriction} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={restriction}
-                      checked={Boolean(newItem.dietaryInfo?.[restriction])}
-                      onCheckedChange={(checked) => {
-                        console.log('Changing dietary restriction:', restriction, checked);
-                        const updatedDietaryInfo = {
-                          ...newItem.dietaryInfo,
-                          [restriction]: Boolean(checked)
-                        };
-                        console.log('Updated dietary info:', updatedDietaryInfo);
-                        handleNewItemChange('dietaryInfo', updatedDietaryInfo);
-                      }}
-                    />
-                    <Label htmlFor={restriction} className="capitalize">
-                      {restriction.replace(/([A-Z])/g, ' $1').trim()}
-                    </Label>
-                  </div>
-                ))}
+                {dietaryRestrictions.map(restriction => {
+                  const isChecked = Boolean(newItem.dietaryInfo?.[restriction]);
+                  console.log(`Dietary restriction ${restriction} is checked:`, isChecked);
+                  return (
+                    <div key={restriction} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={restriction}
+                        checked={isChecked}
+                        onCheckedChange={(checked) => {
+                          console.log('Changing dietary restriction:', restriction, checked);
+                          const updatedDietaryInfo = {
+                            ...newItem.dietaryInfo,
+                            [restriction]: Boolean(checked)
+                          };
+                          console.log('Updated dietary info:', updatedDietaryInfo);
+                          handleNewItemChange('dietaryInfo', updatedDietaryInfo);
+                        }}
+                      />
+                      <Label htmlFor={restriction} className="capitalize">
+                        {restriction.replace(/([A-Z])/g, ' $1').trim()}
+                      </Label>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
