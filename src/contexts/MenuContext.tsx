@@ -83,7 +83,8 @@ const batchedStorage = {
 export function MenuProvider({ children }: { children: ReactNode }) {
   const [menuItems, setMenuItems] = useState<MenuItem[]>(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
-    console.log('Loading menu items from storage:', stored);
+    console.log('=== Menu Items Loading Debug ===');
+    console.log('Raw stored data:', stored);
     
     // Check if we're on a mobile device
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -93,7 +94,8 @@ export function MenuProvider({ children }: { children: ReactNode }) {
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
-        console.log('Parsed menu items:', parsed);
+        console.log('Successfully parsed menu items:', parsed);
+        console.log('Number of items:', parsed.length);
         
         // Ensure all menu items have proper dietary info
         const normalizedItems = parsed.map((item: MenuItem) => ({
@@ -110,14 +112,21 @@ export function MenuProvider({ children }: { children: ReactNode }) {
         }));
         
         console.log('Normalized menu items:', normalizedItems);
+        console.log('Number of normalized items:', normalizedItems.length);
         return normalizedItems;
       } catch (e) {
         console.error('Failed to parse stored menu items:', e);
+        console.error('Error details:', e.message);
+        console.error('Error stack:', e.stack);
       }
+    } else {
+      console.log('No stored menu items found in localStorage');
     }
     
     // If no stored items or parsing failed, use initial items
     console.log('Using initial menu items');
+    console.log('Initial items:', initialMenuItems);
+    console.log('Number of initial items:', initialMenuItems.length);
     return initialMenuItems;
   });
 

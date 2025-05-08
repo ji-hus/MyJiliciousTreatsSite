@@ -23,6 +23,8 @@ const Menu = () => {
     console.log('Menu Items Length:', menuItems?.length);
     console.log('Menu Items Type:', typeof menuItems);
     console.log('Is Menu Items Array?', Array.isArray(menuItems));
+    console.log('First Item:', menuItems?.[0]);
+    console.log('Last Item:', menuItems?.[menuItems?.length - 1]);
     console.log('Dietary Restrictions:', dietaryRestrictions);
     console.log('Selected Category:', selectedCategory);
     console.log('Search Query:', searchQuery);
