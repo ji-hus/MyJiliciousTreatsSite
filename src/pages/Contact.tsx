@@ -17,21 +17,34 @@ import { Phone, Mail, Home, Instagram } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import emailjs from '@emailjs/browser';
 import { contactEmailTemplate } from '@/email-templates';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-const formSchema = z.object({
+const contactFormSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters' }),
   email: z.string().email({ message: 'Please enter a valid email address' }),
   message: z.string().min(10, { message: 'Message must be at least 10 characters' }),
 });
 
-type FormValues = z.infer<typeof formSchema>;
+const bulkOrderFormSchema = z.object({
+  name: z.string().min(2, { message: 'Name must be at least 2 characters' }),
+  email: z.string().email({ message: 'Please enter a valid email address' }),
+  phone: z.string().min(10, { message: 'Please enter a valid phone number' }),
+  company: z.string().optional(),
+  event_date: z.string().min(1, { message: 'Please select an event date' }),
+  quantity: z.string().min(1, { message: 'Please specify the quantity' }),
+  items: z.string().min(10, { message: 'Please describe the items needed' }),
+  special_requirements: z.string().optional(),
+});
+
+type ContactFormValues = z.infer<typeof contactFormSchema>;
+type BulkOrderFormValues = z.infer<typeof bulkOrderFormSchema>;
 
 const ContactPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+  const contactForm = useForm<ContactFormValues>({
+    resolver: zodResolver(contactFormSchema),
     defaultValues: {
       name: '',
       email: '',
@@ -39,19 +52,35 @@ const ContactPage = () => {
     },
   });
 
-  const onSubmit = async (data: FormValues) => {
+  const bulkOrderForm = useForm<BulkOrderFormValues>({
+    resolver: zodResolver(bulkOrderFormSchema),
+    defaultValues: {
+      name: '',
+      email: '',
+      phone: '',
+      company: '',
+      event_date: '',
+      quantity: '',
+      items: '',
+      special_requirements: '',
+    },
+  });
+
+  const onSubmitContact = async (data: ContactFormValues) => {
     setIsSubmitting(true);
     try {
-      // Prepare email template parameters
       const templateParams = {
         from_name: data.name,
         from_email: data.email,
-        message: data.message
+        message: data.message,
+        phone: '',
+        company: '',
+        event_date: '',
+        quantity: '',
+        items: '',
+        special_requirements: ''
       };
 
-      console.log('Sending contact form email with parameters:', templateParams);
-
-      // Send email using EmailJS
       const result = await emailjs.send(
         'service_10tkiq3',
         'template_zm1pn05',
@@ -59,26 +88,57 @@ const ContactPage = () => {
         'jRgg2OkLA0U1pS4WQ'
       );
 
-      console.log('Contact form email sent successfully:', result);
-
       toast({
         title: "Message sent!",
         description: "Thank you for reaching out. We'll get back to you soon!",
       });
       
-      form.reset();
+      contactForm.reset();
     } catch (error) {
       console.error('Error sending contact form:', error);
-      if (error instanceof Error) {
-        console.error('Error details:', {
-          message: error.message,
-          name: error.name,
-          stack: error.stack
-        });
-      }
       toast({
         title: "Error",
         description: "Failed to send message. Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const onSubmitBulkOrder = async (data: BulkOrderFormValues) => {
+    setIsSubmitting(true);
+    try {
+      const templateParams = {
+        from_name: data.name,
+        from_email: data.email,
+        phone: data.phone,
+        company: data.company || 'N/A',
+        event_date: data.event_date,
+        quantity: data.quantity,
+        items: data.items,
+        special_requirements: data.special_requirements || 'None',
+        type: 'bulk_order'
+      };
+
+      const result = await emailjs.send(
+        'service_10tkiq3',
+        'template_zm1pn05',
+        templateParams,
+        'jRgg2OkLA0U1pS4WQ'
+      );
+
+      toast({
+        title: "Bulk Order Request Sent!",
+        description: "Thank you for your interest. We'll review your request and get back to you soon!",
+      });
+      
+      bulkOrderForm.reset();
+    } catch (error) {
+      console.error('Error sending bulk order form:', error);
+      toast({
+        title: "Error",
+        description: "Failed to send bulk order request. Please try again later.",
         variant: "destructive",
       });
     } finally {
@@ -99,59 +159,176 @@ const ContactPage = () => {
         <div>
           <Card>
             <CardHeader>
-              <CardTitle className="font-serif">Send Us a Message</CardTitle>
-              <CardDescription>Fill out the form and we'll get back to you as soon as possible.</CardDescription>
+              <CardTitle className="font-serif">Get in Touch</CardTitle>
+              <CardDescription>Choose how you'd like to contact us</CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <div className="grid grid-cols-1 gap-6">
-                  <div>
-                    <label htmlFor="name" className="block text-sm font-medium mb-1">Name</label>
-                    <Input 
-                      id="name"
-                      {...form.register('name')}
-                      placeholder="Your name"
-                    />
-                    {form.formState.errors.name && (
-                      <p className="text-red-500 text-sm mt-1">{form.formState.errors.name.message}</p>
-                    )}
-                  </div>
-                  
-                  <div>
-                    <label htmlFor="email" className="block text-sm font-medium mb-1">Email</label>
-                    <Input 
-                      id="email"
-                      type="email"
-                      {...form.register('email')}
-                      placeholder="your.email@example.com"
-                    />
-                    {form.formState.errors.email && (
-                      <p className="text-red-500 text-sm mt-1">{form.formState.errors.email.message}</p>
-                    )}
-                  </div>
-                  
-                  <div>
-                    <label htmlFor="message" className="block text-sm font-medium mb-1">Message</label>
-                    <Textarea 
-                      id="message"
-                      {...form.register('message')}
-                      placeholder="How can we help you?"
-                      rows={5}
-                    />
-                    {form.formState.errors.message && (
-                      <p className="text-red-500 text-sm mt-1">{form.formState.errors.message.message}</p>
-                    )}
-                  </div>
-                </div>
+              <Tabs defaultValue="contact" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="contact">Contact Us</TabsTrigger>
+                  <TabsTrigger value="bulk">Bulk Order Inquiry</TabsTrigger>
+                </TabsList>
                 
-                <Button 
-                  type="submit" 
-                  className="w-full bg-bakery-brown hover:bg-bakery-light text-white"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? 'Sending...' : 'Send Message'}
-                </Button>
-              </form>
+                <TabsContent value="contact">
+                  <form onSubmit={contactForm.handleSubmit(onSubmitContact)} className="space-y-6">
+                    <div className="grid grid-cols-1 gap-6">
+                      <div>
+                        <label htmlFor="name" className="block text-sm font-medium mb-1">Name</label>
+                        <Input 
+                          id="name"
+                          {...contactForm.register('name')}
+                          placeholder="Your name"
+                        />
+                        {contactForm.formState.errors.name && (
+                          <p className="text-red-500 text-sm mt-1">{contactForm.formState.errors.name.message}</p>
+                        )}
+                      </div>
+                      
+                      <div>
+                        <label htmlFor="email" className="block text-sm font-medium mb-1">Email</label>
+                        <Input 
+                          id="email"
+                          type="email"
+                          {...contactForm.register('email')}
+                          placeholder="your.email@example.com"
+                        />
+                        {contactForm.formState.errors.email && (
+                          <p className="text-red-500 text-sm mt-1">{contactForm.formState.errors.email.message}</p>
+                        )}
+                      </div>
+                      
+                      <div>
+                        <label htmlFor="message" className="block text-sm font-medium mb-1">Message</label>
+                        <Textarea 
+                          id="message"
+                          {...contactForm.register('message')}
+                          placeholder="How can we help you?"
+                          rows={5}
+                        />
+                        {contactForm.formState.errors.message && (
+                          <p className="text-red-500 text-sm mt-1">{contactForm.formState.errors.message.message}</p>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <Button 
+                      type="submit" 
+                      className="w-full bg-bakery-brown hover:bg-bakery-light text-white"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? 'Sending...' : 'Send Message'}
+                    </Button>
+                  </form>
+                </TabsContent>
+
+                <TabsContent value="bulk">
+                  <form onSubmit={bulkOrderForm.handleSubmit(onSubmitBulkOrder)} className="space-y-6">
+                    <div className="grid grid-cols-1 gap-6">
+                      <div>
+                        <label htmlFor="bulk-name" className="block text-sm font-medium mb-1">Name</label>
+                        <Input 
+                          id="bulk-name"
+                          {...bulkOrderForm.register('name')}
+                          placeholder="Your name"
+                        />
+                        {bulkOrderForm.formState.errors.name && (
+                          <p className="text-red-500 text-sm mt-1">{bulkOrderForm.formState.errors.name.message}</p>
+                        )}
+                      </div>
+                      
+                      <div>
+                        <label htmlFor="bulk-email" className="block text-sm font-medium mb-1">Email</label>
+                        <Input 
+                          id="bulk-email"
+                          type="email"
+                          {...bulkOrderForm.register('email')}
+                          placeholder="your.email@example.com"
+                        />
+                        {bulkOrderForm.formState.errors.email && (
+                          <p className="text-red-500 text-sm mt-1">{bulkOrderForm.formState.errors.email.message}</p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label htmlFor="bulk-phone" className="block text-sm font-medium mb-1">Phone</label>
+                        <Input 
+                          id="bulk-phone"
+                          type="tel"
+                          {...bulkOrderForm.register('phone')}
+                          placeholder="(123) 456-7890"
+                        />
+                        {bulkOrderForm.formState.errors.phone && (
+                          <p className="text-red-500 text-sm mt-1">{bulkOrderForm.formState.errors.phone.message}</p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label htmlFor="bulk-company" className="block text-sm font-medium mb-1">Company/Organization (Optional)</label>
+                        <Input 
+                          id="bulk-company"
+                          {...bulkOrderForm.register('company')}
+                          placeholder="Your company or organization name"
+                        />
+                      </div>
+
+                      <div>
+                        <label htmlFor="bulk-event-date" className="block text-sm font-medium mb-1">Event Date</label>
+                        <Input 
+                          id="bulk-event-date"
+                          type="date"
+                          {...bulkOrderForm.register('event_date')}
+                        />
+                        {bulkOrderForm.formState.errors.event_date && (
+                          <p className="text-red-500 text-sm mt-1">{bulkOrderForm.formState.errors.event_date.message}</p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label htmlFor="bulk-quantity" className="block text-sm font-medium mb-1">Quantity Needed</label>
+                        <Input 
+                          id="bulk-quantity"
+                          {...bulkOrderForm.register('quantity')}
+                          placeholder="e.g., 50, 100, 200, etc."
+                        />
+                        {bulkOrderForm.formState.errors.quantity && (
+                          <p className="text-red-500 text-sm mt-1">{bulkOrderForm.formState.errors.quantity.message}</p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label htmlFor="bulk-items" className="block text-sm font-medium mb-1">Items Needed</label>
+                        <Textarea 
+                          id="bulk-items"
+                          {...bulkOrderForm.register('items')}
+                          placeholder="Please describe the items you need in detail; 25 cookies, 25 cupcakes, 50 macarons, etc."
+                          rows={3}
+                        />
+                        {bulkOrderForm.formState.errors.items && (
+                          <p className="text-red-500 text-sm mt-1">{bulkOrderForm.formState.errors.items.message}</p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label htmlFor="bulk-requirements" className="block text-sm font-medium mb-1">Special Requirements (Optional)</label>
+                        <Textarea 
+                          id="bulk-requirements"
+                          {...bulkOrderForm.register('special_requirements')}
+                          placeholder="Any dietary restrictions, allergies, or special requests"
+                          rows={3}
+                        />
+                      </div>
+                    </div>
+                    
+                    <Button 
+                      type="submit" 
+                      className="w-full bg-bakery-brown hover:bg-bakery-light text-white"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? 'Sending...' : 'Submit Bulk Order Request'}
+                    </Button>
+                  </form>
+                </TabsContent>
+              </Tabs>
             </CardContent>
           </Card>
         </div>

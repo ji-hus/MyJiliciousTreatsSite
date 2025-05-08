@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { createContext, useContext, useState, ReactNode, useEffect, useMemo, useCallback } from 'react';
 import { menuItems as initialMenuItems, MenuItem } from '@/data/menu-items';
 
 interface MenuContextType {
@@ -24,7 +24,30 @@ const CATEGORIES_STORAGE_KEY = 'menu-categories';
 const initialDietaryRestrictions = ['vegan', 'glutenFree', 'nutFree', 'dairyFree'];
 
 // Initial categories
-const initialCategories = ['Breads', 'Pastries', 'Cakes', 'Cookies', 'Specialty Items'];
+const initialCategories = ['Breads', 'Pastries', 'Baked Goods', 'Specialty Items'];
+
+const batchedStorage = {
+  queue: new Map(),
+  timeout: null as NodeJS.Timeout | null,
+  
+  set(key: string, value: any) {
+    this.queue.set(key, value);
+    if (!this.timeout) {
+      this.timeout = setTimeout(() => this.flush(), 1000);
+    }
+  },
+  
+  flush() {
+    this.queue.forEach((value, key) => {
+      localStorage.setItem(key, JSON.stringify(value));
+    });
+    this.queue.clear();
+    if (this.timeout) {
+      clearTimeout(this.timeout);
+      this.timeout = null;
+    }
+  }
+};
 
 export function MenuProvider({ children }: { children: ReactNode }) {
   const [menuItems, setMenuItems] = useState<MenuItem[]>(() => {
@@ -70,7 +93,7 @@ export function MenuProvider({ children }: { children: ReactNode }) {
   // Save to localStorage whenever menuItems changes
   useEffect(() => {
     console.log('Saving menu items to storage:', menuItems);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(menuItems));
+    batchedStorage.set(STORAGE_KEY, menuItems);
   }, [menuItems]);
 
   // Save to localStorage whenever dietaryRestrictions changes
@@ -83,34 +106,32 @@ export function MenuProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(categories));
   }, [categories]);
 
-  const updateMenuItem = (id: string, updates: Partial<MenuItem>) => {
-    console.log('Updating menu item:', id, updates);
+  // Memoize handlers
+  const updateMenuItem = useCallback((id: string, updates: Partial<MenuItem>) => {
     setMenuItems(items => {
       const updated = items.map(item =>
         item.id === id ? { ...item, ...updates } : item
       );
-      console.log('Updated menu items:', updated);
+      batchedStorage.set(STORAGE_KEY, updated);
       return updated;
     });
-  };
+  }, []);
 
-  const addMenuItem = (item: MenuItem) => {
-    console.log('Adding new menu item:', item);
+  const addMenuItem = useCallback((item: MenuItem) => {
     setMenuItems(items => {
       const updated = [...items, item];
-      console.log('Updated menu items after add:', updated);
+      batchedStorage.set(STORAGE_KEY, updated);
       return updated;
     });
-  };
+  }, []);
 
-  const deleteMenuItem = (id: string) => {
-    console.log('Deleting menu item:', id);
+  const deleteMenuItem = useCallback((id: string) => {
     setMenuItems(items => {
       const updated = items.filter(item => item.id !== id);
-      console.log('Updated menu items after delete:', updated);
+      batchedStorage.set(STORAGE_KEY, updated);
       return updated;
     });
-  };
+  }, []);
 
   const addDietaryRestriction = (restriction: string) => {
     setDietaryRestrictions(prev => {
@@ -138,21 +159,61 @@ export function MenuProvider({ children }: { children: ReactNode }) {
     setCategories(prev => prev.filter(c => c !== category));
   };
 
+  // Memoize context value
+  const contextValue = useMemo(() => ({
+    menuItems,
+    dietaryRestrictions,
+    categories,
+    updateMenuItem,
+    addMenuItem,
+    deleteMenuItem,
+    addDietaryRestriction,
+    removeDietaryRestriction,
+    addCategory,
+    removeCategory
+  }), [
+    menuItems,
+    dietaryRestrictions,
+    categories,
+    updateMenuItem,
+    addMenuItem,
+    deleteMenuItem,
+    addDietaryRestriction,
+    removeDietaryRestriction,
+    addCategory,
+    removeCategory
+  ]);
+
+  // Cleanup storage on unmount
+  useEffect(() => {
+    return () => {
+      if (batchedStorage.timeout) {
+        batchedStorage.flush();
+      }
+    };
+  }, []);
+
   return (
-    <MenuContext.Provider value={{ 
-      menuItems, 
-      dietaryRestrictions,
-      categories,
-      updateMenuItem, 
-      addMenuItem, 
-      deleteMenuItem,
-      addDietaryRestriction,
-      removeDietaryRestriction,
-      addCategory,
-      removeCategory
-    }}>
+    <MenuContext.Provider value={contextValue}>
       {children}
     </MenuContext.Provider>
+  );
+}
+
+// Selector hooks
+export function useMenuItem(id: string) {
+  const { menuItems } = useMenu();
+  return useMemo(() => menuItems.find(item => item.id === id), [menuItems, id]);
+}
+
+export function useFilteredMenuItems(category: string, available: boolean = true) {
+  const { menuItems } = useMenu();
+  return useMemo(() => 
+    menuItems.filter(item => 
+      (!category || item.category === category) &&
+      (!available || item.available)
+    ),
+    [menuItems, category, available]
   );
 }
 

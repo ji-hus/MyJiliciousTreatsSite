@@ -48,9 +48,21 @@ emailjs.init("jRgg2OkLA0U1pS4WQ");
 
 // Define form schema
 const orderFormSchema = z.object({
-  name: z.string().min(2, { message: 'Name must be at least 2 characters' }),
-  email: z.string().email({ message: 'Please enter a valid email address' }),
-  phone: z.string().min(10, { message: 'Please enter a valid phone number' }),
+  name: z.string().min(2, { message: 'Name must be at least 2 characters' }).refine(val => val.trim().length > 0, {
+    message: 'Name is required'
+  }),
+  email: z.string().email({ message: 'Please enter a valid email address' }).refine(val => val.trim().length > 0, {
+    message: 'Email is required'
+  }),
+  phone: z.string()
+    .min(12, { message: 'Please enter a valid phone number (xxx-xxx-xxxx)' })
+    .max(12, { message: 'Please enter a valid phone number (xxx-xxx-xxxx)' })
+    .refine(val => val.trim().length > 0, {
+      message: 'Phone number is required'
+    })
+    .refine(val => /^\d{3}-\d{3}-\d{4}$/.test(val), {
+      message: 'Please enter a valid phone number (xxx-xxx-xxxx)'
+    }),
   inStockPickupDate: z.date({
     required_error: "Please select a pickup date for in-stock items",
   }),
@@ -189,32 +201,37 @@ const OrderPage = () => {
 
   // Get available pickup dates based on order type
   const getAvailablePickupDates = (date: Date) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     
     // If order contains made-to-order items
     if (hasMadeToOrderItems) {
-      const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
-      const daysUntilWednesday = (3 - currentDay + 7) % 7; // Days until next Wednesday
-      const orderDeadline = new Date(today);
-      orderDeadline.setDate(today.getDate() + daysUntilWednesday);
-      orderDeadline.setHours(18, 0, 0, 0); // 6 PM
-
-      // If current time is past Wednesday 6 PM, move to next week
-      if (today > orderDeadline) {
-        orderDeadline.setDate(orderDeadline.getDate() + 7);
+      // First, ensure we're only allowing Saturdays
+      if (date.getDay() !== 6) {
+        return false;
       }
 
-      // Available pickup dates are Thursday through Saturday
-      const isThursday = date.getDay() === 4;
-      const isFriday = date.getDay() === 5;
-      const isSaturday = date.getDay() === 6;
-      
-      // Must be at least 24 hours after order
-      const minPickupDate = new Date(today);
-      minPickupDate.setDate(today.getDate() + 1);
-      
-      return (isThursday || isFriday || isSaturday) && date >= minPickupDate;
+      // Get the current day of the week (0 = Sunday, 1 = Monday, etc.)
+      const currentDay = now.getDay();
+      const currentHour = now.getHours();
+
+      // Calculate the date of the upcoming Saturday
+      const daysUntilNextSaturday = (6 - currentDay + 7) % 7;
+      const upcomingSaturday = new Date(today);
+      upcomingSaturday.setDate(today.getDate() + daysUntilNextSaturday);
+
+      // Calculate the date of the Saturday after next
+      const saturdayAfterNext = new Date(upcomingSaturday);
+      saturdayAfterNext.setDate(upcomingSaturday.getDate() + 7);
+
+      // If we're past Wednesday (Thursday, Friday, Saturday, Sunday) or it's Wednesday after 6 PM
+      if (currentDay > 3 || (currentDay === 3 && currentHour >= 18)) {
+        // Only allow dates on or after the Saturday after next
+        return date >= saturdayAfterNext;
+      } else {
+        // Before Wednesday 6 PM, allow the upcoming Saturday
+        return date >= upcomingSaturday;
+      }
     } else {
       // For in-stock items only
       const isWeekday = date.getDay() >= 1 && date.getDay() <= 5; // Monday through Friday
@@ -324,6 +341,22 @@ const OrderPage = () => {
     setSelectedDietary(value);
   };
 
+  // Format phone number helper function
+  const formatPhoneNumber = (value: string) => {
+    const digits = value.replace(/\D/g, '');
+    let formattedValue = '';
+    if (digits.length > 0) {
+      formattedValue = digits.slice(0, 3);
+      if (digits.length > 3) {
+        formattedValue += '-' + digits.slice(3, 6);
+      }
+      if (digits.length > 6) {
+        formattedValue += '-' + digits.slice(6, 10);
+      }
+    }
+    return formattedValue;
+  };
+
   // Handle form submission
   const onSubmit = async (data: OrderFormValues) => {
     console.log('Form submitted with data:', data);
@@ -359,10 +392,15 @@ const OrderPage = () => {
         from_name: data.name,
         from_email: data.email,
         phone: data.phone,
-        pickup_date: data.inStockPickupDate ? format(data.inStockPickupDate, 'MMMM d, yyyy') : 'N/A',
-        pickup_time: data.inStockPickupTime || 'N/A',
-        special_instructions: data.specialInstructions || 'None',
-        order_items: cart.map(item => 
+        in_stock_pickup_date: data.inStockPickupDate ? format(data.inStockPickupDate, 'MMMM d, yyyy') : '',
+        in_stock_pickup_time: data.inStockPickupTime || '',
+        made_to_order_pickup_date: data.madeToOrderPickupDate ? format(data.madeToOrderPickupDate, 'MMMM d, yyyy') : '',
+        made_to_order_pickup_time: data.madeToOrderPickupTime || '',
+        special_instructions: data.specialInstructions || '',
+        in_stock_items: inStockItems.map(item => 
+          `${item.name} x${item.quantity} - $${(item.price * item.quantity).toFixed(2)}`
+        ).join('\n'),
+        made_to_order_items: madeToOrderItems.map(item => 
           `${item.name} x${item.quantity} - $${(item.price * item.quantity).toFixed(2)}`
         ).join('\n'),
         total_amount: `$${cartTotal.toFixed(2)}`,
@@ -720,8 +758,8 @@ const OrderPage = () => {
                 <CardTitle className="font-serif">Customer Information</CardTitle>
                 <CardDescription>
                   <div className="font-sans text-lg">
-                    <p>In-stock items can be picked up Monday-Friday, 9 AM - 5 PM.</p>
-                    <p>Made to Order items can be ordered before Wednesday 6pm and can be picked up on Saturdays between 9am-5pm.</p>
+                    <p>In-stock items can be picked up Monday-Friday, 9 AM-5 PM.</p>
+                    <p>Made to Order items can be ordered before Wednesday 6pm and can be picked up on Saturdays between 9AM-5PM.</p>
                   </div>
                 </CardDescription>
               </CardHeader>
@@ -743,7 +781,7 @@ const OrderPage = () => {
                         name="name"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="font-sans text-lg">Name</FormLabel>
+                            <FormLabel className="font-sans text-lg">Name <span className="text-red-500">*</span></FormLabel>
                             <FormControl>
                               <Input placeholder="Enter your name" {...field} className="font-sans text-lg" />
                             </FormControl>
@@ -756,9 +794,17 @@ const OrderPage = () => {
                         name="phone"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="font-sans text-lg">Phone</FormLabel>
+                            <FormLabel className="font-sans text-lg">Phone <span className="text-red-500">*</span></FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter your phone number" {...field} className="font-sans text-lg" />
+                              <Input 
+                                placeholder="Phone number (xxx-xxx-xxxx)" 
+                                {...field} 
+                                className="font-sans text-lg"
+                                onChange={(e) => {
+                                  field.onChange(formatPhoneNumber(e.target.value));
+                                }}
+                                maxLength={12}
+                              />
                             </FormControl>
                             <FormMessage className="font-sans text-base" />
                           </FormItem>
@@ -771,7 +817,7 @@ const OrderPage = () => {
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="font-sans text-lg">Email</FormLabel>
+                          <FormLabel className="font-sans text-lg">Email <span className="text-red-500">*</span></FormLabel>
                           <FormControl>
                             <Input type="email" placeholder="Enter your email" {...field} className="font-sans text-lg" />
                           </FormControl>
@@ -814,11 +860,15 @@ const OrderPage = () => {
                                       mode="single"
                                       selected={field.value}
                                       onSelect={field.onChange}
+                                      fromDate={(() => {
+                                        const now = new Date();
+                                        const minDate = new Date(now);
+                                        minDate.setDate(now.getDate() + 1); // Next day pickup
+                                        return minDate;
+                                      })()}
                                       disabled={(date) => {
-                                        const isWeekday = date.getDay() >= 1 && date.getDay() <= 5;
-                                        const minPickupDate = new Date();
-                                        minPickupDate.setDate(minPickupDate.getDate() + 1);
-                                        return !isWeekday || date < minPickupDate;
+                                        // Disable weekends (Saturday = 6, Sunday = 0)
+                                        return date.getDay() === 0 || date.getDay() === 6;
                                       }}
                                       initialFocus
                                     />
@@ -897,12 +947,36 @@ const OrderPage = () => {
                                       mode="single"
                                       selected={field.value}
                                       onSelect={field.onChange}
-                                      disabled={(date) => {
-                                        const isSaturday = date.getDay() === 6;
-                                        const minPickupDate = new Date();
-                                        minPickupDate.setDate(minPickupDate.getDate() + 1);
-                                        return !isSaturday || date < minPickupDate;
-                                      }}
+                                      fromDate={(() => {
+                                        const now = new Date();
+                                        const currentDay = now.getDay();
+                                        const currentHour = now.getHours();
+                                        
+                                        console.log('Current day:', currentDay);
+                                        console.log('Current hour:', currentHour);
+                                        
+                                        // If we're past Wednesday or it's Wednesday after 6 PM
+                                        if (currentDay > 3 || (currentDay === 3 && currentHour >= 18)) {
+                                          // Calculate the next Saturday
+                                          const daysUntilNextSaturday = (6 - currentDay + 7) % 7;
+                                          const upcomingSaturday = new Date(now);
+                                          upcomingSaturday.setDate(now.getDate() + daysUntilNextSaturday);
+                                          
+                                          // Calculate the Saturday after next
+                                          const saturdayAfterNext = new Date(upcomingSaturday);
+                                          saturdayAfterNext.setDate(upcomingSaturday.getDate() + 7);
+                                          
+                                          console.log('After Wednesday 6 PM - Saturday after next:', saturdayAfterNext.toDateString());
+                                          return saturdayAfterNext;
+                                        } else {
+                                          // Before Wednesday 6 PM, allow any Saturday that's at least 3 days away
+                                          const minDate = new Date(now);
+                                          minDate.setDate(now.getDate() + 3); // At least 3 days from now
+                                          console.log('Before Wednesday 6 PM - Min date:', minDate.toDateString());
+                                          return minDate;
+                                        }
+                                      })()}
+                                      disabled={(date) => date.getDay() !== 6} // Only allow Saturdays
                                       initialFocus
                                     />
                                   </PopoverContent>

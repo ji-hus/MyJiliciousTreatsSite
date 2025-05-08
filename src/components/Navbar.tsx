@@ -1,13 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, ChevronDown } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -55,28 +49,6 @@ const Navbar = () => {
                 {link.name}
               </Link>
             ))}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  className={`font-['LovelyBakery'] text-lg transition-colors duration-200 ${
-                    location.pathname.startsWith('/order') 
-                      ? 'text-bakery-brown border-b-2 border-bakery-gold' 
-                      : 'text-gray-600 hover:text-bakery-brown hover:border-b-2 hover:border-bakery-light'
-                  }`}
-                >
-                  Order <ChevronDown className="ml-1 h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem asChild>
-                  <Link to="/order">Regular Order</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/bulk-order">Bulk Order</Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
             <Button 
               asChild 
               className="bg-bakery-brown hover:bg-bakery-light text-white"
@@ -117,25 +89,6 @@ const Navbar = () => {
                 {link.name}
               </Link>
             ))}
-            <div className="py-2">
-              <div className="font-medium text-bakery-brown mb-2">Order</div>
-              <div className="pl-4 space-y-2">
-                <Link
-                  to="/order"
-                  className="block py-2 text-gray-600 hover:text-bakery-brown"
-                  onClick={closeMenu}
-                >
-                  Regular Order
-                </Link>
-                <Link
-                  to="/bulk-order"
-                  className="block py-2 text-gray-600 hover:text-bakery-brown"
-                  onClick={closeMenu}
-                >
-                  Bulk Order
-                </Link>
-              </div>
-            </div>
             <Button 
               asChild 
               className="bg-bakery-brown hover:bg-bakery-light text-white w-full"

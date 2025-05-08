@@ -7,7 +7,7 @@ export const EMAIL_CONFIG = {
   serviceId: 'service_10tkiq3',
   templates: {
     order: 'template_34tuje7',
-    bulkOrder: 'template_ul8gc01'
+    contact: 'template_zm1pn05'
   },
   toEmail: 'myjilicioustreats@gmail.com'
 };
