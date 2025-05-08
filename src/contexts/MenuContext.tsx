@@ -84,6 +84,12 @@ export function MenuProvider({ children }: { children: ReactNode }) {
   const [menuItems, setMenuItems] = useState<MenuItem[]>(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
     console.log('Loading menu items from storage:', stored);
+    
+    // Check if we're on a mobile device
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    console.log('Is Mobile Device:', isMobile);
+    console.log('User Agent:', navigator.userAgent);
+    
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
@@ -109,9 +115,19 @@ export function MenuProvider({ children }: { children: ReactNode }) {
         console.error('Failed to parse stored menu items:', e);
       }
     }
+    
+    // If no stored items or parsing failed, use initial items
     console.log('Using initial menu items');
     return initialMenuItems;
   });
+
+  // Add effect to initialize menu items if empty
+  useEffect(() => {
+    if (menuItems.length === 0) {
+      console.log('No menu items found, initializing with default items');
+      setMenuItems(initialMenuItems);
+    }
+  }, [menuItems.length]);
 
   const [dietaryRestrictions, setDietaryRestrictions] = useState<string[]>(() => {
     const stored = localStorage.getItem(DIETARY_STORAGE_KEY);
@@ -176,6 +192,7 @@ export function MenuProvider({ children }: { children: ReactNode }) {
   // Add effect to log menu items changes
   useEffect(() => {
     console.log('Menu items updated:', menuItems);
+    console.log('Menu items length:', menuItems.length);
     // Check for duplicate IDs
     const ids = menuItems.map(item => item.id);
     const uniqueIds = new Set(ids);

@@ -77,8 +77,8 @@ export const defaultDietaryInfo = {
   kosher: false
 };
 
-// This will be populated from the database
-export const menuItems: MenuItem[] = [
+// Initial menu items
+export const initialMenuItems: MenuItem[] = [
   {
     id: '1',
     name: 'Classic Croissant',
@@ -191,6 +191,9 @@ export const menuItems: MenuItem[] = [
     active: true
   }
 ];
+
+// This will be populated from the database
+export const menuItems = initialMenuItems;
 
 // Helper function to create a new menu item with proper initialization
 export function createMenuItem(partialItem: Partial<MenuItem>): MenuItem {
