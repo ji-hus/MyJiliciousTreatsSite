@@ -57,15 +57,10 @@ function useMenuForm(initialState: Partial<MenuItem>) {
       console.log('Current dietary info:', formState.dietaryInfo);
       console.log('New dietary info:', value);
       setFormState(prev => {
+        // Ensure we maintain all existing dietary restrictions
         const updatedDietaryInfo = {
           ...prev.dietaryInfo,
-          ...value,
-          vegan: Boolean(value.vegan),
-          glutenFree: Boolean(value.glutenFree),
-          nutFree: Boolean(value.nutFree),
-          dairyFree: Boolean(value.dairyFree),
-          halal: Boolean(value.halal),
-          kosher: Boolean(value.kosher)
+          ...value
         };
         console.log('Updated dietary info:', updatedDietaryInfo);
         return {
@@ -682,12 +677,9 @@ export function MenuManager() {
                         checked={isChecked}
                         onCheckedChange={(checked) => {
                           console.log('Changing dietary restriction:', restriction, checked);
-                          const updatedDietaryInfo = {
-                            ...newItem.dietaryInfo,
-                            [restriction]: Boolean(checked)
-                          };
-                          console.log('Updated dietary info:', updatedDietaryInfo);
-                          handleNewItemChange('dietaryInfo', updatedDietaryInfo);
+                          handleNewItemChange('dietaryInfo', {
+                            [restriction]: checked
+                          });
                         }}
                       />
                       <Label htmlFor={restriction} className="capitalize">
