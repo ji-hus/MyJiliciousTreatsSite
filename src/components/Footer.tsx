@@ -56,6 +56,11 @@ const Footer = () => {
                 <Mail className="h-5 w-5 mr-2 flex-shrink-0" />
                 <span>myjilicioustreats@gmail.com</span>
               </li>
+              <li>
+                <Link to="/admin" className="text-sm text-bakery-gold/80 hover:text-bakery-gold transition-colors">
+                  Admin Access
+                </Link>
+              </li>
             </ul>
           </div>
         </div>

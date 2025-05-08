@@ -1,16 +1,59 @@
 import { useState } from 'react';
-import { menuItems, categories } from '@/data/menu-items';
+import { categories } from '@/data/menu-items';
+import { useMenu } from '@/contexts/MenuContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
+import { Vegan, WheatOff, EggOff, MilkOff } from 'lucide-react';
 
 const MenuPage = () => {
+  const { menuItems, dietaryRestrictions } = useMenu();
   const [activeCategory, setActiveCategory] = useState<string>('all');
 
   const filteredItems = activeCategory === 'all' 
     ? menuItems 
     : menuItems.filter(item => item.category === activeCategory);
+
+  const specialItems = menuItems.filter(item => item.isSpecial);
+
+  // Function to get a consistent color for a dietary restriction
+  const getDietaryColor = (restriction: string) => {
+    const colors = [
+      'green',
+      'blue',
+      'yellow',
+      'purple',
+      'emerald',
+      'indigo',
+      'pink',
+      'orange',
+      'teal',
+      'cyan',
+      'violet',
+      'fuchsia',
+      'rose',
+      'amber',
+      'lime'
+    ];
+    
+    const index = restriction.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return colors[index % colors.length];
+  };
+
+  // Function to get the appropriate badge class for a dietary restriction
+  const getDietaryBadgeClass = (restriction: string) => {
+    const color = getDietaryColor(restriction);
+    return `bg-${color}-100 text-${color}-800 hover:bg-${color}-200`;
+  };
+
+  // Function to format dietary restriction name
+  const formatDietaryName = (name: string) => {
+    return name
+      .replace(/([A-Z])/g, ' $1')
+      .replace(/^./, str => str.toUpperCase())
+      .trim();
+  };
 
   return (
     <div>
@@ -28,45 +71,35 @@ const MenuPage = () => {
       </div>
 
       {/* This Week's Specials */}
-      <section className="bg-bakery-gold/10 py-8">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-2xl md:text-3xl font-serif font-bold text-bakery-brown text-center mb-6">
-              This Week's Specials
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card className="bg-white">
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-4">
-                    <div className="h-24 w-24 bg-bakery-cream/50 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <span className="text-bakery-brown text-5xl">🍪</span>
-                    </div>
-                    <div>
-                      <h3 className="font-serif font-semibold text-xl text-bakery-brown mb-2">Sourdough Chocolate Chip Cookies</h3>
-                      <p className="text-gray-600 mb-2">Crispy on the outside and soft on the inside - all while gut healthy!</p>
-                      <p className="text-bakery-brown font-medium">$5.99 for 3</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card className="bg-white">
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-4">
-                    <div className="h-24 w-24 bg-bakery-cream/50 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <span className="text-bakery-brown text-5xl">🍞</span>
-                    </div>
-                    <div>
-                      <h3 className="font-serif font-semibold text-xl text-bakery-brown mb-2">Double Chocolate Espresso Sourdough Loaf</h3>
-                      <p className="text-gray-600 mb-2">A decadent dessert loaf with a rich chocolate flavor and a hint of liquid gold espresso.</p>
-                      <p className="text-bakery-brown font-medium">$4.99</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+      {specialItems.length > 0 && (
+        <section className="bg-bakery-gold/10 py-8">
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto">
+              <h2 className="text-2xl md:text-3xl font-serif font-bold text-bakery-brown text-center mb-6">
+                This Week's Specials
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {specialItems.map(item => (
+                  <Card key={item.id} className="bg-white">
+                    <CardContent className="p-6">
+                      <div className="flex items-start gap-4">
+                        <div className="h-24 w-24 bg-bakery-cream/50 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <span className="text-bakery-brown text-5xl">🍪</span>
+                        </div>
+                        <div>
+                          <h3 className="font-serif font-semibold text-xl text-bakery-brown mb-2">{item.name}</h3>
+                          <p className="text-gray-600 mb-2">{item.description}</p>
+                          <p className="text-bakery-brown font-medium">${item.price.toFixed(2)}</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <div className="container mx-auto px-4 py-12">
         {/* Menu Introduction */}
@@ -118,36 +151,65 @@ const MenuPage = () => {
                   <span className="font-medium text-bakery-brown">${item.price.toFixed(2)}</span>
                 </div>
                 <p className="text-gray-600 mb-4">{item.description}</p>
-                <div className="flex flex-wrap gap-2 mb-4">
+                <div className="flex ml-2 gap-1">
                   {item.dietaryInfo.vegan && (
-                    <Badge className="bg-green-100 text-green-800 hover:bg-green-200">Vegan</Badge>
+                    <span title="Vegan - Contains no animal products"><Vegan size={16} className="text-green-600" /></span>
                   )}
                   {item.dietaryInfo.glutenFree && (
-                    <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-200">Gluten Free</Badge>
-                  )}
-                  {item.dietaryInfo.dairyFree && (
-                    <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200">Dairy Free</Badge>
+                    <span title="Gluten Free - No wheat, rye, or barley"><WheatOff size={16} className="text-yellow-600" /></span>
                   )}
                   {item.dietaryInfo.nutFree && (
-                    <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-200">Nut Free</Badge>
+                    <span title="Nut Free - No nuts or nut products"><EggOff size={16} className="text-yellow-600" /></span>
+                  )}
+                  {item.dietaryInfo.dairyFree && (
+                    <span title="Dairy Free - No milk or dairy products"><MilkOff size={16} className="text-blue-600" /></span>
+                  )}
+                  {item.dietaryInfo.halal && (
+                    <span title="Halal - Prepared according to Islamic dietary laws">
+                      <img src="/images/halalwhite.jpg" alt="Halal" className="w-4 h-4" />
+                    </span>
                   )}
                 </div>
-                <div className="mb-4">
+
+                {/* Allergen Information */}
+                {Object.entries(item.allergens || {}).some(([_, present]) => present) && (
+                  <div className="mb-4">
+                    <p className="text-sm font-medium text-gray-700 mb-2">Contains:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {Object.entries(item.allergens || {})
+                        .filter(([_, present]) => present)
+                        .map(([allergen]) => (
+                          <Badge
+                            key={allergen}
+                            variant="outline"
+                            className="text-red-600 border-red-200 bg-red-50 hover:bg-red-100"
+                          >
+                            {formatDietaryName(allergen)}
+                          </Badge>
+                        ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex justify-between items-center">
                   {item.madeToOrder ? (
-                    <p className="text-bakery-brown font-medium">Made to Order</p>
-                  ) : item.stock > 0 ? (
-                    <p className="text-green-600 font-medium">{item.stock} in stock</p>
+                    <Badge variant="outline" className="text-bakery-brown border-bakery-brown">
+                      Made to Order
+                    </Badge>
                   ) : (
-                    <p className="text-red-600 font-medium">Out of stock</p>
+                    <Badge 
+                      variant="outline" 
+                      className={item.stock > 0 ? "text-green-600 border-green-600" : "text-red-600 border-red-600"}
+                    >
+                      {item.stock} in stock
+                    </Badge>
                   )}
+                  <Link to={`/order?item=${item.id}`}>
+                    <Button className="bg-bakery-brown hover:bg-bakery-light">
+                      Order Now
+                    </Button>
+                  </Link>
                 </div>
-                <Button
-                  asChild
-                  className="w-full bg-bakery-brown hover:bg-bakery-light"
-                  disabled={!item.madeToOrder && item.stock === 0}
-                >
-                  <Link to={`/order?item=${item.id}`}>Pre-Order</Link>
-                </Button>
               </CardContent>
             </Card>
           ))}

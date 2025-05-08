@@ -29,7 +29,7 @@ import {
   SelectTrigger,
   SelectValue, 
 } from '@/components/ui/select';
-import { Calendar as CalendarIcon, X, Plus, Minus, Vegan, EggOff, MilkOff } from 'lucide-react';
+import { Calendar as CalendarIcon, X, Plus, Minus, Vegan, EggOff, MilkOff, WheatOff } from 'lucide-react';
 import { format } from 'date-fns';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -41,6 +41,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Badge } from '@/components/ui/badge';
 import emailjs from '@emailjs/browser';
 import { orderEmailTemplate } from '@/email-templates';
+import { useMenu } from '@/contexts/MenuContext';
 
 // Initialize EmailJS
 emailjs.init("jRgg2OkLA0U1pS4WQ");
@@ -90,9 +91,10 @@ interface CartItem {
 // Dietary restrictions for filtering
 const dietaryOptions = [
   { id: "vegan", label: "Vegan", icon: <Vegan className="mr-1.5" /> },
-  { id: "glutenFree", label: "Gluten Free", icon: <EggOff className="mr-1.5" /> },
+  { id: "glutenFree", label: "Gluten Free", icon: <WheatOff className="mr-1.5" /> },
   { id: "dairyFree", label: "Dairy Free", icon: <MilkOff className="mr-1.5" /> },
-  { id: "nutFree", label: "Nut Free", icon: null }
+  { id: "nutFree", label: "Nut Free", icon: <EggOff className="mr-1.5" /> },
+  { id: "halal", label: "Halal", icon: <img src="/images/halalwhite.jpg" alt="Halal" className="w-4 h-4 mr-1.5" /> }
 ];
 
 const OrderPage = () => {
@@ -101,6 +103,7 @@ const OrderPage = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedDietary, setSelectedDietary] = useState<string[]>([]);
   const { toast } = useToast();
+  const { menuItems } = useMenu();
 
   // Split cart items into in-stock and made-to-order
   const inStockItems = cart.filter(item => {
@@ -532,13 +535,21 @@ const OrderPage = () => {
                                     <p className="font-medium font-sans text-lg">{item.name}</p>
                                     <div className="flex ml-2 gap-1">
                                       {item.dietaryInfo.vegan && (
-                                        <span title="Vegan"><Vegan size={16} className="text-green-600" /></span>
+                                        <span title="Vegan - Contains no animal products"><Vegan size={16} className="text-green-600" /></span>
                                       )}
                                       {item.dietaryInfo.glutenFree && (
-                                        <span title="Gluten Free"><EggOff size={16} className="text-yellow-600" /></span>
+                                        <span title="Gluten Free - No wheat, rye, or barley"><WheatOff size={16} className="text-yellow-600" /></span>
+                                      )}
+                                      {item.dietaryInfo.nutFree && (
+                                        <span title="Nut Free - No nuts or nut products"><EggOff size={16} className="text-yellow-600" /></span>
                                       )}
                                       {item.dietaryInfo.dairyFree && (
-                                        <span title="Dairy Free"><MilkOff size={16} className="text-blue-600" /></span>
+                                        <span title="Dairy Free - No milk or dairy products"><MilkOff size={16} className="text-blue-600" /></span>
+                                      )}
+                                      {item.dietaryInfo.halal && (
+                                        <span title="Halal - Prepared according to Islamic dietary laws">
+                                          <img src="/images/halalwhite.jpg" alt="Halal" className="w-4 h-4" />
+                                        </span>
                                       )}
                                     </div>
                                   </div>
@@ -579,7 +590,7 @@ const OrderPage = () => {
                     <Vegan size={14} className="text-green-600 mr-1.5" /> Vegan
                   </div>
                   <div className="flex items-center font-sans">
-                    <EggOff size={14} className="text-yellow-600 mr-1.5" /> Gluten Free
+                    <WheatOff size={14} className="text-yellow-600 mr-1.5" /> Gluten Free
                   </div>
                   <div className="flex items-center font-sans">
                     <MilkOff size={14} className="text-blue-600 mr-1.5" /> Dairy Free
