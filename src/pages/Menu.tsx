@@ -11,7 +11,7 @@ import {
 import { useMenu } from '@/contexts/MenuContext';
 
 const Menu = () => {
-  const { menuItems, dietaryRestrictions } = useMenu();
+  const { menuItems, dietaryRestrictions, forceRefreshMenuItems } = useMenu();
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -193,7 +193,15 @@ const Menu = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-serif font-bold text-center mb-8">Our Menu</h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-4xl font-serif font-bold">Our Menu</h1>
+        <button
+          onClick={forceRefreshMenuItems}
+          className="px-4 py-2 bg-bakery-brown text-white rounded-md hover:bg-bakery-light transition-colors"
+        >
+          Refresh Menu
+        </button>
+      </div>
 
       {/* This Week's Specials Section */}
       {specialItems.length > 0 && (

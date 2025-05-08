@@ -17,6 +17,7 @@ interface MenuContextType {
   removeAllergen: (allergen: string) => void;
   getMenuItem: (id: string) => MenuItem | undefined;
   clearMenuItems: () => void;
+  forceRefreshMenuItems: () => void;
 }
 
 const MenuContext = createContext<MenuContextType | null>(null);
@@ -25,6 +26,8 @@ const STORAGE_KEY = 'menu-items';
 const DIETARY_STORAGE_KEY = 'dietary-restrictions';
 const CATEGORIES_STORAGE_KEY = 'menu-categories';
 const ALLERGENS_STORAGE_KEY = 'menu-allergens';
+const MENU_VERSION_KEY = 'menu-version';
+const CURRENT_MENU_VERSION = '1.0.0';
 
 // Initial dietary restrictions
 const initialDietaryRestrictions = ['vegan', 'glutenFree', 'nutFree', 'dairyFree', 'halal', 'kosher'];
@@ -84,6 +87,15 @@ const batchedStorage = {
 export function MenuProvider({ children }: { children: ReactNode }) {
   const [menuItems, setMenuItems] = useState<MenuItem[]>(() => {
     try {
+      // Check if we need to clear the menu items due to version mismatch
+      const storedVersion = localStorage.getItem(MENU_VERSION_KEY);
+      if (storedVersion !== CURRENT_MENU_VERSION) {
+        console.log('Menu version mismatch, clearing stored items');
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.setItem(MENU_VERSION_KEY, CURRENT_MENU_VERSION);
+        return initialMenuItems;
+      }
+
       const stored = localStorage.getItem(STORAGE_KEY);
       console.log('=== Menu Items Loading Debug ===');
       console.log('Raw stored data:', stored);
@@ -139,6 +151,7 @@ export function MenuProvider({ children }: { children: ReactNode }) {
       const serialized = JSON.stringify(menuItems);
       console.log('Serialized data:', serialized);
       localStorage.setItem(STORAGE_KEY, serialized);
+      localStorage.setItem(MENU_VERSION_KEY, CURRENT_MENU_VERSION);
       console.log('Successfully saved to localStorage');
     } catch (e) {
       console.error('Error saving menu items to localStorage:', e);
@@ -192,140 +205,60 @@ export function MenuProvider({ children }: { children: ReactNode }) {
     return initialAllergens;
   });
 
-  // Save to localStorage whenever dietaryRestrictions changes
+  // Save dietary restrictions to localStorage
   useEffect(() => {
-    localStorage.setItem(DIETARY_STORAGE_KEY, JSON.stringify(dietaryRestrictions));
+    try {
+      localStorage.setItem(DIETARY_STORAGE_KEY, JSON.stringify(dietaryRestrictions));
+    } catch (e) {
+      console.error('Error saving dietary restrictions to localStorage:', e);
+    }
   }, [dietaryRestrictions]);
 
-  // Save to localStorage whenever categories changes
+  // Save categories to localStorage
   useEffect(() => {
-    localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(categories));
+    try {
+      localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(categories));
+    } catch (e) {
+      console.error('Error saving categories to localStorage:', e);
+    }
   }, [categories]);
 
-  // Save to localStorage whenever allergens changes
+  // Save allergens to localStorage
   useEffect(() => {
-    localStorage.setItem(ALLERGENS_STORAGE_KEY, JSON.stringify(allergens));
+    try {
+      localStorage.setItem(ALLERGENS_STORAGE_KEY, JSON.stringify(allergens));
+    } catch (e) {
+      console.error('Error saving allergens to localStorage:', e);
+    }
   }, [allergens]);
 
-  // Add effect to log menu items changes
-  useEffect(() => {
-    console.log('Menu items updated:', menuItems);
-    console.log('Menu items length:', menuItems.length);
-    // Check for duplicate IDs
-    const ids = menuItems.map(item => item.id);
-    const uniqueIds = new Set(ids);
-    if (ids.length !== uniqueIds.size) {
-      console.warn('Found duplicate menu item IDs:', ids.filter((id, index) => ids.indexOf(id) !== index));
-    }
-  }, [menuItems]);
-
-  // Memoize handlers
   const updateMenuItem = useCallback((id: string, updates: Partial<MenuItem>) => {
-    console.log('MenuContext: Updating item', id);
-    console.log('MenuContext: Updates', updates);
-    setMenuItems(items => {
-      const updated = items.map(item => {
-        if (item.id === id) {
-          console.log('MenuContext: Current item', item);
-          const newItem = {
-            ...item,
-            ...updates,
-            dietaryInfo: {
-              vegan: Boolean(updates.dietaryInfo?.vegan ?? item.dietaryInfo?.vegan),
-              glutenFree: Boolean(updates.dietaryInfo?.glutenFree ?? item.dietaryInfo?.glutenFree),
-              nutFree: Boolean(updates.dietaryInfo?.nutFree ?? item.dietaryInfo?.nutFree),
-              dairyFree: Boolean(updates.dietaryInfo?.dairyFree ?? item.dietaryInfo?.dairyFree),
-              halal: Boolean(updates.dietaryInfo?.halal ?? item.dietaryInfo?.halal),
-              kosher: Boolean(updates.dietaryInfo?.kosher ?? item.dietaryInfo?.kosher),
-              ...(updates.dietaryInfo || {})
-            }
-          };
-          console.log('MenuContext: New item', newItem);
-          return newItem;
-        }
-        return item;
-      });
-      return updated;
+    setMenuItems(prevItems => {
+      const updatedItems = prevItems.map(item => 
+        item.id === id ? { ...item, ...updates } : item
+      );
+      return updatedItems;
     });
   }, []);
 
   const addMenuItem = useCallback((item: MenuItem) => {
-    setMenuItems(items => {
-      // Ensure all dietary restrictions are initialized for the new item
-      const dietaryInfo = {
-        vegan: Boolean(item.dietaryInfo?.vegan),
-        glutenFree: Boolean(item.dietaryInfo?.glutenFree),
-        nutFree: Boolean(item.dietaryInfo?.nutFree),
-        dairyFree: Boolean(item.dietaryInfo?.dairyFree),
-        halal: Boolean(item.dietaryInfo?.halal),
-        kosher: Boolean(item.dietaryInfo?.kosher)
-      };
-      
-      const newItem = {
-        ...item,
-        dietaryInfo
-      };
-      
-      return [...items, newItem];
-    });
+    setMenuItems(prevItems => [...prevItems, item]);
   }, []);
 
   const deleteMenuItem = useCallback((id: string) => {
-    setMenuItems(items => {
-      const updated = items.filter(item => item.id !== id);
-      batchedStorage.set(STORAGE_KEY, updated);
-      return updated;
-    });
+    setMenuItems(prevItems => prevItems.filter(item => item.id !== id));
   }, []);
 
   const addDietaryRestriction = useCallback((restriction: string) => {
-    setDietaryRestrictions(prev => {
-      if (!prev.includes(restriction)) {
-        // Update all menu items to include the new dietary restriction
-        setMenuItems(items => {
-          const updated = items.map(item => ({
-            ...item,
-            dietaryInfo: {
-              ...item.dietaryInfo,
-              [restriction]: false
-            }
-          }));
-          batchedStorage.set(STORAGE_KEY, updated);
-          return updated;
-        });
-        return [...prev, restriction];
-      }
-      return prev;
-    });
+    setDietaryRestrictions(prev => [...prev, restriction]);
   }, []);
 
   const removeDietaryRestriction = useCallback((restriction: string) => {
-    setDietaryRestrictions(prev => {
-      const updated = prev.filter(r => r !== restriction);
-      // Update all menu items to remove the dietary restriction
-      setMenuItems(items => {
-        const updatedItems = items.map(item => {
-          const newDietaryInfo = { ...item.dietaryInfo };
-          delete newDietaryInfo[restriction as keyof typeof newDietaryInfo];
-          return {
-            ...item,
-            dietaryInfo: newDietaryInfo as DietaryInfo
-          };
-        });
-        batchedStorage.set(STORAGE_KEY, updatedItems);
-        return updatedItems;
-      });
-      return updated;
-    });
+    setDietaryRestrictions(prev => prev.filter(r => r !== restriction));
   }, []);
 
   const addCategory = useCallback((category: string) => {
-    setCategories(prev => {
-      if (!prev.includes(category)) {
-        return [...prev, category];
-      }
-      return prev;
-    });
+    setCategories(prev => [...prev, category]);
   }, []);
 
   const removeCategory = useCallback((category: string) => {
@@ -333,42 +266,30 @@ export function MenuProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const addAllergen = useCallback((allergen: string) => {
-    setAllergens(prev => {
-      if (!prev.includes(allergen)) {
-        // Update all menu items to include the new allergen
-        setMenuItems(items => {
-          const updated = items.map(item => ({
-            ...item,
-            allergens: {
-              ...item.allergens,
-              [allergen]: false
-            }
-          }));
-          batchedStorage.set(STORAGE_KEY, updated);
-          return updated;
-        });
-        return [...prev, allergen];
-      }
-      return prev;
-    });
+    setAllergens(prev => [...prev, allergen]);
   }, []);
 
   const removeAllergen = useCallback((allergen: string) => {
     setAllergens(prev => prev.filter(a => a !== allergen));
   }, []);
 
-  const getMenuItem = (id: string) => {
+  const getMenuItem = useCallback((id: string) => {
     return menuItems.find(item => item.id === id);
-  };
+  }, [menuItems]);
 
   const clearMenuItems = useCallback(() => {
-    console.log('Clearing menu items from localStorage');
     localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(MENU_VERSION_KEY);
     setMenuItems(initialMenuItems);
   }, []);
 
-  // Memoize context value
-  const contextValue = useMemo(() => ({
+  const forceRefreshMenuItems = useCallback(() => {
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(MENU_VERSION_KEY);
+    setMenuItems(initialMenuItems);
+  }, []);
+
+  const value = useMemo(() => ({
     menuItems,
     dietaryRestrictions,
     categories,
@@ -383,7 +304,8 @@ export function MenuProvider({ children }: { children: ReactNode }) {
     addAllergen,
     removeAllergen,
     getMenuItem,
-    clearMenuItems
+    clearMenuItems,
+    forceRefreshMenuItems
   }), [
     menuItems,
     dietaryRestrictions,
@@ -399,46 +321,34 @@ export function MenuProvider({ children }: { children: ReactNode }) {
     addAllergen,
     removeAllergen,
     getMenuItem,
-    clearMenuItems
+    clearMenuItems,
+    forceRefreshMenuItems
   ]);
 
-  // Cleanup storage on unmount
-  useEffect(() => {
-    return () => {
-      if (batchedStorage.timeout) {
-        batchedStorage.flush();
-      }
-    };
-  }, []);
-
   return (
-    <MenuContext.Provider value={contextValue}>
+    <MenuContext.Provider value={value}>
       {children}
     </MenuContext.Provider>
   );
 }
 
-// Selector hooks
 export function useMenuItem(id: string) {
-  const { menuItems } = useMenu();
-  return useMemo(() => menuItems.find(item => item.id === id), [menuItems, id]);
+  const context = useContext(MenuContext);
+  if (!context) throw new Error('useMenuItem must be used within a MenuProvider');
+  return context.getMenuItem(id);
 }
 
 export function useFilteredMenuItems(category: string, available: boolean = true) {
-  const { menuItems } = useMenu();
-  return useMemo(() => 
-    menuItems.filter(item => 
-      (!category || item.category === category) &&
-      (!available || item.available)
-    ),
-    [menuItems, category, available]
+  const context = useContext(MenuContext);
+  if (!context) throw new Error('useFilteredMenuItems must be used within a MenuProvider');
+  return context.menuItems.filter(item => 
+    (!category || item.category === category) && 
+    (!available || item.active)
   );
 }
 
 export function useMenu() {
   const context = useContext(MenuContext);
-  if (!context) {
-    throw new Error('useMenu must be used within a MenuProvider');
-  }
+  if (!context) throw new Error('useMenu must be used within a MenuProvider');
   return context;
 } 
