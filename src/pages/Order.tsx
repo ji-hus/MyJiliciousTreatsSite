@@ -40,7 +40,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Badge } from '@/components/ui/badge';
 import emailjs from '@emailjs/browser';
-import { orderEmailTemplate } from '@/email-templates';
+import { orderEmailTemplate, customerOrderEmailTemplate } from '@/email-templates';
 import { useMenu } from '@/contexts/MenuContext';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -111,11 +111,46 @@ const dietaryOptions = [
   { id: "kosher", label: "Kosher", icon: <Star className="mr-1.5 text-purple-600" /> }
 ];
 
+// Add these helper functions before the OrderPage component
+const formatOrderDetails = (cart: CartItem[]) => {
+  const inStockItems = cart.filter(item => {
+    const menuItem = menuItems.find(mi => mi.id === item.id);
+    return menuItem && !menuItem.madeToOrder;
+  });
+
+  const madeToOrderItems = cart.filter(item => {
+    const menuItem = menuItems.find(mi => mi.id === item.id);
+    return menuItem && menuItem.madeToOrder;
+  });
+
+  const cartTotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+
+  return `
+    ${inStockItems.length > 0 ? `In-Stock Items:\n${inStockItems.map(item => 
+      `${item.name} x${item.quantity} - $${(item.price * item.quantity).toFixed(2)}`
+    ).join('\n')}\n\n` : ''}
+    ${madeToOrderItems.length > 0 ? `Made-to-Order Items:\n${madeToOrderItems.map(item => 
+      `${item.name} x${item.quantity} - $${(item.price * item.quantity).toFixed(2)}`
+    ).join('\n')}\n\n` : ''}
+    Total Amount: $${cartTotal.toFixed(2)}
+  `;
+};
+
+const formatPickupDetails = (data: OrderFormValues) => {
+  return `
+    ${data.inStockPickupDate && data.inStockPickupTime ? 
+      `In-Stock Items Pickup: ${format(data.inStockPickupDate, 'MMMM d, yyyy')} at ${data.inStockPickupTime}\n` : ''}
+    ${data.madeToOrderPickupDate && data.madeToOrderPickupTime ? 
+      `Made-to-Order Items Pickup: ${format(data.madeToOrderPickupDate, 'MMMM d, yyyy')} at ${data.madeToOrderPickupTime}\n` : ''}
+  `;
+};
+
 const OrderPage = () => {
   const [searchParams] = useSearchParams();
   const [cart, setCart] = useState<CartItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedDietary, setSelectedDietary] = useState<string[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const { menuItems, categories } = useMenu();
 
@@ -361,71 +396,108 @@ const OrderPage = () => {
 
   // Handle form submission
   const onSubmit = async (data: OrderFormValues) => {
-    console.log('Form submitted with data:', data);
-    console.log('Cart items:', cart);
-
-    // Basic validation
-    if (cart.length === 0) {
-      console.log('Cart is empty');
-      return;
-    }
-
-    if (!data.name || !data.email || !data.phone) {
-      console.log('Missing required fields');
-      return;
-    }
-
-    if (inStockItems.length > 0 && (!data.inStockPickupDate || !data.inStockPickupTime)) {
-      console.log('Missing in-stock pickup details');
-      return;
-    }
-
-    if (madeToOrderItems.length > 0 && (!data.madeToOrderPickupDate || !data.madeToOrderPickupTime)) {
-      console.log('Missing made-to-order pickup details');
+    if (isSubmitting) {
+      console.log('Form submission already in progress');
       return;
     }
 
     try {
-      console.log('Starting email send process');
-      
+      setIsSubmitting(true);
+      console.log('Starting order submission...');
+      console.log('Customer email:', data.email);
+      console.log('Customer name:', data.name);
+
+      // Basic validation
+      if (cart.length === 0) {
+        console.log('Cart is empty');
+        return;
+      }
+
+      if (!data.name || !data.email || !data.phone) {
+        console.log('Missing required fields');
+        return;
+      }
+
       // Prepare email template parameters
       const templateParams = {
-        to_email: 'myjilicioustreats@gmail.com',
-        from_name: data.name,
-        from_email: data.email,
+        to_email: data.email, // Send to customer first
+        name: 'Ji\'licious Treats',
+        email: 'myjilicioustreats@gmail.com',
+        customer_name: data.name,
+        customer_email: data.email,
+        customer_phone: data.phone,
+        contact_info: `Customer Contact Information:\nName: ${data.name}\nEmail: ${data.email}\nPhone: ${data.phone}`,
         phone: data.phone,
-        in_stock_pickup_date: data.inStockPickupDate ? format(data.inStockPickupDate, 'MMMM d, yyyy') : '',
-        in_stock_pickup_time: data.inStockPickupTime || '',
-        made_to_order_pickup_date: data.madeToOrderPickupDate ? format(data.madeToOrderPickupDate, 'MMMM d, yyyy') : '',
-        made_to_order_pickup_time: data.madeToOrderPickupTime || '',
-        special_instructions: data.specialInstructions || '',
-        in_stock_items: inStockItems.map(item => 
+        logo_url: 'https://crumb-and-connect.vercel.app/images/logo.png',
+        in_stock_pickup_date: data.inStockPickupDate ? format(data.inStockPickupDate, 'MMMM d, yyyy') : 'Not applicable',
+        in_stock_pickup_time: data.inStockPickupTime || 'Not applicable',
+        made_to_order_pickup_date: data.madeToOrderPickupDate ? format(data.madeToOrderPickupDate, 'MMMM d, yyyy') : 'Not applicable',
+        made_to_order_pickup_time: data.madeToOrderPickupTime || 'Not applicable',
+        special_instructions: data.specialInstructions || 'None',
+        in_stock_items: inStockItems.length > 0 ? inStockItems.map(item => 
           `${item.name} x${item.quantity} - $${(item.price * item.quantity).toFixed(2)}`
-        ).join('\n'),
-        made_to_order_items: madeToOrderItems.map(item => 
+        ).join('\n') : 'No in-stock items ordered',
+        made_to_order_items: madeToOrderItems.length > 0 ? madeToOrderItems.map(item => 
           `${item.name} x${item.quantity} - $${(item.price * item.quantity).toFixed(2)}`
-        ).join('\n'),
-        total_amount: `$${cartTotal.toFixed(2)}`,
-        message: orderEmailTemplate,
-        reply_to: data.email
+        ).join('\n') : 'No made-to-order items ordered',
+        total_amount: `$${cartTotal.toFixed(2)}`
       };
 
-      console.log('Sending email with parameters:', templateParams);
+      try {
+        console.log('Sending customer email...');
+        console.log('Customer email params:', templateParams);
+        
+        // Send confirmation to customer first
+        const customerResponse = await emailjs.send(
+          'service_10tkiq3',
+          'template_34tuje7',
+          templateParams,
+          {
+            publicKey: 'jRgg2OkLA0U1pS4WQ'
+          }
+        );
+        console.log('Customer email sent successfully:', customerResponse);
 
-      // Send email using EmailJS with explicit configuration
-      const result = await emailjs.send(
-        'service_10tkiq3',
-        'template_34tuje7',
-        templateParams,
-        {
-          publicKey: 'jRgg2OkLA0U1pS4WQ'
-        }
-      );
+        console.log('Sending bakery email...');
+        // Send email to bakery
+        const bakeryTemplateParams = {
+          ...templateParams,
+          to_email: 'myjilicioustreats@gmail.com', // Bakery email
+          name: data.name,
+          email: data.email
+        };
+        console.log('Bakery email params:', bakeryTemplateParams);
 
-      console.log('EmailJS Response:', result);
+        const bakeryResponse = await emailjs.send(
+          'service_10tkiq3',
+          'template_34tuje7',
+          bakeryTemplateParams,
+          {
+            publicKey: 'jRgg2OkLA0U1pS4WQ'
+          }
+        );
+        console.log('Bakery email sent successfully:', bakeryResponse);
 
-      // Check if the email was sent successfully
-      if (result.text === 'OK') {
+        console.log('Sending test copy...');
+        // Send test copy to your email
+        const testTemplateParams = {
+          ...templateParams,
+          to_email: 'sanjidah.hus@gmail.com', // Your test email
+        };
+        console.log('Test email params:', testTemplateParams);
+
+        const testResponse = await emailjs.send(
+          'service_10tkiq3',
+          'template_34tuje7',
+          testTemplateParams,
+          {
+            publicKey: 'jRgg2OkLA0U1pS4WQ'
+          }
+        );
+        console.log('Test email sent successfully:', testResponse);
+
+        console.log('All emails sent successfully');
+
         // Create pickup message based on available dates
         let pickupMessage = '';
         if (data.inStockPickupDate && data.inStockPickupTime) {
@@ -444,12 +516,21 @@ const OrderPage = () => {
         // Reset form and cart
         form.reset(defaultValues);
         setCart([]);
-      } else {
-        throw new Error('Email service returned unexpected response');
+
+      } catch (emailError) {
+        console.error('Error sending emails:', emailError);
+        if (emailError instanceof Error) {
+          console.error('Email error details:', {
+            message: emailError.message,
+            name: emailError.name,
+            stack: emailError.stack
+          });
+        }
+        throw emailError; // Re-throw to be caught by outer catch block
       }
+
     } catch (error) {
-      console.error('Error sending order:', error);
-      // Log more detailed error information
+      console.error('Error submitting order:', error);
       if (error instanceof Error) {
         console.error('Error details:', {
           message: error.message,
@@ -457,15 +538,13 @@ const OrderPage = () => {
           stack: error.stack
         });
       }
-      // Check if it's an EmailJS error
-      if (error && typeof error === 'object' && 'text' in error) {
-        console.error('EmailJS error:', error.text);
-      }
       toast({
         title: "Error",
-        description: "There was a problem submitting your order. Please try again or contact us directly.",
+        description: "Failed to submit order. Please try again.",
         variant: "destructive"
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -886,10 +965,8 @@ const OrderPage = () => {
                 <Form {...form}>
                   <form 
                     onSubmit={async (e) => {
-                      console.log('Form submit event triggered');
                       e.preventDefault();
                       const formData = form.getValues();
-                      console.log('Form data:', formData);
                       await onSubmit(formData);
                     }} 
                     className="space-y-6"
@@ -1160,9 +1237,9 @@ const OrderPage = () => {
                     <Button 
                       type="submit" 
                       className="w-full bg-bakery-brown hover:bg-bakery-light text-white font-sans text-lg"
-                      disabled={cart.length === 0}
+                      disabled={cart.length === 0 || isSubmitting}
                     >
-                      {cart.length === 0 ? "Add items to cart to place order" : "Place Order"}
+                      {isSubmitting ? "Processing..." : cart.length === 0 ? "Add items to cart to place order" : "Place Order"}
                     </Button>
                   </form>
                 </Form>

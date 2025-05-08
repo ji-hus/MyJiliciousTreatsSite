@@ -173,4 +173,102 @@ export const contactEmailTemplate = `
     </div>
 </body>
 </html>
+`;
+
+export const customerOrderEmailTemplate = `
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #8B4513;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+        }
+        .content {
+            background-color: #fff;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 0 0 5px 5px;
+        }
+        .order-details {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        .items-list {
+            margin: 20px 0;
+        }
+        .total {
+            font-weight: bold;
+            text-align: right;
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+        }
+        .pickup-section {
+            margin: 15px 0;
+            padding: 15px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+        }
+        .pickup-section h3 {
+            color: #8B4513;
+            margin-bottom: 10px;
+        }
+        .footer {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            font-size: 0.9em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Order Confirmation</h1>
+    </div>
+    <div class="content">
+        <p>Dear {{customer_name}},</p>
+        
+        <p>Thank you for your order with Ji'licious Treats! We're excited to prepare your delicious treats.</p>
+        
+        <div class="order-details">
+            <h2>Your Order Details</h2>
+            <div class="items-list">
+                <pre>{{order_details}}</pre>
+            </div>
+        </div>
+
+        <div class="pickup-section">
+            <h3>Pickup Information</h3>
+            <pre>{{pickup_details}}</pre>
+        </div>
+
+        <div class="special-instructions">
+            <h3>Special Instructions</h3>
+            <p>{{special_instructions}}</p>
+        </div>
+
+        <div class="footer">
+            <p>If you have any questions about your order, please contact us at:</p>
+            <p>Phone: 248-403-0780</p>
+            <p>Email: myjilicioustreats@gmail.com</p>
+        </div>
+    </div>
+</body>
+</html>
 `; 
