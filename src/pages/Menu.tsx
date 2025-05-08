@@ -12,22 +12,32 @@ import {
 } from "@/components/ui/tooltip";
 
 const Menu = () => {
-  const { categories } = useMenu();
-  const [selectedCategory, setSelectedCategory] = useState<string>(categories[0] || '');
-  const filteredItems = useFilteredMenuItems(selectedCategory, true);
+  const { menuItems } = useMenu();
+  const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredItems = useMemo(() => {
+    return menuItems
+      .filter(item => item.active) // Only show active items
+      .filter(item => selectedCategory === "All" || item.category === selectedCategory)
+      .filter(item => 
+        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.description.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+  }, [menuItems, selectedCategory, searchQuery]);
 
   const categoryTabs = useMemo(() => (
     <TabsList className="grid grid-cols-5 mb-8">
-      {categories.map(category => (
+      {['All', ...new Set(menuItems.map(item => item.category))].map(category => (
         <TabsTrigger key={category} value={category}>
           {category}
         </TabsTrigger>
       ))}
     </TabsList>
-  ), [categories]);
+  ), [menuItems]);
 
-  const menuItems = useMemo(() => (
-    categories.map(category => (
+  const menuItemsContent = useMemo(() => (
+    ['All', ...new Set(menuItems.map(item => item.category))].map(category => (
       <TabsContent key={category} value={category}>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredItems.map(item => (
@@ -130,7 +140,7 @@ const Menu = () => {
 
       <Tabs defaultValue={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
         {categoryTabs}
-        {menuItems}
+        {menuItemsContent}
       </Tabs>
     </div>
   );

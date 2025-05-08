@@ -10,6 +10,8 @@ export interface MenuItem {
     glutenFree: boolean;
     nutFree: boolean;
     dairyFree: boolean;
+    halal: boolean;
+    kosher: boolean;
   };
   allergens: {
     [key: string]: boolean;
@@ -29,6 +31,7 @@ export interface MenuItem {
     carbs: number;
     fat: number;
   };
+  active: boolean;
 }
 
 export const categories = [

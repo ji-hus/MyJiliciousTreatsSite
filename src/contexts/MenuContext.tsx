@@ -1,10 +1,11 @@
 import { createContext, useContext, useState, ReactNode, useEffect, useMemo, useCallback } from 'react';
-import { menuItems as initialMenuItems, MenuItem } from '@/data/menu-items';
+import { menuItems as initialMenuItems, MenuItem, categories } from '@/data/menu-items';
 
 interface MenuContextType {
   menuItems: MenuItem[];
   dietaryRestrictions: string[];
   categories: string[];
+  allergens: string[];
   updateMenuItem: (id: string, updates: Partial<MenuItem>) => void;
   addMenuItem: (item: MenuItem) => void;
   deleteMenuItem: (id: string) => void;
@@ -12,19 +13,49 @@ interface MenuContextType {
   removeDietaryRestriction: (restriction: string) => void;
   addCategory: (category: string) => void;
   removeCategory: (category: string) => void;
+  addAllergen: (allergen: string) => void;
+  removeAllergen: (allergen: string) => void;
+  getMenuItem: (id: string) => MenuItem | undefined;
 }
 
-const MenuContext = createContext<MenuContextType | undefined>(undefined);
+const MenuContext = createContext<MenuContextType | null>(null);
 
 const STORAGE_KEY = 'menu-items';
 const DIETARY_STORAGE_KEY = 'dietary-restrictions';
 const CATEGORIES_STORAGE_KEY = 'menu-categories';
+const ALLERGENS_STORAGE_KEY = 'menu-allergens';
 
 // Initial dietary restrictions
-const initialDietaryRestrictions = ['vegan', 'glutenFree', 'nutFree', 'dairyFree'];
+const initialDietaryRestrictions = ['vegan', 'glutenFree', 'nutFree', 'dairyFree', 'halal', 'kosher'];
 
 // Initial categories
 const initialCategories = ['Breads', 'Pastries', 'Baked Goods', 'Specialty Items'];
+
+// Initial allergens
+const initialAllergens = [
+  'wheat',
+  'nuts',
+  'coconut',
+  'milk',
+  'eggs',
+  'soy',
+  'sesame',
+  'shellfish',
+  'fish',
+  'peanuts',
+  'treeNuts',
+  'sulfites'
+];
+
+interface DietaryInfo {
+  vegan?: boolean;
+  glutenFree?: boolean;
+  nutFree?: boolean;
+  dairyFree?: boolean;
+  halal?: boolean;
+  kosher?: boolean;
+  Kosher?: boolean;
+}
 
 const batchedStorage = {
   queue: new Map(),
@@ -57,7 +88,30 @@ export function MenuProvider({ children }: { children: ReactNode }) {
       try {
         const parsed = JSON.parse(stored);
         console.log('Parsed menu items:', parsed);
-        return parsed;
+        
+        // Deduplicate menu items by keeping only the first occurrence of each ID
+        const uniqueItems = parsed.reduce((acc: MenuItem[], item: MenuItem) => {
+          if (!acc.find(existing => existing.id === item.id)) {
+            // Normalize dietary info casing
+            const dietaryInfo = (item.dietaryInfo || {}) as DietaryInfo;
+            const normalizedItem = {
+              ...item,
+              dietaryInfo: {
+                vegan: Boolean(dietaryInfo.vegan),
+                glutenFree: Boolean(dietaryInfo.glutenFree),
+                nutFree: Boolean(dietaryInfo.nutFree),
+                dairyFree: Boolean(dietaryInfo.dairyFree),
+                halal: Boolean(dietaryInfo.halal),
+                kosher: Boolean(dietaryInfo.kosher || dietaryInfo.Kosher)
+              }
+            };
+            acc.push(normalizedItem);
+          }
+          return acc;
+        }, []);
+        
+        console.log('Deduplicated menu items:', uniqueItems);
+        return uniqueItems;
       } catch (e) {
         console.error('Failed to parse stored menu items:', e);
       }
@@ -90,6 +144,18 @@ export function MenuProvider({ children }: { children: ReactNode }) {
     return initialCategories;
   });
 
+  const [allergens, setAllergens] = useState<string[]>(() => {
+    const stored = localStorage.getItem(ALLERGENS_STORAGE_KEY);
+    if (stored) {
+      try {
+        return JSON.parse(stored);
+      } catch (e) {
+        console.error('Failed to parse stored allergens:', e);
+      }
+    }
+    return initialAllergens;
+  });
+
   // Save to localStorage whenever menuItems changes
   useEffect(() => {
     console.log('Saving menu items to storage:', menuItems);
@@ -106,12 +172,37 @@ export function MenuProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(categories));
   }, [categories]);
 
+  // Save to localStorage whenever allergens changes
+  useEffect(() => {
+    localStorage.setItem(ALLERGENS_STORAGE_KEY, JSON.stringify(allergens));
+  }, [allergens]);
+
+  // Add effect to log menu items changes
+  useEffect(() => {
+    console.log('Menu items updated:', menuItems);
+    // Check for duplicate IDs
+    const ids = menuItems.map(item => item.id);
+    const uniqueIds = new Set(ids);
+    if (ids.length !== uniqueIds.size) {
+      console.warn('Found duplicate menu item IDs:', ids.filter((id, index) => ids.indexOf(id) !== index));
+    }
+  }, [menuItems]);
+
   // Memoize handlers
   const updateMenuItem = useCallback((id: string, updates: Partial<MenuItem>) => {
+    console.log('MenuContext: Updating item', id);
+    console.log('MenuContext: Updates', updates);
     setMenuItems(items => {
-      const updated = items.map(item =>
-        item.id === id ? { ...item, ...updates } : item
-      );
+      const updated = items.map(item => {
+        if (item.id === id) {
+          console.log('MenuContext: Current item', item);
+          const newItem = { ...item, ...updates };
+          console.log('MenuContext: Updated item', newItem);
+          return newItem;
+        }
+        return item;
+      });
+      console.log('MenuContext: Saving to storage', updated);
       batchedStorage.set(STORAGE_KEY, updated);
       return updated;
     });
@@ -119,7 +210,7 @@ export function MenuProvider({ children }: { children: ReactNode }) {
 
   const addMenuItem = useCallback((item: MenuItem) => {
     setMenuItems(items => {
-      const updated = [...items, item];
+      const updated = [...items, { ...item, active: true }];
       batchedStorage.set(STORAGE_KEY, updated);
       return updated;
     });
@@ -133,30 +224,71 @@ export function MenuProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const addDietaryRestriction = (restriction: string) => {
+  const addDietaryRestriction = useCallback((restriction: string) => {
     setDietaryRestrictions(prev => {
       if (!prev.includes(restriction)) {
+        // Update all menu items to include the new dietary restriction
+        setMenuItems(items => {
+          const updated = items.map(item => ({
+            ...item,
+            dietaryInfo: {
+              ...item.dietaryInfo,
+              [restriction]: false
+            }
+          }));
+          batchedStorage.set(STORAGE_KEY, updated);
+          return updated;
+        });
         return [...prev, restriction];
       }
       return prev;
     });
-  };
+  }, []);
 
-  const removeDietaryRestriction = (restriction: string) => {
+  const removeDietaryRestriction = useCallback((restriction: string) => {
     setDietaryRestrictions(prev => prev.filter(r => r !== restriction));
-  };
+  }, []);
 
-  const addCategory = (category: string) => {
+  const addCategory = useCallback((category: string) => {
     setCategories(prev => {
       if (!prev.includes(category)) {
         return [...prev, category];
       }
       return prev;
     });
-  };
+  }, []);
 
-  const removeCategory = (category: string) => {
+  const removeCategory = useCallback((category: string) => {
     setCategories(prev => prev.filter(c => c !== category));
+  }, []);
+
+  const addAllergen = useCallback((allergen: string) => {
+    setAllergens(prev => {
+      if (!prev.includes(allergen)) {
+        // Update all menu items to include the new allergen
+        setMenuItems(items => {
+          const updated = items.map(item => ({
+            ...item,
+            allergens: {
+              ...item.allergens,
+              [allergen]: false
+            }
+          }));
+          batchedStorage.set(STORAGE_KEY, updated);
+          return updated;
+        });
+        return [...prev, allergen];
+      }
+      return prev;
+    });
+  }, []);
+
+  const removeAllergen = useCallback((allergen: string) => {
+    setAllergens(prev => prev.filter(a => a !== allergen));
+  }, []);
+
+  const getMenuItem = (id: string) => {
+    return menuItems.find(item => item.id === id);
   };
 
   // Memoize context value
@@ -164,24 +296,32 @@ export function MenuProvider({ children }: { children: ReactNode }) {
     menuItems,
     dietaryRestrictions,
     categories,
+    allergens,
     updateMenuItem,
     addMenuItem,
     deleteMenuItem,
     addDietaryRestriction,
     removeDietaryRestriction,
     addCategory,
-    removeCategory
+    removeCategory,
+    addAllergen,
+    removeAllergen,
+    getMenuItem
   }), [
     menuItems,
     dietaryRestrictions,
     categories,
+    allergens,
     updateMenuItem,
     addMenuItem,
     deleteMenuItem,
     addDietaryRestriction,
     removeDietaryRestriction,
     addCategory,
-    removeCategory
+    removeCategory,
+    addAllergen,
+    removeAllergen,
+    getMenuItem
   ]);
 
   // Cleanup storage on unmount
@@ -219,7 +359,7 @@ export function useFilteredMenuItems(category: string, available: boolean = true
 
 export function useMenu() {
   const context = useContext(MenuContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useMenu must be used within a MenuProvider');
   }
   return context;

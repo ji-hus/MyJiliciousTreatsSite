@@ -29,7 +29,7 @@ import {
   SelectTrigger,
   SelectValue, 
 } from '@/components/ui/select';
-import { Calendar as CalendarIcon, X, Plus, Minus, Vegan, EggOff, MilkOff, WheatOff } from 'lucide-react';
+import { Calendar as CalendarIcon, X, Plus, Minus, Vegan, EggOff, MilkOff, WheatOff, Star } from 'lucide-react';
 import { format } from 'date-fns';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -106,7 +106,9 @@ const dietaryOptions = [
   { id: "vegan", label: "Vegan", icon: <Vegan className="mr-1.5" /> },
   { id: "glutenFree", label: "Gluten Free", icon: <WheatOff className="mr-1.5" /> },
   { id: "dairyFree", label: "Dairy Free", icon: <MilkOff className="mr-1.5" /> },
-  { id: "nutFree", label: "Nut Free", icon: <EggOff className="mr-1.5" /> }
+  { id: "nutFree", label: "Nut Free", icon: <EggOff className="mr-1.5" /> },
+  { id: "halal", label: "Halal", icon: <img src="/images/halalwhite.jpg" alt="Halal" className="w-4 h-4 mr-1.5" /> },
+  { id: "kosher", label: "Kosher", icon: <Star className="mr-1.5 text-purple-600" /> }
 ];
 
 const OrderPage = () => {
@@ -569,62 +571,95 @@ const OrderPage = () => {
                             {categoryItems.map(item => (
                               <div key={item.id} className="flex justify-between items-center p-3 rounded-md bg-bakery-cream/20 hover:bg-bakery-cream/40">
                                 <div>
-                                  <div className="flex items-center">
-                                    <p className="font-medium font-sans text-lg">{item.name}</p>
-                                    <div className="flex ml-2 gap-1">
-                                      <TooltipProvider>
-                                        {item.dietaryInfo.vegan && (
-                                          <Tooltip>
-                                            <TooltipTrigger>
-                                              <Vegan size={16} className="text-green-600" />
-                                            </TooltipTrigger>
-                                            <TooltipContent>
-                                              <p>Vegan - Contains no animal products</p>
-                                            </TooltipContent>
-                                          </Tooltip>
-                                        )}
-                                        {item.dietaryInfo.glutenFree && (
-                                          <Tooltip>
-                                            <TooltipTrigger>
-                                              <WheatOff size={16} className="text-yellow-600" />
-                                            </TooltipTrigger>
-                                            <TooltipContent>
-                                              <p>Gluten Free - No wheat, rye, or barley</p>
-                                            </TooltipContent>
-                                          </Tooltip>
-                                        )}
-                                        {item.dietaryInfo.nutFree && (
-                                          <Tooltip>
-                                            <TooltipTrigger>
-                                              <EggOff size={16} className="text-yellow-600" />
-                                            </TooltipTrigger>
-                                            <TooltipContent>
-                                              <p>Nut Free - No nuts or nut products</p>
-                                            </TooltipContent>
-                                          </Tooltip>
-                                        )}
-                                        {item.dietaryInfo.dairyFree && (
-                                          <Tooltip>
-                                            <TooltipTrigger>
-                                              <MilkOff size={16} className="text-blue-600" />
-                                            </TooltipTrigger>
-                                            <TooltipContent>
-                                              <p>Dairy Free - No milk or dairy products</p>
-                                            </TooltipContent>
-                                          </Tooltip>
-                                        )}
-                                      </TooltipProvider>
-                                    </div>
+                                  <p className="font-medium font-sans text-lg">{item.name}</p>
+                                  <div className="flex gap-1 mt-1">
+                                    <TooltipProvider>
+                                      {item.dietaryInfo.vegan && (
+                                        <Tooltip>
+                                          <TooltipTrigger>
+                                            <Vegan size={16} className="text-green-600" />
+                                          </TooltipTrigger>
+                                          <TooltipContent>
+                                            <p>Vegan - Contains no animal products</p>
+                                          </TooltipContent>
+                                        </Tooltip>
+                                      )}
+                                      {item.dietaryInfo.glutenFree && (
+                                        <Tooltip>
+                                          <TooltipTrigger>
+                                            <WheatOff size={16} className="text-yellow-600" />
+                                          </TooltipTrigger>
+                                          <TooltipContent>
+                                            <p>Gluten Free - No wheat, rye, or barley</p>
+                                          </TooltipContent>
+                                        </Tooltip>
+                                      )}
+                                      {item.dietaryInfo.nutFree && (
+                                        <Tooltip>
+                                          <TooltipTrigger>
+                                            <EggOff size={16} className="text-yellow-600" />
+                                          </TooltipTrigger>
+                                          <TooltipContent>
+                                            <p>Nut Free - No nuts or nut products</p>
+                                          </TooltipContent>
+                                        </Tooltip>
+                                      )}
+                                      {item.dietaryInfo.dairyFree && (
+                                        <Tooltip>
+                                          <TooltipTrigger>
+                                            <MilkOff size={16} className="text-blue-600" />
+                                          </TooltipTrigger>
+                                          <TooltipContent>
+                                            <p>Dairy Free - No milk or dairy products</p>
+                                          </TooltipContent>
+                                        </Tooltip>
+                                      )}
+                                      {item.dietaryInfo.halal && (
+                                        <Tooltip>
+                                          <TooltipTrigger>
+                                            <img src="/images/halalwhite.jpg" alt="Halal" className="w-4 h-4" />
+                                          </TooltipTrigger>
+                                          <TooltipContent>
+                                            <p>Halal - Prepared according to Islamic dietary laws</p>
+                                          </TooltipContent>
+                                        </Tooltip>
+                                      )}
+                                      {item.dietaryInfo.kosher && (
+                                        <Tooltip>
+                                          <TooltipTrigger>
+                                            <Star size={16} className="text-purple-600" />
+                                          </TooltipTrigger>
+                                          <TooltipContent>
+                                            <p>Kosher - Prepared according to Jewish dietary laws</p>
+                                          </TooltipContent>
+                                        </Tooltip>
+                                      )}
+                                    </TooltipProvider>
                                   </div>
-                                  <div className="flex items-center gap-2">
-                                    <p className="text-base text-gray-600 font-sans">${item.price.toFixed(2)}</p>
+                                  {Object.entries(item.allergens).some(([_, value]) => value) && (
+                                    <div className="mt-1">
+                                      <div className="flex flex-wrap gap-1">
+                                        {Object.entries(item.allergens).map(([allergen, present]) => 
+                                          present && (
+                                            <Badge key={allergen} variant="outline" className="text-red-600 border-red-600 text-xs">
+                                              {allergen.replace(/([A-Z])/g, ' $1').trim()}
+                                            </Badge>
+                                          )
+                                        )}
+                                      </div>
+                                    </div>
+                                  )}
+                                  <div className="mt-1">
                                     {item.madeToOrder ? (
-                                      <Badge variant="outline" className="text-bakery-brown border-bakery-brown font-sans text-base">Made to Order</Badge>
+                                      <Badge variant="outline" className="text-bakery-brown border-bakery-brown text-xs">Made to Order</Badge>
                                     ) : item.stock > 0 ? (
-                                      <Badge variant="outline" className="text-green-600 border-green-600 font-sans text-base">{item.stock} in stock</Badge>
+                                      <Badge variant="outline" className="text-green-600 border-green-600 text-xs">{item.stock} in stock</Badge>
                                     ) : (
-                                      <Badge variant="outline" className="text-red-600 border-red-600 font-sans text-base">Out of stock</Badge>
+                                      <Badge variant="outline" className="text-red-600 border-red-600 text-xs">Out of stock</Badge>
                                     )}
+                                  </div>
+                                  <div className="flex items-center gap-2 mt-1">
+                                    <p className="text-base text-gray-600 font-sans">${item.price.toFixed(2)}</p>
                                   </div>
                                 </div>
                                 <Button 
@@ -648,16 +683,75 @@ const OrderPage = () => {
               {/* Legend for dietary icons */}
               <div className="mt-4 pt-4 border-t border-gray-200">
                 <h4 className="text-base font-medium mb-2 font-sans">Dietary Information:</h4>
-                <div className="flex flex-col gap-1 text-sm text-gray-600">
-                  <div className="flex items-center font-sans">
-                    <Vegan size={14} className="text-green-600 mr-1.5" /> Vegan
-                  </div>
-                  <div className="flex items-center font-sans">
-                    <WheatOff size={14} className="text-yellow-600 mr-1.5" /> Gluten Free
-                  </div>
-                  <div className="flex items-center font-sans">
-                    <MilkOff size={14} className="text-blue-600 mr-1.5" /> Dairy Free
-                  </div>
+                <div className="flex flex-col gap-2 text-sm text-gray-600">
+                  <TooltipProvider>
+                    <div className="flex items-center font-sans">
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <Vegan size={16} className="text-green-600 mr-1.5" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Vegan - Contains no animal products</p>
+                        </TooltipContent>
+                      </Tooltip>
+                      <span>Vegan</span>
+                    </div>
+                    <div className="flex items-center font-sans">
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <WheatOff size={16} className="text-yellow-600 mr-1.5" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Gluten Free - No wheat, rye, or barley</p>
+                        </TooltipContent>
+                      </Tooltip>
+                      <span>Gluten Free</span>
+                    </div>
+                    <div className="flex items-center font-sans">
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <EggOff size={16} className="text-yellow-600 mr-1.5" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Nut Free - No nuts or nut products</p>
+                        </TooltipContent>
+                      </Tooltip>
+                      <span>Nut Free</span>
+                    </div>
+                    <div className="flex items-center font-sans">
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <MilkOff size={16} className="text-blue-600 mr-1.5" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Dairy Free - No milk or dairy products</p>
+                        </TooltipContent>
+                      </Tooltip>
+                      <span>Dairy Free</span>
+                    </div>
+                    <div className="flex items-center font-sans">
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <img src="/images/halalwhite.jpg" alt="Halal" className="w-4 h-4 mr-1.5" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Halal - Prepared according to Islamic dietary laws</p>
+                        </TooltipContent>
+                      </Tooltip>
+                      <span>Halal</span>
+                    </div>
+                    <div className="flex items-center font-sans">
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <Star size={16} className="text-purple-600 mr-1.5" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Kosher - Prepared according to Jewish dietary laws</p>
+                        </TooltipContent>
+                      </Tooltip>
+                      <span>Kosher</span>
+                    </div>
+                  </TooltipProvider>
                 </div>
               </div>
             </CardContent>
