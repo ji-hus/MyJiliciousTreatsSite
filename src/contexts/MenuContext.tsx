@@ -48,13 +48,13 @@ const initialAllergens = [
 ];
 
 interface DietaryInfo {
-  vegan?: boolean;
-  glutenFree?: boolean;
-  nutFree?: boolean;
-  dairyFree?: boolean;
-  halal?: boolean;
-  kosher?: boolean;
-  Kosher?: boolean;
+  vegan: boolean;
+  glutenFree: boolean;
+  nutFree: boolean;
+  dairyFree: boolean;
+  halal: boolean;
+  kosher: boolean;
+  [key: string]: boolean;
 }
 
 const batchedStorage = {
@@ -102,7 +102,7 @@ export function MenuProvider({ children }: { children: ReactNode }) {
                 nutFree: Boolean(dietaryInfo.nutFree),
                 dairyFree: Boolean(dietaryInfo.dairyFree),
                 halal: Boolean(dietaryInfo.halal),
-                kosher: Boolean(dietaryInfo.kosher || dietaryInfo.Kosher)
+                kosher: Boolean(dietaryInfo.kosher)
               }
             };
             acc.push(normalizedItem);
@@ -246,7 +246,23 @@ export function MenuProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const removeDietaryRestriction = useCallback((restriction: string) => {
-    setDietaryRestrictions(prev => prev.filter(r => r !== restriction));
+    setDietaryRestrictions(prev => {
+      const updated = prev.filter(r => r !== restriction);
+      // Update all menu items to remove the dietary restriction
+      setMenuItems(items => {
+        const updatedItems = items.map(item => {
+          const newDietaryInfo = { ...item.dietaryInfo };
+          delete newDietaryInfo[restriction as keyof typeof newDietaryInfo];
+          return {
+            ...item,
+            dietaryInfo: newDietaryInfo as DietaryInfo
+          };
+        });
+        batchedStorage.set(STORAGE_KEY, updatedItems);
+        return updatedItems;
+      });
+      return updated;
+    });
   }, []);
 
   const addCategory = useCallback((category: string) => {
