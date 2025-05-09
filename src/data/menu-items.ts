@@ -287,7 +287,7 @@ export const menuItems: MenuItem[] = [
     "name": "Vanilla Bean Scone",
     "category": "Pastries",
     "description": "Tender, crumbly scone with real vanilla bean specks.",
-    "price": 0,
+    "price": 3,
     "image": "",
     "dietaryInfo": {
       "vegan": false,
@@ -319,8 +319,8 @@ export const menuItems: MenuItem[] = [
     "seasonal": false,
     "active": true,
     "createdAt": "2025-05-09T02:28:55.151Z",
-    "updatedAt": "2025-05-09T02:28:55.151Z",
-    "version": 1
+    "updatedAt": "2025-05-09T04:19:40.028Z",
+    "version": 2
   },
   {
     "id": "80b50280-5824-4396-904f-89b9c8f132ad",
