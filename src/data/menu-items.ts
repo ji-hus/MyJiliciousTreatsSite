@@ -3,46 +3,6 @@ import { MenuItem } from './types';
 
 export const menuItems: MenuItem[] = [
   {
-    "id": "6e236ebe-da97-4c4d-a7f2-4599e9fbc0dd",
-    "name": "Classic Sourdough",
-    "category": "Breads",
-    "description": "Traditional sourdough bread made with our well established starter.",
-    "price": 10,
-    "image": "",
-    "dietaryInfo": {
-      "vegan": true,
-      "glutenFree": false,
-      "nutFree": true,
-      "dairyFree": true,
-      "halal": true,
-      "kosher": true
-    },
-    "allergens": {
-      "wheat": true,
-      "nuts": false,
-      "coconut": false,
-      "milk": false,
-      "eggs": false,
-      "soy": false,
-      "sesame": false,
-      "shellfish": false,
-      "fish": false,
-      "peanuts": false,
-      "treeNuts": false,
-      "sulfites": false
-    },
-    "available": true,
-    "stock": 10,
-    "madeToOrder": false,
-    "isSpecial": true,
-    "bestSeller": true,
-    "seasonal": false,
-    "active": true,
-    "createdAt": "2025-05-09T02:30:29.839Z",
-    "updatedAt": "2025-05-09T03:33:28.461Z",
-    "version": 4
-  },
-  {
     "id": "7ba981d7-4d05-482c-af5a-122a074c56bf",
     "name": "Sandwich Loaf",
     "category": "Breads",
@@ -482,45 +442,5 @@ export const menuItems: MenuItem[] = [
     "createdAt": "2025-05-09T02:30:07.640Z",
     "updatedAt": "2025-05-09T02:30:07.640Z",
     "version": 1
-  },
-  {
-    "id": "6e236ebe-da97-4c4d-a7f2-4599e9fbc0dd",
-    "name": "Classic Sourdough",
-    "category": "Breads",
-    "description": "Traditional sourdough bread made with our well established starter.",
-    "price": 10,
-    "image": "",
-    "dietaryInfo": {
-      "vegan": true,
-      "glutenFree": false,
-      "nutFree": true,
-      "dairyFree": true,
-      "halal": true,
-      "kosher": true
-    },
-    "allergens": {
-      "wheat": true,
-      "nuts": false,
-      "coconut": false,
-      "milk": false,
-      "eggs": false,
-      "soy": false,
-      "sesame": false,
-      "shellfish": false,
-      "fish": false,
-      "peanuts": false,
-      "treeNuts": false,
-      "sulfites": false
-    },
-    "available": true,
-    "stock": 10,
-    "madeToOrder": false,
-    "isSpecial": true,
-    "bestSeller": true,
-    "seasonal": false,
-    "active": true,
-    "createdAt": "2025-05-09T02:30:29.839Z",
-    "updatedAt": "2025-05-09T03:33:28.462Z",
-    "version": 2
   }
 ];
