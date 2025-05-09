@@ -1,38 +1,6 @@
 // This file is auto-generated. Do not edit manually.
 import { MenuItem } from './types';
 
-export const initialDietaryRestrictions = [
-  'vegan',
-  'glutenFree',
-  'nutFree',
-  'dairyFree',
-  'halal',
-  'kosher'
-];
-
-export const initialAllergens = [
-  'wheat',
-  'nuts',
-  'coconut',
-  'milk',
-  'eggs',
-  'soy',
-  'sesame',
-  'shellfish',
-  'fish',
-  'peanuts',
-  'treeNuts',
-  'sulfites'
-];
-
-export const categories = [
-  'Breads',
-  'Pastries',
-  'Cookies',
-  'Cakes',
-  'Special Items'
-];
-
 export const menuItems: MenuItem[] = [
   {
     "id": "1",
@@ -148,74 +116,45 @@ export const menuItems: MenuItem[] = [
     "createdAt": "2025-05-09T01:32:19.832Z",
     "updatedAt": "2025-05-09T01:32:19.832Z",
     "version": 1
+  },
+  {
+    "id": "94401094-407b-4246-b89d-665727f8820e",
+    "name": "Test Item",
+    "category": "Breads",
+    "description": "Testing github",
+    "price": 9.99,
+    "image": "",
+    "dietaryInfo": {
+      "vegan": false,
+      "glutenFree": false,
+      "nutFree": false,
+      "dairyFree": false,
+      "halal": false,
+      "kosher": false
+    },
+    "allergens": {
+      "wheat": false,
+      "nuts": false,
+      "coconut": false,
+      "milk": false,
+      "eggs": false,
+      "soy": false,
+      "sesame": false,
+      "shellfish": false,
+      "fish": false,
+      "peanuts": false,
+      "treeNuts": false,
+      "sulfites": false
+    },
+    "available": true,
+    "stock": 0,
+    "madeToOrder": false,
+    "isSpecial": false,
+    "bestSeller": false,
+    "seasonal": false,
+    "active": true,
+    "createdAt": "2025-05-09T02:18:55.582Z",
+    "updatedAt": "2025-05-09T02:18:55.582Z",
+    "version": 1
   }
 ];
-
-export function createMenuItem(item: Partial<MenuItem>): MenuItem {
-  const now = new Date().toISOString();
-  return {
-    id: crypto.randomUUID(),
-    name: '',
-    category: '',
-    description: '',
-    price: 0,
-    image: '',
-    dietaryInfo: {
-      vegan: false,
-      glutenFree: false,
-      nutFree: false,
-      dairyFree: false,
-      halal: false,
-      kosher: false
-    },
-    allergens: {
-      wheat: false,
-      nuts: false,
-      coconut: false,
-      milk: false,
-      eggs: false,
-      soy: false,
-      sesame: false,
-      shellfish: false,
-      fish: false,
-      peanuts: false,
-      treeNuts: false,
-      sulfites: false
-    },
-    available: true,
-    stock: 0,
-    madeToOrder: false,
-    isSpecial: false,
-    bestSeller: false,
-    seasonal: false,
-    active: true,
-    createdAt: now,
-    updatedAt: now,
-    version: 1,
-    ...item
-  };
-}
-
-export function validateMenuItem(item: MenuItem): { isValid: boolean; errors: string[] } {
-  const errors: string[] = [];
-
-  if (!item.name) errors.push('Name is required');
-  if (!item.category) errors.push('Category is required');
-  if (!item.description) errors.push('Description is required');
-  if (item.price < 0) errors.push('Price must be non-negative');
-  if (item.stock < 0) errors.push('Stock must be non-negative');
-
-  return {
-    isValid: errors.length === 0,
-    errors
-  };
-}
-
-export function updateMenuItem(item: MenuItem, updates: Partial<MenuItem>): MenuItem {
-  return {
-    ...item,
-    ...updates,
-    updatedAt: new Date().toISOString(),
-    version: item.version + 1
-  };
-}
