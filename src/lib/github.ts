@@ -12,22 +12,31 @@ interface GitHubFile {
 // Function to get the current content of menu-items.ts
 export async function getMenuItemsFile(): Promise<GitHubFile> {
   const token = import.meta.env.VITE_GITHUB_TOKEN;
+  console.log('Getting menu items file with token:', token?.substring(0, 4) + '...');
+  
   if (!token) {
+    console.error('GitHub token not found in environment variables');
     throw new Error('GitHub token not found');
+  }
+
+  if (!token.startsWith('ghp_')) {
+    console.error('Invalid GitHub token format');
+    throw new Error('Invalid GitHub token format');
   }
 
   const response = await fetch(
     `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`,
     {
       headers: {
-        Authorization: `token ${token}`,
+        Authorization: `Bearer ${token}`,
         Accept: 'application/vnd.github.v3+json',
       },
     }
   );
 
   if (!response.ok) {
-    throw new Error('Failed to fetch menu items file');
+    console.error('Failed to fetch menu items file:', response.status, response.statusText);
+    throw new Error(`Failed to fetch menu items file: ${response.status} ${response.statusText}`);
   }
 
   const data = await response.json();
@@ -40,8 +49,16 @@ export async function getMenuItemsFile(): Promise<GitHubFile> {
 // Function to update menu-items.ts with new menu items
 export async function updateMenuItemsFile(menuItems: MenuItem[]): Promise<void> {
   const token = import.meta.env.VITE_GITHUB_TOKEN;
+  console.log('Updating menu items file with token:', token?.substring(0, 4) + '...');
+  
   if (!token) {
+    console.error('GitHub token not found in environment variables');
     throw new Error('GitHub token not found');
+  }
+
+  if (!token.startsWith('ghp_')) {
+    console.error('Invalid GitHub token format');
+    throw new Error('Invalid GitHub token format');
   }
 
   // Get the current file content and SHA
@@ -60,7 +77,7 @@ export const menuItems: MenuItem[] = ${JSON.stringify(menuItems, null, 2)};
     {
       method: 'PUT',
       headers: {
-        Authorization: `token ${token}`,
+        Authorization: `Bearer ${token}`,
         Accept: 'application/vnd.github.v3+json',
         'Content-Type': 'application/json',
       },
@@ -73,7 +90,8 @@ export const menuItems: MenuItem[] = ${JSON.stringify(menuItems, null, 2)};
   );
 
   if (!response.ok) {
-    throw new Error('Failed to update menu items file');
+    console.error('Failed to update menu items file:', response.status, response.statusText);
+    throw new Error(`Failed to update menu items file: ${response.status} ${response.statusText}`);
   }
 }
 
@@ -84,5 +102,11 @@ export function hasGitHubToken(): boolean {
   console.log('- Token exists:', !!token);
   console.log('- Token length:', token?.length || 0);
   console.log('- Token prefix:', token?.substring(0, 4) || 'none');
-  return !!token;
+  console.log('- Full token:', token);
+  
+  // Check if token exists and has the correct prefix
+  const hasToken = !!token && token.startsWith('ghp_');
+  console.log('- Token is valid:', hasToken);
+  
+  return hasToken;
 } 
