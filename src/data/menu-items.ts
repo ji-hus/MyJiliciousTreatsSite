@@ -198,5 +198,45 @@ export const menuItems: MenuItem[] = [
     "createdAt": "2025-05-09T02:26:24.349Z",
     "updatedAt": "2025-05-09T02:26:24.349Z",
     "version": 1
+  },
+  {
+    "id": "65d8c946-dd46-424b-9a75-f21742041e38",
+    "name": "Brown Butter Chocolate Chips Cookie",
+    "category": "Cookies",
+    "description": "Crispy edges, chewy center with brown butter and dark chocolate chunks.",
+    "price": 0,
+    "image": "",
+    "dietaryInfo": {
+      "vegan": false,
+      "glutenFree": false,
+      "nutFree": true,
+      "dairyFree": false,
+      "halal": false,
+      "kosher": false
+    },
+    "allergens": {
+      "wheat": true,
+      "nuts": false,
+      "coconut": false,
+      "milk": true,
+      "eggs": true,
+      "soy": false,
+      "sesame": false,
+      "shellfish": false,
+      "fish": false,
+      "peanuts": false,
+      "treeNuts": false,
+      "sulfites": false
+    },
+    "available": true,
+    "stock": 0,
+    "madeToOrder": false,
+    "isSpecial": false,
+    "bestSeller": false,
+    "seasonal": false,
+    "active": true,
+    "createdAt": "2025-05-09T02:27:04.201Z",
+    "updatedAt": "2025-05-09T02:27:04.201Z",
+    "version": 1
   }
 ];
