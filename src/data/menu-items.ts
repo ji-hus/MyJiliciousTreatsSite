@@ -82,7 +82,7 @@ export const menuItems: MenuItem[] = [
     "name": "Test GitHub Item",
     "category": "Breads",
     "description": "Testing GitHub Integration",
-    "price": 9.99,
+    "price": 50,
     "image": "",
     "dietaryInfo": {
       "vegan": false,
@@ -114,8 +114,8 @@ export const menuItems: MenuItem[] = [
     "seasonal": false,
     "active": true,
     "createdAt": "2025-05-09T01:32:19.832Z",
-    "updatedAt": "2025-05-09T01:32:19.832Z",
-    "version": 1
+    "updatedAt": "2025-05-09T02:19:13.202Z",
+    "version": 2
   },
   {
     "id": "94401094-407b-4246-b89d-665727f8820e",
