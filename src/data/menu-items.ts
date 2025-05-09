@@ -278,5 +278,45 @@ export const menuItems: MenuItem[] = [
     "createdAt": "2025-05-09T02:27:45.750Z",
     "updatedAt": "2025-05-09T02:27:45.750Z",
     "version": 1
+  },
+  {
+    "id": "0d6c965c-c36e-46b6-b37a-75563e1e5205",
+    "name": "Brownie",
+    "category": "Baked Goods",
+    "description": "Dense, fudgy, and packed with dark chocolate.",
+    "price": 0,
+    "image": "",
+    "dietaryInfo": {
+      "vegan": false,
+      "glutenFree": false,
+      "nutFree": true,
+      "dairyFree": false,
+      "halal": false,
+      "kosher": false
+    },
+    "allergens": {
+      "wheat": true,
+      "nuts": false,
+      "coconut": false,
+      "milk": true,
+      "eggs": true,
+      "soy": false,
+      "sesame": false,
+      "shellfish": false,
+      "fish": false,
+      "peanuts": false,
+      "treeNuts": false,
+      "sulfites": false
+    },
+    "available": true,
+    "stock": 0,
+    "madeToOrder": false,
+    "isSpecial": false,
+    "bestSeller": false,
+    "seasonal": false,
+    "active": true,
+    "createdAt": "2025-05-09T02:28:09.884Z",
+    "updatedAt": "2025-05-09T02:28:09.884Z",
+    "version": 1
   }
 ];
