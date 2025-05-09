@@ -358,5 +358,45 @@ export const menuItems: MenuItem[] = [
     "createdAt": "2025-05-09T02:28:30.336Z",
     "updatedAt": "2025-05-09T02:28:30.336Z",
     "version": 1
+  },
+  {
+    "id": "d71c6fb2-1e82-4373-ba80-4e4a73bcfdff",
+    "name": "Vanilla Bean Scone",
+    "category": "Pastries",
+    "description": "Tender, crumbly scone with real vanilla bean specks.",
+    "price": 0,
+    "image": "",
+    "dietaryInfo": {
+      "vegan": false,
+      "glutenFree": false,
+      "nutFree": true,
+      "dairyFree": false,
+      "halal": false,
+      "kosher": false
+    },
+    "allergens": {
+      "wheat": true,
+      "nuts": false,
+      "coconut": false,
+      "milk": true,
+      "eggs": false,
+      "soy": false,
+      "sesame": false,
+      "shellfish": false,
+      "fish": false,
+      "peanuts": false,
+      "treeNuts": false,
+      "sulfites": false
+    },
+    "available": true,
+    "stock": 0,
+    "madeToOrder": false,
+    "isSpecial": false,
+    "bestSeller": false,
+    "seasonal": false,
+    "active": true,
+    "createdAt": "2025-05-09T02:28:55.151Z",
+    "updatedAt": "2025-05-09T02:28:55.151Z",
+    "version": 1
   }
 ];
