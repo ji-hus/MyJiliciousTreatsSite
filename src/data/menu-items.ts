@@ -438,5 +438,45 @@ export const menuItems: MenuItem[] = [
     "createdAt": "2025-05-09T02:29:16.619Z",
     "updatedAt": "2025-05-09T02:29:16.619Z",
     "version": 1
+  },
+  {
+    "id": "216ecc7e-f557-4069-a900-3759b56edbd9",
+    "name": "Mini Vegan Chocolate Cake",
+    "category": "Cakes",
+    "description": "Rich, fluffy chocolate cake with dairy-free frosting.",
+    "price": 0,
+    "image": "",
+    "dietaryInfo": {
+      "vegan": true,
+      "glutenFree": false,
+      "nutFree": true,
+      "dairyFree": false,
+      "halal": false,
+      "kosher": false
+    },
+    "allergens": {
+      "wheat": true,
+      "nuts": false,
+      "coconut": false,
+      "milk": false,
+      "eggs": false,
+      "soy": false,
+      "sesame": false,
+      "shellfish": false,
+      "fish": false,
+      "peanuts": false,
+      "treeNuts": false,
+      "sulfites": false
+    },
+    "available": true,
+    "stock": 0,
+    "madeToOrder": false,
+    "isSpecial": false,
+    "bestSeller": false,
+    "seasonal": false,
+    "active": true,
+    "createdAt": "2025-05-09T02:29:43.720Z",
+    "updatedAt": "2025-05-09T02:29:43.720Z",
+    "version": 1
   }
 ];
