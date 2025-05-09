@@ -15,10 +15,14 @@ import { Switch } from "@/components/ui/switch";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { CalendarIcon, Plus, Trash2, Pencil, Image as ImageIcon, AlertTriangle, Vegan, EggOff, MilkOff, WheatOff, Star } from "lucide-react";
-import { MenuItem, categories, initialAllergens, validateMenuItem, updateMenuItem as updateMenuItemHelper, createMenuItem } from '@/data/menu-items';
+import { CalendarIcon, Plus, Trash2, Pencil, Image as ImageIcon, AlertTriangle, Vegan, EggOff, MilkOff, WheatOff, Star, AlertCircle } from "lucide-react";
+import { MenuItem } from '@/data/types';
+import { menuItems as initialMenuItems } from '@/data/menu-items';
+import { initialAllergens, categories, dietaryRestrictions } from '@/data/initial-data';
 import { useMenu, useMenuItem } from '@/contexts/MenuContext';
 import { debounce } from '@/lib/utils';
+import { validateMenuItem } from '@/lib/validation';
+import { createMenuItem, updateMenuItem } from '@/lib/menu-utils';
 import {
   Tooltip,
   TooltipContent,
@@ -40,37 +44,39 @@ function useMenuForm(initialState: Partial<MenuItem>) {
       ...(initialState.dietaryInfo || {})
     };
     
-    console.log('Initializing form state with:', {
-      ...initialState,
-      dietaryInfo: initialDietaryInfo
-    });
+    const initialAllergensState = {
+      wheat: false,
+      nuts: false,
+      coconut: false,
+      milk: false,
+      eggs: false,
+      soy: false,
+      sesame: false,
+      shellfish: false,
+      fish: false,
+      peanuts: false,
+      treeNuts: false,
+      sulfites: false,
+      ...(initialState.allergens || {})
+    };
     
     return {
       ...initialState,
       dietaryInfo: initialDietaryInfo,
-      allergens: initialState.allergens || {}
+      allergens: initialAllergensState
     };
   });
   
   const handleChange = useCallback((field: keyof MenuItem, value: any) => {
-    console.log('Form field changed:', field, value);
     if (field === 'dietaryInfo') {
-      console.log('Current dietary info:', formState.dietaryInfo);
-      console.log('New dietary info:', value);
-      setFormState(prev => {
-        const updatedDietaryInfo = {
+      setFormState(prev => ({
+        ...prev,
+        dietaryInfo: {
           ...prev.dietaryInfo,
           ...value
-        };
-        console.log('Updated dietary info:', updatedDietaryInfo);
-        return {
-          ...prev,
-          dietaryInfo: updatedDietaryInfo
-        };
-      });
+        }
+      }));
     } else if (field === 'allergens') {
-      console.log('Current allergens:', formState.allergens);
-      console.log('New allergens:', value);
       setFormState(prev => ({
         ...prev,
         allergens: {
@@ -97,15 +103,26 @@ function useMenuForm(initialState: Partial<MenuItem>) {
       ...(initialState.dietaryInfo || {})
     };
     
-    console.log('Resetting form state to:', {
-      ...initialState,
-      dietaryInfo: initialDietaryInfo
-    });
+    const initialAllergensState = {
+      wheat: false,
+      nuts: false,
+      coconut: false,
+      milk: false,
+      eggs: false,
+      soy: false,
+      sesame: false,
+      shellfish: false,
+      fish: false,
+      peanuts: false,
+      treeNuts: false,
+      sulfites: false,
+      ...(initialState.allergens || {})
+    };
     
     setFormState({
       ...initialState,
       dietaryInfo: initialDietaryInfo,
-      allergens: initialState.allergens || {}
+      allergens: initialAllergensState
     });
   }, [initialState]);
 
@@ -145,28 +162,48 @@ export function MenuManager() {
     action: () => {}
   });
 
-  const initialFormState = useMemo(() => ({
-    name: '',
-    description: '',
-    price: 0,
-    category: categories[0],
-    stock: 0,
-    madeToOrder: false,
-    available: true,
-    active: true,
-    dietaryInfo: {
-      vegan: false,
-      glutenFree: false,
-      nutFree: false,
-      dairyFree: false,
-      halal: false,
-      kosher: false
-    },
-    allergens: Object.fromEntries(allergens.map(allergen => [allergen, false])),
-    isSpecial: false,
-    bestSeller: false,
-    seasonal: false
-  }), [categories, allergens]);
+  const initialFormState = useMemo(() => {
+    const allergens = Object.fromEntries(
+      initialAllergens.map(allergen => [allergen, false])
+    ) as {
+      [key: string]: boolean;
+      wheat: boolean;
+      nuts: boolean;
+      coconut: boolean;
+      milk: boolean;
+      eggs: boolean;
+      soy: boolean;
+      sesame: boolean;
+      shellfish: boolean;
+      fish: boolean;
+      peanuts: boolean;
+      treeNuts: boolean;
+      sulfites: boolean;
+    };
+
+    return {
+      name: '',
+      description: '',
+      price: 0,
+      category: categories[0],
+      stock: 0,
+      madeToOrder: false,
+      available: true,
+      active: true,
+      dietaryInfo: {
+        vegan: false,
+        glutenFree: false,
+        nutFree: false,
+        dairyFree: false,
+        halal: false,
+        kosher: false
+      },
+      allergens,
+      isSpecial: false,
+      bestSeller: false,
+      seasonal: false
+    };
+  }, [categories]);
 
   const { formState: newItem, handleChange: handleNewItemChange, resetForm } = useMenuForm(
     isAddingNew ? initialFormState : selectedItem || initialFormState
@@ -230,6 +267,10 @@ export function MenuManager() {
 
   const handleAddItem = useCallback(() => {
     try {
+      const allergens = Object.fromEntries(
+        initialAllergens.map(allergen => [allergen, false])
+      );
+
       const itemToAdd = createMenuItem({
         name: newItem.name || '',
         description: newItem.description || '',
@@ -247,7 +288,10 @@ export function MenuManager() {
           halal: newItem.dietaryInfo?.halal || false,
           kosher: newItem.dietaryInfo?.kosher || false
         },
-        allergens: newItem.allergens || Object.fromEntries(allergens.map(allergen => [allergen, false])),
+        allergens: {
+          ...allergens,
+          ...newItem.allergens
+        },
         isSpecial: newItem.isSpecial || false,
         bestSeller: newItem.bestSeller || false,
         seasonal: newItem.seasonal || false,
@@ -279,7 +323,7 @@ export function MenuManager() {
       console.error('Error adding menu item:', error);
       setError('Failed to add menu item. Please try again.');
     }
-  }, [newItem, addMenuItem, resetForm, categories, allergens]);
+  }, [newItem, addMenuItem, resetForm, categories]);
 
   const debouncedUpdateItem = useMemo(
     () => debounce((id: string, updates: Partial<MenuItem>) => {
@@ -289,10 +333,16 @@ export function MenuManager() {
           throw new Error('Item not found');
         }
 
-        const updatedItem = updateMenuItemHelper(currentItem, updates);
+        const updatedItem = { ...currentItem, ...updates };
         const validation = validateMenuItem(updatedItem);
         if (!validation.isValid) {
           setError(validation.errors.join('\n'));
+          return;
+        }
+
+        // Skip confirmation for price and stock updates
+        if (Object.keys(updates).every(key => ['price', 'stock'].includes(key))) {
+          updateMenuItem(id, updates);
           return;
         }
 
@@ -340,7 +390,8 @@ export function MenuManager() {
   const handleQuickEditSave = (id: string, field: 'price' | 'stock') => {
     const value = field === 'price' ? parseFloat(editValue) : parseInt(editValue);
     if (!isNaN(value)) {
-      debouncedUpdateItem(id, { [field]: value });
+      const updates = { [field]: value };
+      debouncedUpdateItem(id, updates);
     }
     setEditingCell(null);
   };
@@ -353,6 +404,12 @@ export function MenuManager() {
     }
   };
 
+  // Add this function to check for errors in a menu item
+  const hasMenuItemErrors = (item: MenuItem): boolean => {
+    const validation = validateMenuItem(item);
+    return !validation.isValid;
+  };
+
   const menuTable = useMemo(() => (
           <Table>
             <TableHeader>
@@ -362,170 +419,167 @@ export function MenuManager() {
                 <TableHead>Price</TableHead>
                 <TableHead>Stock</TableHead>
                 <TableHead>Status</TableHead>
-          <TableHead>Active</TableHead>
+                <TableHead>Active</TableHead>
                 <TableHead>Dietary Info</TableHead>
-          <TableHead>Allergens</TableHead>
+                <TableHead>Allergens</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {menuItems.map(item => (
+              {menuItems.map((item) => (
                 <TableRow key={item.id}>
-                  <TableCell>{item.name}</TableCell>
-                  <TableCell>{item.category}</TableCell>
-            <TableCell 
-              className="cursor-pointer hover:bg-gray-50"
-              onClick={() => handleQuickEdit(item.id, 'price', item.price)}
-            >
-              {editingCell?.id === item.id && editingCell?.field === 'price' ? (
-                <Input
-                  type="number"
-                  step="0.01"
-                  value={editValue}
-                  onChange={(e) => setEditValue(e.target.value)}
-                  onBlur={() => handleQuickEditSave(item.id, 'price')}
-                  onKeyDown={(e) => handleQuickEditKeyDown(e, item.id, 'price')}
-                  className="w-24 h-8"
-                  autoFocus
-                />
-              ) : (
-                `$${item.price.toFixed(2)}`
-              )}
-            </TableCell>
-            <TableCell 
-              className="cursor-pointer hover:bg-gray-50"
-              onClick={() => handleQuickEdit(item.id, 'stock', item.stock)}
-            >
-              {editingCell?.id === item.id && editingCell?.field === 'stock' ? (
-                <Input
-                  type="number"
-                  value={editValue}
-                  onChange={(e) => setEditValue(e.target.value)}
-                  onBlur={() => handleQuickEditSave(item.id, 'stock')}
-                  onKeyDown={(e) => handleQuickEditKeyDown(e, item.id, 'stock')}
-                  className="w-20 h-8"
-                  autoFocus
-                />
-              ) : (
-                item.stock
-              )}
-            </TableCell>
-            <TableCell>
-              {item.stock >= 1 ? (
-                <Badge variant="default" className="bg-green-100 text-green-800 hover:bg-green-100">
-                  In Stock
-                </Badge>
-              ) : item.stock === 0 ? (
-                <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">
-                  Made to Order
-                </Badge>
-              ) : (
-                <Badge variant="destructive">
-                  Out of Stock
-                </Badge>
-              )}
-            </TableCell>
-            <TableCell>
-              <Switch
-                checked={item.active}
-                onCheckedChange={(checked) => {
-                  debouncedUpdateItem(item.id, { active: checked });
-                }}
-                className="data-[state=checked]:bg-bakery-brown"
-              />
-            </TableCell>
-            <TableCell>
-              <div className="flex gap-2">
-                <TooltipProvider>
-                  {item.dietaryInfo.vegan && (
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <Vegan size={16} className="text-green-600" />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Vegan - Contains no animal products</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  )}
-                  {item.dietaryInfo.glutenFree && (
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <WheatOff size={16} className="text-yellow-600" />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Gluten Free - No wheat, rye, or barley</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  )}
-                  {item.dietaryInfo.nutFree && (
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <EggOff size={16} className="text-yellow-600" />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Nut Free - No nuts or nut products</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  )}
-                  {item.dietaryInfo.dairyFree && (
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <MilkOff size={16} className="text-blue-600" />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Dairy Free - No milk or dairy products</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  )}
-                  {item.dietaryInfo.halal && (
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <img src="/images/halalwhite.jpg" alt="Halal" className="w-4 h-4" />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Halal - Prepared according to Islamic dietary laws</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  )}
-                  {item.dietaryInfo.kosher && (
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <Star size={16} className="text-purple-600" />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Kosher - Prepared according to Jewish dietary laws</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  )}
-                </TooltipProvider>
-              </div>
-            </TableCell>
                   <TableCell>
-              <div className="flex flex-wrap gap-1">
-                {Object.entries(item.allergens).map(([allergen, present]) => 
-                  present && (
-                    <Badge key={allergen} variant="outline" className="text-red-600 border-red-600">
-                      {allergen.replace(/([A-Z])/g, ' $1').trim()}
-                    </Badge>
-                  )
-                )}
+                    <div className="flex items-center gap-2">
+                      {!validateMenuItem(item).isValid && (
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <AlertCircle className="h-4 w-4 text-destructive" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>{validateMenuItem(item).errors.join('\n')}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      )}
+                      {item.name}
+                    </div>
+                  </TableCell>
+                  <TableCell>{item.category}</TableCell>
+                  <TableCell>
+                    {editingCell?.id === item.id && editingCell?.field === 'price' ? (
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={editValue}
+                        onChange={(e) => setEditValue(e.target.value)}
+                        onKeyDown={(e) => handleQuickEditKeyDown(e, item.id, 'price')}
+                        onBlur={() => handleQuickEditSave(item.id, 'price')}
+                        autoFocus
+                        className="w-20"
+                      />
+                    ) : (
+                      <div 
+                        onClick={() => handleQuickEdit(item.id, 'price', item.price)}
+                        className="cursor-pointer hover:bg-muted p-1 rounded"
+                      >
+                        ${item.price.toFixed(2)}
+                      </div>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {editingCell?.id === item.id && editingCell?.field === 'stock' ? (
+                      <Input
+                        type="number"
+                        value={editValue}
+                        onChange={(e) => setEditValue(e.target.value)}
+                        onKeyDown={(e) => handleQuickEditKeyDown(e, item.id, 'stock')}
+                        onBlur={() => handleQuickEditSave(item.id, 'stock')}
+                        autoFocus
+                        className="w-20"
+                      />
+                    ) : (
+                      <div 
+                        onClick={() => handleQuickEdit(item.id, 'stock', item.stock)}
+                        className="cursor-pointer hover:bg-muted p-1 rounded"
+                      >
+                        {item.stock}
+                      </div>
+                    )}
+                  </TableCell>
+                  <TableCell>{item.stock > 0 ? "In Stock" : item.stock === 0 ? "Made to Order" : "Out of Stock"}</TableCell>
+                  <TableCell>
+                    <Switch
+                      checked={item.active}
+                      onCheckedChange={(checked) => {
+                        debouncedUpdateItem(item.id, { active: checked });
+                      }}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1">
+                      {Object.entries(item.dietaryInfo)
+                        .filter(([_, value]) => value)
+                        .map(([key]) => {
+                          let Icon;
+                          let color;
+                          switch (key) {
+                            case 'vegan':
+                              Icon = Vegan;
+                              color = 'text-green-600';
+                              break;
+                            case 'glutenFree':
+                              Icon = WheatOff;
+                              color = 'text-orange-600';
+                              break;
+                            case 'dairyFree':
+                              Icon = MilkOff;
+                              color = 'text-blue-600';
+                              break;
+                            case 'nutFree':
+                              Icon = EggOff;
+                              color = 'text-red-600';
+                              break;
+                            case 'halal':
+                              Icon = Star;
+                              color = 'text-purple-600';
+                              break;
+                            case 'kosher':
+                              Icon = Star;
+                              color = 'text-yellow-600';
+                              break;
+                            default:
+                              return null;
+                          }
+                          return (
+                            <TooltipProvider key={key}>
+                              <Tooltip>
+                                <TooltipTrigger>
+                                  <Icon className={`h-4 w-4 ${color}`} />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p className="capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          );
+                        })}
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-1">
+                      {Object.entries(item.allergens)
+                        .filter(([_, value]) => value)
+                        .map(([key]) => (
+                          <Badge key={key} variant="destructive" className="capitalize">
+                            {key.replace(/([A-Z])/g, ' $1').trim()}
+                          </Badge>
+                        ))}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1">
                       <Button
-                        variant="outline"
-                        size="sm"
-                  onClick={() => setSelectedItemId(item.id)}
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6"
+                        onClick={() => {
+                          setSelectedItemId(item.id);
+                          setIsAddingNew(false);
+                        }}
                       >
-                        <Pencil className="h-4 w-4" />
+                        <Pencil className="h-3 w-3" />
                       </Button>
                       <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => handleDeleteItem(item.id)}
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 text-destructive"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteItem(item.id);
+                        }}
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-3 w-3" />
                       </Button>
                     </div>
                   </TableCell>

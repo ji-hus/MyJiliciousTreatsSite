@@ -1,32 +1,31 @@
 import { createContext, useContext, useState, ReactNode, useMemo, useCallback, useEffect } from 'react';
 import { MenuItem } from '@/data/types';
-import { 
-  menuItems as initialMenuItems, 
-  categories as initialCategories,
-  initialDietaryRestrictions,
-  initialAllergens,
-  createMenuItem,
-  validateMenuItem,
-  updateMenuItem
-} from '@/data/menu-items';
+import { menuItems as initialMenuItems } from '@/data/menu-items';
+import { initialAllergens, categories as initialCategories, dietaryRestrictions as initialDietaryRestrictions } from '@/data/initial-data';
+import { createMenuItem, updateMenuItem } from '@/lib/menu-utils';
+import { validateMenuItem } from '@/lib/validation';
 import { updateMenuItemsFile, hasGitHubToken } from '@/lib/github';
 import { config } from '@/config/env';
 
 interface MenuContextType {
   menuItems: MenuItem[];
-  dietaryRestrictions: string[];
-  categories: string[];
-  allergens: string[];
-  updateMenuItem: (id: string, updates: Partial<MenuItem>) => void;
   addMenuItem: (item: MenuItem) => void;
+  updateMenuItem: (id: string, updates: Partial<MenuItem>) => void;
   deleteMenuItem: (id: string) => void;
-  addDietaryRestriction: (restriction: string) => void;
-  removeDietaryRestriction: (restriction: string) => void;
+  categories: string[];
+  dietaryRestrictions: string[];
+  allergens: string[];
+  isLoading: boolean;
+  error: string | null;
+  setError: (error: string | null) => void;
+  saveChanges: () => Promise<void>;
+  hasUnsavedChanges: boolean;
   addCategory: (category: string) => void;
   removeCategory: (category: string) => void;
   addAllergen: (allergen: string) => void;
   removeAllergen: (allergen: string) => void;
-  getMenuItem: (id: string) => MenuItem | undefined;
+  addDietaryRestriction: (restriction: string) => void;
+  removeDietaryRestriction: (restriction: string) => void;
   isGitHubEnabled: boolean;
   gitHubError: string | null;
 }
@@ -40,6 +39,9 @@ export function MenuProvider({ children }: { children: ReactNode }) {
   const [allergens, setAllergens] = useState<string[]>([...initialAllergens]);
   const [isGitHubEnabled, setIsGitHubEnabled] = useState(false);
   const [gitHubError, setGitHubError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   // Check if GitHub integration is available
   useEffect(() => {
@@ -203,7 +205,22 @@ export function MenuProvider({ children }: { children: ReactNode }) {
     removeAllergen,
     getMenuItem,
     isGitHubEnabled,
-    gitHubError
+    gitHubError,
+    isLoading,
+    error,
+    setError,
+    saveChanges: async () => {
+      try {
+        await updateMenuItems(menuItems);
+        setHasUnsavedChanges(false);
+        setError(null);
+      } catch (error) {
+        console.error('Failed to save changes:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Failed to save changes';
+        setError(errorMessage);
+      }
+    },
+    hasUnsavedChanges
   }), [
     menuItems,
     dietaryRestrictions,
@@ -220,7 +237,12 @@ export function MenuProvider({ children }: { children: ReactNode }) {
     removeAllergen,
     getMenuItem,
     isGitHubEnabled,
-    gitHubError
+    gitHubError,
+    isLoading,
+    error,
+    setError,
+    updateMenuItems,
+    setHasUnsavedChanges
   ]);
 
   return (
