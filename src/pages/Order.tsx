@@ -955,6 +955,7 @@ const OrderPage = () => {
                                         return minDate;
                                       })()}
                                       disabled={(date) => {
+                                        if (!(date instanceof Date)) return true;
                                         // Disable weekends (Saturday = 6, Sunday = 0)
                                         return date.getDay() === 0 || date.getDay() === 6;
                                       }}
@@ -1029,8 +1030,19 @@ const OrderPage = () => {
                                       mode="single"
                                       selected={field.value}
                                       onSelect={field.onChange}
-                                      fromDate={getAvailablePickupDates(true)}
-                                      disabled={(date) => date.getDay() !== 6} // Only allow Saturdays
+                                      fromDate={(() => {
+                                        const now = new Date();
+                                        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                                        const currentDay = now.getDay();
+                                        const daysUntilNextSaturday = (6 - currentDay + 7) % 7;
+                                        const upcomingSaturday = new Date(today);
+                                        upcomingSaturday.setDate(today.getDate() + daysUntilNextSaturday);
+                                        return upcomingSaturday;
+                                      })()}
+                                      disabled={(date) => {
+                                        if (!(date instanceof Date)) return true;
+                                        return date.getDay() !== 6; // Only allow Saturdays
+                                      }}
                                       initialFocus
                                     />
                                   </PopoverContent>
