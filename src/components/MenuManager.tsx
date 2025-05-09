@@ -441,8 +441,27 @@ export function MenuManager() {
   const handleQuickEditSave = (id: string, field: 'price' | 'stock') => {
     const value = field === 'price' ? parseFloat(editValue) : parseInt(editValue);
     if (!isNaN(value)) {
+      // Validate the value before updating
+      if (field === 'price' && value < 0) {
+        setErrorDialog({
+          open: true,
+          title: 'Invalid Price',
+          description: 'Price must be a positive number'
+        });
+        setEditingCell(null);
+        return;
+      }
+      if (field === 'stock' && value < -1) {
+        setErrorDialog({
+          open: true,
+          title: 'Invalid Stock',
+          description: 'Stock must be -1 (out of stock), 0 (made to order), or a positive number'
+        });
+        setEditingCell(null);
+        return;
+      }
       const updates = { [field]: value };
-      debouncedUpdateItem(id, updates);
+      updateMenuItem(id, updates);
     }
     setEditingCell(null);
   };
