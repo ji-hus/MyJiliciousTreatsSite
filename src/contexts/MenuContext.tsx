@@ -27,6 +27,7 @@ interface MenuContextType {
   removeAllergen: (allergen: string) => void;
   getMenuItem: (id: string) => MenuItem | undefined;
   isGitHubEnabled: boolean;
+  gitHubError: string | null;
 }
 
 const MenuContext = createContext<MenuContextType | null>(null);
@@ -37,6 +38,7 @@ export function MenuProvider({ children }: { children: ReactNode }) {
   const [categories, setCategories] = useState<string[]>([...initialCategories]);
   const [allergens, setAllergens] = useState<string[]>([...initialAllergens]);
   const [isGitHubEnabled, setIsGitHubEnabled] = useState(false);
+  const [gitHubError, setGitHubError] = useState<string | null>(null);
 
   // Check if GitHub integration is available
   useEffect(() => {
@@ -49,9 +51,10 @@ export function MenuProvider({ children }: { children: ReactNode }) {
     if (isGitHubEnabled) {
       try {
         await updateMenuItemsFile(newItems);
+        setGitHubError(null);
       } catch (error) {
         console.error('Failed to update menu items on GitHub:', error);
-        // You might want to show an error message to the user here
+        setGitHubError(error instanceof Error ? error.message : 'Failed to update menu items on GitHub');
       }
     }
   }, [isGitHubEnabled]);
@@ -180,7 +183,8 @@ export function MenuProvider({ children }: { children: ReactNode }) {
     addAllergen,
     removeAllergen,
     getMenuItem,
-    isGitHubEnabled
+    isGitHubEnabled,
+    gitHubError
   }), [
     menuItems,
     dietaryRestrictions,
@@ -196,7 +200,8 @@ export function MenuProvider({ children }: { children: ReactNode }) {
     addAllergen,
     removeAllergen,
     getMenuItem,
-    isGitHubEnabled
+    isGitHubEnabled,
+    gitHubError
   ]);
 
   return (

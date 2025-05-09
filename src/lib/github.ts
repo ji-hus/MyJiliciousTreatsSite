@@ -1,6 +1,13 @@
 import { MenuItem } from '@/data/menu-items';
 
-const GITHUB_TOKEN = process.env.NEXT_PUBLIC_GITHUB_TOKEN;
+// Get the token from window object (we'll set this in _app.tsx)
+declare global {
+  interface Window {
+    GITHUB_TOKEN?: string;
+  }
+}
+
+const GITHUB_TOKEN = typeof window !== 'undefined' ? window.GITHUB_TOKEN : undefined;
 const REPO_OWNER = 'ji-hus';
 const REPO_NAME = 'MyJiliciousTreatsSite';
 const FILE_PATH = 'src/data/menu-items.ts';
@@ -12,6 +19,10 @@ interface GitHubFile {
 
 // Function to get the current content of menu-items.ts
 export async function getMenuItemsFile(): Promise<GitHubFile> {
+  if (!GITHUB_TOKEN) {
+    throw new Error('GitHub token not found');
+  }
+
   const response = await fetch(
     `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`,
     {
@@ -35,6 +46,10 @@ export async function getMenuItemsFile(): Promise<GitHubFile> {
 
 // Function to update menu-items.ts with new menu items
 export async function updateMenuItemsFile(menuItems: MenuItem[]): Promise<void> {
+  if (!GITHUB_TOKEN) {
+    throw new Error('GitHub token not found');
+  }
+
   // Get the current file content and SHA
   const { sha } = await getMenuItemsFile();
 

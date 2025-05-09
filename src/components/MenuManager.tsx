@@ -123,7 +123,9 @@ export function MenuManager() {
     addDietaryRestriction,
     categories,
     allergens,
-    dietaryRestrictions
+    dietaryRestrictions,
+    isGitHubEnabled,
+    gitHubError
   } = useMenu();
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [editingCell, setEditingCell] = useState<{id: string, field: 'price' | 'stock'} | null>(null);
@@ -549,6 +551,24 @@ export function MenuManager() {
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      {gitHubError && (
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>GitHub Sync Error</AlertTitle>
+          <AlertDescription>{gitHubError}</AlertDescription>
+        </Alert>
+      )}
+
+      {!isGitHubEnabled && (
+        <Alert>
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>GitHub Integration Disabled</AlertTitle>
+          <AlertDescription>
+            Menu items will not be saved to GitHub. Please check your GitHub token configuration.
+          </AlertDescription>
         </Alert>
       )}
 
