@@ -87,7 +87,7 @@ export const menuItems: MenuItem[] = [
     "name": "French Onion Sourdough Loaf",
     "category": "Breads",
     "description": "Caramelized onions folded into our classic sourdough for a savory twist.",
-    "price": 0,
+    "price": 14,
     "image": "",
     "dietaryInfo": {
       "vegan": false,
@@ -119,8 +119,8 @@ export const menuItems: MenuItem[] = [
     "seasonal": false,
     "active": true,
     "createdAt": "2025-05-09T02:26:24.349Z",
-    "updatedAt": "2025-05-09T02:26:24.349Z",
-    "version": 1
+    "updatedAt": "2025-05-09T04:14:03.331Z",
+    "version": 2
   },
   {
     "id": "65d8c946-dd46-424b-9a75-f21742041e38",
@@ -167,7 +167,7 @@ export const menuItems: MenuItem[] = [
     "name": "Blueberry Muffin",
     "category": "Baked Goods",
     "description": "Bursting with fresh blueberries and topped with a crunchy sugar crust.",
-    "price": 0,
+    "price": 4,
     "image": "",
     "dietaryInfo": {
       "vegan": false,
@@ -199,15 +199,15 @@ export const menuItems: MenuItem[] = [
     "seasonal": false,
     "active": true,
     "createdAt": "2025-05-09T02:27:45.750Z",
-    "updatedAt": "2025-05-09T02:27:45.750Z",
-    "version": 1
+    "updatedAt": "2025-05-09T04:14:16.801Z",
+    "version": 2
   },
   {
     "id": "0d6c965c-c36e-46b6-b37a-75563e1e5205",
     "name": "Brownie",
     "category": "Baked Goods",
     "description": "Dense, fudgy, and packed with dark chocolate.",
-    "price": 0,
+    "price": 4,
     "image": "",
     "dietaryInfo": {
       "vegan": false,
@@ -239,8 +239,8 @@ export const menuItems: MenuItem[] = [
     "seasonal": false,
     "active": true,
     "createdAt": "2025-05-09T02:28:09.884Z",
-    "updatedAt": "2025-05-09T02:28:09.884Z",
-    "version": 1
+    "updatedAt": "2025-05-09T04:14:19.497Z",
+    "version": 2
   },
   {
     "id": "15385570-24ab-41d6-a114-c9b37fa6c631",
