@@ -271,12 +271,15 @@ export function MenuManager() {
     switch (status) {
       case 'inStock':
         handleNewItemChange('stock', 1);
+        handleNewItemChange('madeToOrder', false);
         break;
       case 'madeToOrder':
         handleNewItemChange('stock', 0);
+        handleNewItemChange('madeToOrder', true);
         break;
       case 'outOfStock':
         handleNewItemChange('stock', -1);
+        handleNewItemChange('madeToOrder', false);
         break;
     }
   };
@@ -358,10 +361,15 @@ export function MenuManager() {
           throw new Error('Item not found');
         }
 
+        // If updating stock, also update madeToOrder status
+        if ('stock' in updates) {
+          updates.madeToOrder = updates.stock === 0;
+        }
+
         const updatedItem = { ...currentItem, ...updates };
         
         // For price and stock updates, only validate those fields
-        if (Object.keys(updates).every(key => ['price', 'stock'].includes(key))) {
+        if (Object.keys(updates).every(key => ['price', 'stock', 'madeToOrder'].includes(key))) {
           if (updates.price !== undefined && (isNaN(updates.price) || updates.price < 0)) {
             setErrorDialog({
               open: true,
@@ -466,7 +474,13 @@ export function MenuManager() {
         setEditingCell(null);
         return;
       }
-      const updates = { [field]: value };
+      const updates = { 
+        [field]: value,
+        ...(field === 'stock' ? { 
+          madeToOrder: value === 0,
+          available: value >= 0
+        } : {})
+      };
       updateMenuItem(id, updates);
     }
     setEditingCell(null);
@@ -809,7 +823,18 @@ export function MenuManager() {
                   type="number"
                   min="-1"
                   value={newItem.stock || 0}
-                  onChange={(e) => handleNewItemChange('stock', e.target.value)}
+                  onChange={(e) => {
+                    const stockValue = parseInt(e.target.value);
+                    handleNewItemChange('stock', stockValue);
+                    // Auto-update made-to-order status based on stock value
+                    if (stockValue >= 1) {
+                      handleNewItemChange('madeToOrder', false);
+                    } else if (stockValue === 0) {
+                      handleNewItemChange('madeToOrder', true);
+                    } else {
+                      handleNewItemChange('madeToOrder', false);
+                    }
+                  }}
                 />
               </div>
             </div>
