@@ -119,8 +119,8 @@ export const menuItems: MenuItem[] = [
     "seasonal": false,
     "active": true,
     "createdAt": "2025-05-09T02:27:04.201Z",
-    "updatedAt": "2025-05-09T04:02:47.428Z",
-    "version": 3
+    "updatedAt": "2025-05-09T04:03:15.327Z",
+    "version": 4
   },
   {
     "id": "eba2cb90-d399-4908-86c7-4e71a6ff9986",
