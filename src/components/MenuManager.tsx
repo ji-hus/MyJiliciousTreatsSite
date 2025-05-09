@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -252,7 +252,6 @@ export function MenuManager() {
         bestSeller: newItem.bestSeller || false,
         seasonal: newItem.seasonal || false,
         image: newItem.image || '',
-        // New fields
         sku: newItem.sku,
         minimumOrderQuantity: newItem.minimumOrderQuantity,
         maximumOrderQuantity: newItem.maximumOrderQuantity,
@@ -273,17 +272,9 @@ export function MenuManager() {
         return;
       }
 
-      setConfirmDialog({
-        open: true,
-        title: 'Add Menu Item',
-        description: 'Are you sure you want to add this menu item? This action cannot be undone.',
-        action: () => {
-          addMenuItem(itemToAdd);
-          setIsAddingNew(false);
-          resetForm();
-          setConfirmDialog({ open: false, title: '', description: '', action: () => {} });
-        }
-      });
+      addMenuItem(itemToAdd);
+      setIsAddingNew(false);
+      resetForm();
     } catch (error) {
       console.error('Error adding menu item:', error);
       setError('Failed to add menu item. Please try again.');
@@ -308,7 +299,7 @@ export function MenuManager() {
         setConfirmDialog({
           open: true,
           title: 'Update Menu Item',
-          description: 'Are you sure you want to update this menu item? This action cannot be undone.',
+          description: 'Would you like to save these changes?',
           action: () => {
             updateMenuItem(id, updates);
             setSelectedItemId(null);
@@ -327,7 +318,7 @@ export function MenuManager() {
     setConfirmDialog({
       open: true,
       title: 'Delete Menu Item',
-      description: 'Are you sure you want to delete this menu item? This action cannot be undone.',
+      description: 'Are you sure you want to delete this menu item? This cannot be undone.',
       action: () => {
         try {
           deleteMenuItem(id);

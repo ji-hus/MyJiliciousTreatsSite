@@ -10,6 +10,7 @@ import {
   updateMenuItem as updateMenuItemHelper
 } from '@/data/menu-items';
 import { updateMenuItemsFile, hasGitHubToken } from '@/lib/github';
+import { config } from '@/config/env';
 
 interface MenuContextType {
   menuItems: MenuItem[];
@@ -42,7 +43,20 @@ export function MenuProvider({ children }: { children: ReactNode }) {
 
   // Check if GitHub integration is available
   useEffect(() => {
-    setIsGitHubEnabled(hasGitHubToken());
+    console.log('Checking GitHub integration...');
+    console.log('Environment variables:', {
+      hasToken: !!import.meta.env.VITE_GITHUB_TOKEN,
+      tokenLength: import.meta.env.VITE_GITHUB_TOKEN?.length || 0
+    });
+    
+    const isEnabled = hasGitHubToken();
+    console.log('GitHub integration enabled:', isEnabled);
+    setIsGitHubEnabled(isEnabled);
+    
+    if (!isEnabled) {
+      console.log('GitHub integration disabled. Token exists:', !!config.githubToken);
+      console.log('Token length:', config.githubToken.length);
+    }
   }, []);
 
   // Function to update menu items and sync with GitHub
@@ -54,7 +68,10 @@ export function MenuProvider({ children }: { children: ReactNode }) {
         setGitHubError(null);
       } catch (error) {
         console.error('Failed to update menu items on GitHub:', error);
-        setGitHubError(error instanceof Error ? error.message : 'Failed to update menu items on GitHub');
+        const errorMessage = error instanceof Error 
+          ? error.message 
+          : 'Failed to update menu items on GitHub';
+        setGitHubError(`${errorMessage}. Please check your GitHub token and repository permissions.`);
       }
     }
   }, [isGitHubEnabled]);

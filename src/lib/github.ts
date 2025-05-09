@@ -1,13 +1,5 @@
 import { MenuItem } from '@/data/menu-items';
 
-// Get the token from window object (we'll set this in _app.tsx)
-declare global {
-  interface Window {
-    GITHUB_TOKEN?: string;
-  }
-}
-
-const GITHUB_TOKEN = typeof window !== 'undefined' ? window.GITHUB_TOKEN : undefined;
 const REPO_OWNER = 'ji-hus';
 const REPO_NAME = 'MyJiliciousTreatsSite';
 const FILE_PATH = 'src/data/menu-items.ts';
@@ -19,7 +11,8 @@ interface GitHubFile {
 
 // Function to get the current content of menu-items.ts
 export async function getMenuItemsFile(): Promise<GitHubFile> {
-  if (!GITHUB_TOKEN) {
+  const token = import.meta.env.VITE_GITHUB_TOKEN;
+  if (!token) {
     throw new Error('GitHub token not found');
   }
 
@@ -27,7 +20,7 @@ export async function getMenuItemsFile(): Promise<GitHubFile> {
     `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`,
     {
       headers: {
-        Authorization: `token ${GITHUB_TOKEN}`,
+        Authorization: `token ${token}`,
         Accept: 'application/vnd.github.v3+json',
       },
     }
@@ -46,7 +39,8 @@ export async function getMenuItemsFile(): Promise<GitHubFile> {
 
 // Function to update menu-items.ts with new menu items
 export async function updateMenuItemsFile(menuItems: MenuItem[]): Promise<void> {
-  if (!GITHUB_TOKEN) {
+  const token = import.meta.env.VITE_GITHUB_TOKEN;
+  if (!token) {
     throw new Error('GitHub token not found');
   }
 
@@ -66,7 +60,7 @@ export const menuItems: MenuItem[] = ${JSON.stringify(menuItems, null, 2)};
     {
       method: 'PUT',
       headers: {
-        Authorization: `token ${GITHUB_TOKEN}`,
+        Authorization: `token ${token}`,
         Accept: 'application/vnd.github.v3+json',
         'Content-Type': 'application/json',
       },
@@ -85,5 +79,5 @@ export const menuItems: MenuItem[] = ${JSON.stringify(menuItems, null, 2)};
 
 // Function to check if we have a valid GitHub token
 export function hasGitHubToken(): boolean {
-  return !!GITHUB_TOKEN;
+  return !!import.meta.env.VITE_GITHUB_TOKEN;
 } 
