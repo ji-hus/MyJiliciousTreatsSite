@@ -245,19 +245,14 @@ export function MenuManager() {
       addMenuItem(itemToAdd);
       console.log('Menu item added successfully');
       
-      // Force a localStorage update
-      const currentItems = JSON.parse(localStorage.getItem('menu-items') || '[]');
-      const updatedItems = [...currentItems, itemToAdd];
-      localStorage.setItem('menu-items', JSON.stringify(updatedItems));
-      console.log('Updated localStorage with new item');
-      
-      setIsAddingNew(false);
+      // Reset form and close dialog
       resetForm();
+      setIsAddingNew(false);
     } catch (error) {
       console.error('Error adding menu item:', error);
       setError('Failed to add menu item. Please try again.');
     }
-  }, [newItem, addMenuItem, resetForm, categories, allergens]);
+  }, [newItem, categories, allergens, addMenuItem, resetForm]);
 
   const debouncedUpdateItem = useMemo(
     () => debounce((id: string, updates: Partial<MenuItem>) => {
@@ -267,14 +262,6 @@ export function MenuManager() {
         console.log('Dietary info in updates:', updates.dietaryInfo);
         updateMenuItem(id, updates);
         console.log('Menu item updated successfully');
-        
-        // Force a localStorage update
-        const currentItems = JSON.parse(localStorage.getItem('menu-items') || '[]');
-        const updatedItems = currentItems.map((item: MenuItem) => 
-          item.id === id ? { ...item, ...updates } : item
-        );
-        localStorage.setItem('menu-items', JSON.stringify(updatedItems));
-        console.log('Updated localStorage with modified item');
         
         setSelectedItemId(null);
       } catch (error) {
@@ -288,12 +275,6 @@ export function MenuManager() {
   const handleDeleteItem = useCallback((id: string) => {
     try {
       deleteMenuItem(id);
-      
-      // Force a localStorage update
-      const currentItems = JSON.parse(localStorage.getItem('menu-items') || '[]');
-      const updatedItems = currentItems.filter((item: MenuItem) => item.id !== id);
-      localStorage.setItem('menu-items', JSON.stringify(updatedItems));
-      console.log('Updated localStorage after deleting item');
     } catch (error) {
       console.error('Error deleting menu item:', error);
       setError('Failed to delete menu item. Please try again.');
