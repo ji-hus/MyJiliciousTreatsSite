@@ -443,46 +443,6 @@ export const menuItems: MenuItem[] = [
     "version": 2
   },
   {
-    "id": "7ba981d7-4d05-482c-af5a-122a074c56bf",
-    "name": "Sandwich Loaf",
-    "description": "Our golden sandwich loaf! soft, pillowy, and sturdy enough for piled-high fillings. Baked daily with unbleached flour and a touch of honey for subtle sweetness. Perfect for avocado toast, PB&J, or just tearing apart warm with butter.",
-    "price": 9,
-    "category": "Breads",
-    "stock": 0,
-    "madeToOrder": true,
-    "available": true,
-    "active": true,
-    "dietaryInfo": {
-      "vegan": false,
-      "glutenFree": false,
-      "nutFree": true,
-      "dairyFree": false,
-      "halal": true,
-      "kosher": false
-    },
-    "allergens": {
-      "wheat": true,
-      "nuts": false,
-      "coconut": false,
-      "milk": true,
-      "eggs": false,
-      "soy": false,
-      "sesame": false,
-      "shellfish": false,
-      "fish": false,
-      "peanuts": false,
-      "treeNuts": false,
-      "sulfites": false
-    },
-    "isSpecial": false,
-    "bestSeller": false,
-    "seasonal": false,
-    "image": "",
-    "createdAt": "2025-05-09T02:24:20.032Z",
-    "updatedAt": "2025-05-09T04:05:30.321Z",
-    "version": 4
-  },
-  {
     "id": "5532422b-41e6-4338-8bbd-364913c09d0d",
     "name": "Classic Sourdough",
     "description": "Crusty outside, tangy inside. Fermented for 48 hours with our well established starter.",
