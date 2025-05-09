@@ -119,8 +119,14 @@ export const menuItems: MenuItem[] = [
     "seasonal": false,
     "active": true,
     "createdAt": "2025-05-09T02:27:04.201Z",
-    "updatedAt": "2025-05-09T04:31:53.941Z",
-    "version": 3
+    "updatedAt": "2025-05-09T07:43:22.469Z",
+    "version": 4,
+    "packPricing": {
+      "enabled": true,
+      "packSize": 3,
+      "packPrice": 9,
+      "packName": ""
+    }
   },
   {
     "id": "eba2cb90-d399-4908-86c7-4e71a6ff9986",
@@ -207,7 +213,7 @@ export const menuItems: MenuItem[] = [
     "name": "Cinnamon Roll",
     "category": "Pastries",
     "description": "Fluffy, buttery dough swirled with cinnamon sugar and topped with cream cheese glaze.",
-    "price": 6.5,
+    "price": 4.5,
     "image": "",
     "dietaryInfo": {
       "vegan": false,
@@ -239,8 +245,14 @@ export const menuItems: MenuItem[] = [
     "seasonal": false,
     "active": true,
     "createdAt": "2025-05-09T02:28:30.336Z",
-    "updatedAt": "2025-05-09T04:32:08.011Z",
-    "version": 4
+    "updatedAt": "2025-05-09T07:41:34.009Z",
+    "version": 6,
+    "packPricing": {
+      "enabled": true,
+      "packSize": 2,
+      "packPrice": 8,
+      "packName": ""
+    }
   },
   {
     "id": "d71c6fb2-1e82-4373-ba80-4e4a73bcfdff",
@@ -279,8 +291,14 @@ export const menuItems: MenuItem[] = [
     "seasonal": false,
     "active": true,
     "createdAt": "2025-05-09T02:28:55.151Z",
-    "updatedAt": "2025-05-09T04:19:40.028Z",
-    "version": 2
+    "updatedAt": "2025-05-09T07:42:55.169Z",
+    "version": 5,
+    "packPricing": {
+      "enabled": true,
+      "packSize": 3,
+      "packPrice": 8,
+      "packName": ""
+    }
   },
   {
     "id": "80b50280-5824-4396-904f-89b9c8f132ad",
