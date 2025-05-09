@@ -7,7 +7,7 @@ export const menuItems: MenuItem[] = [
     "name": "Sandwich Loaf",
     "category": "Breads",
     "description": "Our golden sandwich loaf! soft, pillowy, and sturdy enough for piled-high fillings. Baked daily with unbleached flour and a touch of honey for subtle sweetness. Perfect for avocado toast, PB&J, or just tearing apart warm with butter.",
-    "price": 0,
+    "price": 9,
     "image": "",
     "dietaryInfo": {
       "vegan": false,
@@ -40,8 +40,8 @@ export const menuItems: MenuItem[] = [
     "seasonal": false,
     "active": true,
     "createdAt": "2025-05-09T02:24:20.032Z",
-    "updatedAt": "2025-05-09T02:24:42.585Z",
-    "version": 2
+    "updatedAt": "2025-05-09T03:54:47.184Z",
+    "version": 3
   },
   {
     "id": "7af2190f-7a64-4ddb-95a9-ce0af540aaf9",
@@ -481,7 +481,7 @@ export const menuItems: MenuItem[] = [
     "seasonal": false,
     "image": "",
     "createdAt": "2025-05-09T02:24:20.032Z",
-    "updatedAt": "2025-05-09T03:43:18.817Z",
-    "version": 2
+    "updatedAt": "2025-05-09T03:54:47.184Z",
+    "version": 3
   }
 ];
