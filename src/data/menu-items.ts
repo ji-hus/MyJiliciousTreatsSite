@@ -318,5 +318,45 @@ export const menuItems: MenuItem[] = [
     "createdAt": "2025-05-09T02:28:09.884Z",
     "updatedAt": "2025-05-09T02:28:09.884Z",
     "version": 1
+  },
+  {
+    "id": "15385570-24ab-41d6-a114-c9b37fa6c631",
+    "name": "Cinnamon Roll",
+    "category": "Pastries",
+    "description": "Fluffy, buttery dough swirled with cinnamon sugar and topped with cream cheese glaze.",
+    "price": 0,
+    "image": "",
+    "dietaryInfo": {
+      "vegan": false,
+      "glutenFree": false,
+      "nutFree": true,
+      "dairyFree": false,
+      "halal": false,
+      "kosher": false
+    },
+    "allergens": {
+      "wheat": true,
+      "nuts": false,
+      "coconut": false,
+      "milk": true,
+      "eggs": true,
+      "soy": false,
+      "sesame": false,
+      "shellfish": false,
+      "fish": false,
+      "peanuts": false,
+      "treeNuts": false,
+      "sulfites": false
+    },
+    "available": true,
+    "stock": 0,
+    "madeToOrder": false,
+    "isSpecial": false,
+    "bestSeller": false,
+    "seasonal": false,
+    "active": true,
+    "createdAt": "2025-05-09T02:28:30.336Z",
+    "updatedAt": "2025-05-09T02:28:30.336Z",
+    "version": 1
   }
 ];
