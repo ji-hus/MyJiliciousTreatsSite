@@ -15,6 +15,12 @@ const Menu = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    forceRefreshMenuItems();
+  };
 
   // Debug logging
   useEffect(() => {
@@ -196,12 +202,22 @@ const Menu = () => {
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-serif font-bold">Our Menu</h1>
         <button
-          onClick={forceRefreshMenuItems}
-          className="px-4 py-2 bg-bakery-brown text-white rounded-md hover:bg-bakery-light transition-colors"
+          onClick={handleRefresh}
+          disabled={isRefreshing}
+          className={`px-4 py-2 bg-bakery-brown text-white rounded-md hover:bg-bakery-light transition-colors ${
+            isRefreshing ? 'opacity-50 cursor-not-allowed' : ''
+          }`}
         >
-          Refresh Menu
+          {isRefreshing ? 'Refreshing...' : 'Refresh Menu'}
         </button>
       </div>
+
+      {isRefreshing && (
+        <div className="text-center py-4 text-bakery-brown">
+          <p>Refreshing menu items...</p>
+          <p className="text-sm">Please wait while we update the menu.</p>
+        </div>
+      )}
 
       {/* This Week's Specials Section */}
       {specialItems.length > 0 && (

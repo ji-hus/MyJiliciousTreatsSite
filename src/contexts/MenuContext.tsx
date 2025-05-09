@@ -27,7 +27,8 @@ const DIETARY_STORAGE_KEY = 'dietary-restrictions';
 const CATEGORIES_STORAGE_KEY = 'menu-categories';
 const ALLERGENS_STORAGE_KEY = 'menu-allergens';
 const MENU_VERSION_KEY = 'menu-version';
-const CURRENT_MENU_VERSION = '1.0.0';
+const CURRENT_MENU_VERSION = '1.0.1';
+const LAST_REFRESH_KEY = 'menu-last-refresh';
 
 // Initial dietary restrictions
 const initialDietaryRestrictions = ['vegan', 'glutenFree', 'nutFree', 'dairyFree', 'halal', 'kosher'];
@@ -284,9 +285,18 @@ export function MenuProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const forceRefreshMenuItems = useCallback(() => {
+    // Clear all menu-related storage
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem(MENU_VERSION_KEY);
-    setMenuItems(initialMenuItems);
+    localStorage.removeItem(DIETARY_STORAGE_KEY);
+    localStorage.removeItem(CATEGORIES_STORAGE_KEY);
+    localStorage.removeItem(ALLERGENS_STORAGE_KEY);
+    
+    // Set a new timestamp for the refresh
+    localStorage.setItem(LAST_REFRESH_KEY, Date.now().toString());
+    
+    // Force reload the page to ensure clean state
+    window.location.reload();
   }, []);
 
   const value = useMemo(() => ({
