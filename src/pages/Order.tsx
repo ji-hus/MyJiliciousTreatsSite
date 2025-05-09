@@ -137,7 +137,7 @@ const formatOrderDetails = (cart: CartItem[], menuItems: MenuItem[]) => {
     return menuItem && menuItem.madeToOrder;
   });
 
-  const cartTotal = cart.reduce((total, item) => total + ((item.price || 0) * item.quantity), 0);
+  const cartTotal = cart.reduce((total, item) => total + (Number(item.price || 0) * item.quantity), 0);
 
   return {
     inStockItems,
@@ -437,12 +437,12 @@ const OrderPage = () => {
         made_to_order_pickup_time: data.madeToOrderPickupTime || 'Not applicable',
         special_instructions: data.specialInstructions || 'None',
         in_stock_items: inStockItems.length > 0 ? inStockItems.map(item => 
-          `${item.name} x${item.quantity} - $${((item.price || 0) * item.quantity).toFixed(2)}`
+          `${item.name} x${item.quantity} - $${(Number(item.price || 0) * item.quantity).toFixed(2)}`
         ).join('\n') : 'No in-stock items ordered',
         made_to_order_items: madeToOrderItems.length > 0 ? madeToOrderItems.map(item => 
-          `${item.name} x${item.quantity} - $${((item.price || 0) * item.quantity).toFixed(2)}`
+          `${item.name} x${item.quantity} - $${(Number(item.price || 0) * item.quantity).toFixed(2)}`
         ).join('\n') : 'No made-to-order items ordered',
-        total_amount: `$${(cartTotal || 0).toFixed(2)}`
+        total_amount: `$${Number(cartTotal || 0).toFixed(2)}`
       };
 
       // Send emails in parallel
@@ -705,7 +705,7 @@ const OrderPage = () => {
                                     )}
                                   </div>
                                   <div className="flex items-center gap-2 mt-1">
-                                    <p className="text-base text-gray-600 font-sans">${(item.price || 0).toFixed(2)}</p>
+                                    <p className="text-base text-gray-600 font-sans">${Number(item.price || 0).toFixed(2)}</p>
                                   </div>
                                 </div>
                                 <Button 
@@ -753,7 +753,7 @@ const OrderPage = () => {
                             <div key={item.id} className="flex justify-between items-center p-4 rounded-md bg-white border">
                               <div>
                                 <p className="font-medium font-sans text-lg">{item.name}</p>
-                                <p className="text-base text-gray-600 font-sans">${(item.price || 0).toFixed(2)} each</p>
+                                <p className="text-base text-gray-600 font-sans">${Number(item.price || 0).toFixed(2)} each</p>
                               </div>
                               <div className="flex items-center space-x-2">
                                 <Button
@@ -796,7 +796,7 @@ const OrderPage = () => {
                             <div key={item.id} className="flex justify-between items-center p-4 rounded-md bg-white border">
                               <div>
                                 <p className="font-medium font-sans text-lg">{item.name}</p>
-                                <p className="text-base text-gray-600 font-sans">${(item.price || 0).toFixed(2)} each</p>
+                                <p className="text-base text-gray-600 font-sans">${Number(item.price || 0).toFixed(2)} each</p>
                               </div>
                               <div className="flex items-center space-x-2">
                                 <Button
@@ -834,7 +834,7 @@ const OrderPage = () => {
                     <div className="border-t pt-4 mt-4">
                       <div className="flex justify-between font-bold text-xl">
                         <span className="font-sans">Total:</span>
-                        <span className="font-sans">${(cartTotal || 0).toFixed(2)}</span>
+                        <span className="font-sans">${Number(cartTotal || 0).toFixed(2)}</span>
                       </div>
                     </div>
                   </div>

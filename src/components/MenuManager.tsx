@@ -539,7 +539,7 @@ export function MenuManager() {
                         onClick={() => handleQuickEdit(item.id, 'price', item.price)}
                         className="cursor-pointer hover:bg-muted p-1 rounded"
                       >
-                        ${(item.price || 0).toFixed(2)}
+                        ${Number(item.price || 0).toFixed(2)}
                       </div>
                     )}
                   </TableCell>
