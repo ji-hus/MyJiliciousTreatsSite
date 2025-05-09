@@ -63,33 +63,51 @@ export function MenuProvider({ children }: { children: ReactNode }) {
 
   // Load menu items from database on mount
   useEffect(() => {
-    const items = database.getAllMenuItems();
-    if (items.length === 0) {
-      // Initialize with default items if database is empty
-      database.initializeWithDefaultItems(initialMenuItems);
+    try {
+      const items = database.getAllMenuItems();
+      if (items.length === 0) {
+        // Initialize with default items if database is empty
+        database.initializeWithDefaultItems(initialMenuItems);
+        setMenuItems(initialMenuItems);
+      } else {
+        setMenuItems(items);
+      }
+    } catch (error) {
+      console.error('Error loading menu items from database:', error);
+      // Fallback to initial items if database fails
       setMenuItems(initialMenuItems);
-    } else {
-      setMenuItems(items);
     }
   }, []);
 
   const updateMenuItem = useCallback((id: string, updates: Partial<MenuItem>) => {
-    const updatedItem = database.updateMenuItem(id, updates);
-    if (updatedItem) {
-      setMenuItems(prevItems => 
-        prevItems.map(item => item.id === id ? updatedItem : item)
-      );
+    try {
+      const updatedItem = database.updateMenuItem(id, updates);
+      if (updatedItem) {
+        setMenuItems(prevItems => 
+          prevItems.map(item => item.id === id ? updatedItem : item)
+        );
+      }
+    } catch (error) {
+      console.error('Error updating menu item:', error);
     }
   }, []);
 
   const addMenuItem = useCallback((item: MenuItem) => {
-    const addedItem = database.addMenuItem(item);
-    setMenuItems(prevItems => [...prevItems, addedItem]);
+    try {
+      const addedItem = database.addMenuItem(item);
+      setMenuItems(prevItems => [...prevItems, addedItem]);
+    } catch (error) {
+      console.error('Error adding menu item:', error);
+    }
   }, []);
 
   const deleteMenuItem = useCallback((id: string) => {
-    database.deleteMenuItem(id);
-    setMenuItems(prevItems => prevItems.filter(item => item.id !== id));
+    try {
+      database.deleteMenuItem(id);
+      setMenuItems(prevItems => prevItems.filter(item => item.id !== id));
+    } catch (error) {
+      console.error('Error deleting menu item:', error);
+    }
   }, []);
 
   const addDietaryRestriction = useCallback((restriction: string) => {
@@ -121,12 +139,16 @@ export function MenuProvider({ children }: { children: ReactNode }) {
   }, [menuItems]);
 
   const clearMenuItems = useCallback(() => {
-    database.clearMenuItems();
-    database.initializeWithDefaultItems(initialMenuItems);
-    setMenuItems(initialMenuItems);
-    setDietaryRestrictions(initialDietaryRestrictions);
-    setCategories(initialCategories);
-    setAllergens(initialAllergens);
+    try {
+      database.clearMenuItems();
+      database.initializeWithDefaultItems(initialMenuItems);
+      setMenuItems(initialMenuItems);
+      setDietaryRestrictions(initialDietaryRestrictions);
+      setCategories(initialCategories);
+      setAllergens(initialAllergens);
+    } catch (error) {
+      console.error('Error clearing menu items:', error);
+    }
   }, []);
 
   const forceRefreshMenuItems = useCallback(() => {
