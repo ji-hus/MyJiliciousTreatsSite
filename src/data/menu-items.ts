@@ -398,5 +398,45 @@ export const menuItems: MenuItem[] = [
     "createdAt": "2025-05-09T02:28:55.151Z",
     "updatedAt": "2025-05-09T02:28:55.151Z",
     "version": 1
+  },
+  {
+    "id": "80b50280-5824-4396-904f-89b9c8f132ad",
+    "name": "Banana Bread",
+    "category": "Breads",
+    "description": "Moist and sweet, loaded with ripe bananas and a hint of cinnamon.",
+    "price": 0,
+    "image": "",
+    "dietaryInfo": {
+      "vegan": false,
+      "glutenFree": false,
+      "nutFree": true,
+      "dairyFree": false,
+      "halal": false,
+      "kosher": false
+    },
+    "allergens": {
+      "wheat": true,
+      "nuts": false,
+      "coconut": false,
+      "milk": false,
+      "eggs": true,
+      "soy": false,
+      "sesame": false,
+      "shellfish": false,
+      "fish": false,
+      "peanuts": false,
+      "treeNuts": false,
+      "sulfites": false
+    },
+    "available": true,
+    "stock": 0,
+    "madeToOrder": false,
+    "isSpecial": false,
+    "bestSeller": false,
+    "seasonal": false,
+    "active": true,
+    "createdAt": "2025-05-09T02:29:16.619Z",
+    "updatedAt": "2025-05-09T02:29:16.619Z",
+    "version": 1
   }
 ];
