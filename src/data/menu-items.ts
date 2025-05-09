@@ -88,7 +88,7 @@ export const menuItems: MenuItem[] = [
     "name": "Sourdough Rosemary Focaccia",
     "category": "Breads",
     "description": "Airy, olive oil-rich focaccia topped with fresh rosemary and flaky salt.",
-    "price": 0,
+    "price": 11,
     "image": "",
     "dietaryInfo": {
       "vegan": false,
@@ -120,8 +120,8 @@ export const menuItems: MenuItem[] = [
     "seasonal": false,
     "active": true,
     "createdAt": "2025-05-09T02:25:59.900Z",
-    "updatedAt": "2025-05-09T02:25:59.900Z",
-    "version": 1
+    "updatedAt": "2025-05-09T03:34:00.607Z",
+    "version": 2
   },
   {
     "id": "afb2cc18-b7e3-40b3-a2d8-b252b9c190f4",
