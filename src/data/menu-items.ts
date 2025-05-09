@@ -3,11 +3,11 @@ import { MenuItem } from './types';
 
 export const menuItems: MenuItem[] = [
   {
-    "id": "6e236ebe-da97-4c4d-a7f2-4599e9fbc0dd",
+    "id": "7af2190f-7a64-4ddb-95a9-ce0af540aaf9",
     "name": "Classic Sourdough",
     "category": "Breads",
     "description": "Traditional sourdough bread made with our well established starter.",
-    "price": 10,
+    "price": 3.5,
     "image": "",
     "dietaryInfo": {
       "vegan": true,
@@ -38,9 +38,9 @@ export const menuItems: MenuItem[] = [
     "bestSeller": true,
     "seasonal": false,
     "active": true,
-    "createdAt": "2025-05-09T02:30:29.839Z",
-    "updatedAt": "2025-05-09T02:31:25.126Z",
-    "version": 3
+    "createdAt": "2025-05-09T02:25:59.900Z",
+    "updatedAt": "2025-05-09T02:55:29.639Z",
+    "version": 4
   },
   {
     "id": "7ba981d7-4d05-482c-af5a-122a074c56bf",
@@ -483,26 +483,26 @@ export const menuItems: MenuItem[] = [
     "version": 2
   },
   {
-    "id": "6e236ebe-da97-4c4d-a7f2-4599e9fbc0dd",
-    "name": "Sourdough Chocolate Chip Cookies",
-    "category": "Cookies",
-    "description": "Chewy cookie with a hint of tang from sourdough discard.",
-    "price": 0,
+    "id": "7af2190f-7a64-4ddb-95a9-ce0af540aaf9",
+    "name": "Classic Sourdough",
+    "category": "Breads",
+    "description": "Traditional sourdough bread made with our well established starter.",
+    "price": 3.5,
     "image": "",
     "dietaryInfo": {
-      "vegan": false,
+      "vegan": true,
       "glutenFree": false,
       "nutFree": true,
-      "dairyFree": false,
-      "halal": false,
-      "kosher": false
+      "dairyFree": true,
+      "halal": true,
+      "kosher": true
     },
     "allergens": {
       "wheat": true,
       "nuts": false,
       "coconut": false,
-      "milk": true,
-      "eggs": true,
+      "milk": false,
+      "eggs": false,
       "soy": false,
       "sesame": false,
       "shellfish": false,
@@ -512,14 +512,14 @@ export const menuItems: MenuItem[] = [
       "sulfites": false
     },
     "available": true,
-    "stock": 0,
+    "stock": 10,
     "madeToOrder": false,
     "isSpecial": false,
-    "bestSeller": false,
+    "bestSeller": true,
     "seasonal": false,
     "active": true,
-    "createdAt": "2025-05-09T02:30:29.839Z",
-    "updatedAt": "2025-05-09T02:30:29.839Z",
-    "version": 1
+    "createdAt": "2025-05-09T02:25:59.900Z",
+    "updatedAt": "2025-05-09T02:55:29.639Z",
+    "version": 2
   }
 ];
