@@ -431,5 +431,45 @@ export const menuItems: MenuItem[] = [
       "packPrice": 8,
       "packName": "3-Pack"
     }
+  },
+  {
+    "id": "dc003429-0ee7-44c2-b6bb-819ac232564a",
+    "name": "Classic Sourdough",
+    "description": "Crusty outside, tangy inside. Perfect for an avocado toast or a guilty pleasure PB&J. Made with our well-loved starter!",
+    "price": "09",
+    "category": "Breads",
+    "stock": 0,
+    "madeToOrder": false,
+    "available": true,
+    "active": true,
+    "dietaryInfo": {
+      "vegan": false,
+      "glutenFree": false,
+      "nutFree": false,
+      "dairyFree": false,
+      "halal": false,
+      "kosher": false
+    },
+    "allergens": {
+      "wheat": false,
+      "nuts": false,
+      "coconut": false,
+      "milk": false,
+      "eggs": false,
+      "soy": false,
+      "sesame": false,
+      "shellfish": false,
+      "fish": false,
+      "peanuts": false,
+      "treeNuts": false,
+      "sulfites": false
+    },
+    "isSpecial": false,
+    "bestSeller": false,
+    "seasonal": false,
+    "image": "",
+    "createdAt": "2025-05-09T23:30:07.301Z",
+    "updatedAt": "2025-05-09T23:30:07.301Z",
+    "version": 1
   }
 ];
