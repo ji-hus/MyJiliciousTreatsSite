@@ -216,7 +216,6 @@ export function MenuManager() {
 
   const handleAddItem = useCallback(() => {
     try {
-      console.log('Adding new menu item:', newItem);
       const itemToAdd: MenuItem = {
         id: crypto.randomUUID(),
         name: newItem.name || '',
@@ -241,18 +240,14 @@ export function MenuManager() {
         seasonal: newItem.seasonal || false,
         image: newItem.image || ''
       };
-      console.log('Created menu item:', itemToAdd);
       addMenuItem(itemToAdd);
-      console.log('Menu item added successfully');
-      
-      // Reset form and close dialog
+        setIsAddingNew(false);
       resetForm();
-      setIsAddingNew(false);
     } catch (error) {
       console.error('Error adding menu item:', error);
       setError('Failed to add menu item. Please try again.');
     }
-  }, [newItem, categories, allergens, addMenuItem, resetForm]);
+  }, [newItem, addMenuItem, resetForm, categories, allergens]);
 
   const debouncedUpdateItem = useMemo(
     () => debounce((id: string, updates: Partial<MenuItem>) => {
@@ -261,11 +256,9 @@ export function MenuManager() {
         console.log('Full updates:', updates);
         console.log('Dietary info in updates:', updates.dietaryInfo);
         updateMenuItem(id, updates);
-        console.log('Menu item updated successfully');
-        
         setSelectedItemId(null);
-      } catch (error) {
-        console.error('Error updating menu item:', error);
+    } catch (error) {
+      console.error('Error updating menu item:', error);
         setError('Failed to update menu item. Please try again.');
       }
     }, 300),
@@ -304,25 +297,25 @@ export function MenuManager() {
   };
 
   const menuTable = useMemo(() => (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Name</TableHead>
-          <TableHead>Category</TableHead>
-          <TableHead>Price</TableHead>
-          <TableHead>Stock</TableHead>
-          <TableHead>Status</TableHead>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Category</TableHead>
+                <TableHead>Price</TableHead>
+                <TableHead>Stock</TableHead>
+                <TableHead>Status</TableHead>
           <TableHead>Active</TableHead>
-          <TableHead>Dietary Info</TableHead>
+                <TableHead>Dietary Info</TableHead>
           <TableHead>Allergens</TableHead>
-          <TableHead>Actions</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {menuItems.map(item => (
-          <TableRow key={item.id}>
-            <TableCell>{item.name}</TableCell>
-            <TableCell>{item.category}</TableCell>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {menuItems.map(item => (
+                <TableRow key={item.id}>
+                  <TableCell>{item.name}</TableCell>
+                  <TableCell>{item.category}</TableCell>
             <TableCell 
               className="cursor-pointer hover:bg-gray-50"
               onClick={() => handleQuickEdit(item.id, 'price', item.price)}
@@ -450,7 +443,7 @@ export function MenuManager() {
                 </TooltipProvider>
               </div>
             </TableCell>
-            <TableCell>
+                  <TableCell>
               <div className="flex flex-wrap gap-1">
                 {Object.entries(item.allergens).map(([allergen, present]) => 
                   present && (
@@ -459,30 +452,30 @@ export function MenuManager() {
                     </Badge>
                   )
                 )}
-              </div>
-            </TableCell>
-            <TableCell>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
                   onClick={() => setSelectedItemId(item.id)}
-                >
-                  <Pencil className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => handleDeleteItem(item.id)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleDeleteItem(item.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
   ), [menuItems, handleDeleteItem, editingCell, editValue]);
 
   return (
@@ -626,11 +619,11 @@ export function MenuManager() {
                 >
                   <Plus className="h-4 w-4 mr-1" /> Add Allergen
                 </Button>
-              </div>
+                </div>
               <div className="grid grid-cols-2 gap-2">
                 {allergens.map(allergen => (
                   <div key={allergen} className="flex items-center space-x-2">
-                    <Checkbox
+                  <Checkbox
                       id={allergen}
                       checked={Boolean(newItem.allergens?.[allergen])}
                       onCheckedChange={(checked) => {
@@ -646,7 +639,7 @@ export function MenuManager() {
                     <Label htmlFor={allergen} className="capitalize">
                       {allergen.replace(/([A-Z])/g, ' $1').trim()}
                     </Label>
-                  </div>
+                </div>
                 ))}
               </div>
             </div>
@@ -671,14 +664,14 @@ export function MenuManager() {
                 >
                   <Plus className="h-4 w-4 mr-1" /> Add Dietary Restriction
                 </Button>
-              </div>
+                </div>
               <div className="grid grid-cols-2 gap-2">
                 {dietaryRestrictions.map(restriction => {
                   const isChecked = Boolean(newItem.dietaryInfo?.[restriction]);
                   console.log(`Dietary restriction ${restriction} is checked:`, isChecked);
                   return (
                     <div key={restriction} className="flex items-center space-x-2">
-                      <Checkbox
+                  <Checkbox
                         id={restriction}
                         checked={isChecked}
                         onCheckedChange={(checked) => {
@@ -694,7 +687,7 @@ export function MenuManager() {
                       <Label htmlFor={restriction} className="capitalize">
                         {restriction.replace(/([A-Z])/g, ' $1').trim()}
                       </Label>
-                    </div>
+                </div>
                   );
                 })}
               </div>
@@ -762,29 +755,29 @@ export function MenuManager() {
                   </div>
                 </div>
               </div>
-            </div>
+          </div>
 
             <div className="flex justify-end space-x-2">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setIsAddingNew(false);
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsAddingNew(false);
                   setSelectedItemId(null);
-                }}
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={() => {
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
                   if (isAddingNew) {
-                    handleAddItem();
+                  handleAddItem();
                   } else if (selectedItem) {
                     debouncedUpdateItem(selectedItem.id, newItem);
-                  }
-                }}
-              >
+                }
+              }}
+            >
                 {isAddingNew ? 'Add Item' : 'Save Changes'}
-              </Button>
+            </Button>
             </div>
           </div>
         </DialogContent>

@@ -449,9 +449,9 @@ const OrderPage = () => {
         
         // Send confirmation to customer first
         const customerResponse = await emailjs.send(
-          'service_10tkiq3',
+        'service_10tkiq3',
           'template_34tuje7',
-          templateParams,
+        templateParams,
           {
             publicKey: 'jRgg2OkLA0U1pS4WQ'
           }
@@ -508,14 +508,14 @@ const OrderPage = () => {
           pickupMessage += `on ${format(data.madeToOrderPickupDate, 'MMMM d, yyyy')} at ${data.madeToOrderPickupTime} for made-to-order items`;
         }
 
-        toast({
-          title: "Order received!",
+      toast({
+        title: "Order received!",
           description: `Thank you for your order. ${pickupMessage}.`,
-        });
+      });
 
-        // Reset form and cart
-        form.reset(defaultValues);
-        setCart([]);
+      // Reset form and cart
+      form.reset(defaultValues);
+      setCart([]);
 
       } catch (emailError) {
         console.error('Error sending emails:', emailError);
@@ -714,7 +714,7 @@ const OrderPage = () => {
                                         </Tooltip>
                                       )}
                                     </TooltipProvider>
-                                  </div>
+                                    </div>
                                   {Object.entries(item.allergens).some(([_, value]) => value) && (
                                     <div className="mt-1">
                                       <div className="flex flex-wrap gap-1">
@@ -725,7 +725,7 @@ const OrderPage = () => {
                                             </Badge>
                                           )
                                         )}
-                                      </div>
+                                  </div>
                                     </div>
                                   )}
                                   <div className="mt-1">
@@ -774,7 +774,7 @@ const OrderPage = () => {
                         </TooltipContent>
                       </Tooltip>
                       <span>Vegan</span>
-                    </div>
+                  </div>
                     <div className="flex items-center font-sans">
                       <Tooltip>
                         <TooltipTrigger>
@@ -785,7 +785,7 @@ const OrderPage = () => {
                         </TooltipContent>
                       </Tooltip>
                       <span>Gluten Free</span>
-                    </div>
+                  </div>
                     <div className="flex items-center font-sans">
                       <Tooltip>
                         <TooltipTrigger>
@@ -796,7 +796,7 @@ const OrderPage = () => {
                         </TooltipContent>
                       </Tooltip>
                       <span>Nut Free</span>
-                    </div>
+                  </div>
                     <div className="flex items-center font-sans">
                       <Tooltip>
                         <TooltipTrigger>
@@ -856,42 +856,42 @@ const OrderPage = () => {
                     {inStockItems.length > 0 && (
                       <div>
                         <h3 className="font-medium text-lg mb-3 text-bakery-brown">In-Stock Items</h3>
-                        <div className="space-y-4">
+                  <div className="space-y-4">
                           {inStockItems.map(item => (
-                            <div key={item.id} className="flex justify-between items-center p-4 rounded-md bg-white border">
-                              <div>
+                      <div key={item.id} className="flex justify-between items-center p-4 rounded-md bg-white border">
+                        <div>
                                 <p className="font-medium font-sans text-lg">{item.name}</p>
                                 <p className="text-base text-gray-600 font-sans">${item.price.toFixed(2)} each</p>
-                              </div>
-                              <div className="flex items-center space-x-2">
-                                <Button
-                                  variant="outline"
-                                  size="icon"
-                                  className="h-8 w-8 rounded-full"
-                                  onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                                >
-                                  <Minus className="h-4 w-4" />
-                                </Button>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-8 w-8 rounded-full"
+                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          >
+                            <Minus className="h-4 w-4" />
+                          </Button>
                                 <span className="w-8 text-center font-sans text-lg">{item.quantity}</span>
-                                <Button
-                                  variant="outline"
-                                  size="icon"
-                                  className="h-8 w-8 rounded-full"
-                                  onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                                >
-                                  <Plus className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-8 w-8 text-gray-500 hover:text-red-500"
-                                  onClick={() => removeFromCart(item.id)}
-                                >
-                                  <X className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            </div>
-                          ))}
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-8 w-8 rounded-full"
+                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          >
+                            <Plus className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-gray-500 hover:text-red-500"
+                            onClick={() => removeFromCart(item.id)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
                         </div>
                       </div>
                     )}
@@ -1025,69 +1025,69 @@ const OrderPage = () => {
                     {inStockItems.length > 0 && (
                       <div className="space-y-6 border-t pt-6">
                         <h3 className="font-medium text-lg text-bakery-brown">In-Stock Items Pickup</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          <FormField
-                            control={form.control}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <FormField
+                        control={form.control}
                             name="inStockPickupDate"
-                            render={({ field }) => (
-                              <FormItem className="flex flex-col">
+                        render={({ field }) => (
+                          <FormItem className="flex flex-col">
                                 <FormLabel className="font-sans text-lg">Pickup Date <span className="text-red-500">*</span></FormLabel>
-                                <Popover>
-                                  <PopoverTrigger asChild>
-                                    <FormControl>
-                                      <Button
-                                        variant={"outline"}
-                                        className={cn(
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <FormControl>
+                                  <Button
+                                    variant={"outline"}
+                                    className={cn(
                                           "pl-3 text-left font-normal font-sans text-lg",
-                                          !field.value && "text-muted-foreground"
-                                        )}
-                                      >
-                                        {field.value ? (
-                                          format(field.value, "PPP")
-                                        ) : (
-                                          <span>Select date</span>
-                                        )}
-                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                      </Button>
-                                    </FormControl>
-                                  </PopoverTrigger>
-                                  <PopoverContent className="w-auto p-0" align="start">
-                                    <Calendar
-                                      mode="single"
-                                      selected={field.value}
-                                      onSelect={field.onChange}
+                                      !field.value && "text-muted-foreground"
+                                    )}
+                                  >
+                                    {field.value ? (
+                                      format(field.value, "PPP")
+                                    ) : (
+                                      <span>Select date</span>
+                                    )}
+                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                  </Button>
+                                </FormControl>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar
+                                  mode="single"
+                                  selected={field.value}
+                                  onSelect={field.onChange}
                                       fromDate={(() => {
                                         const now = new Date();
                                         const minDate = new Date(now);
                                         minDate.setDate(now.getDate() + 1); // Next day pickup
                                         return minDate;
                                       })()}
-                                      disabled={(date) => {
+                                  disabled={(date) => {
                                         // Disable weekends (Saturday = 6, Sunday = 0)
                                         return date.getDay() === 0 || date.getDay() === 6;
-                                      }}
-                                      initialFocus
-                                    />
-                                  </PopoverContent>
-                                </Popover>
+                                  }}
+                                  initialFocus
+                                />
+                              </PopoverContent>
+                            </Popover>
                                 <FormMessage className="font-sans text-base" />
-                              </FormItem>
-                            )}
-                          />
+                          </FormItem>
+                        )}
+                      />
 
-                          <FormField
-                            control={form.control}
+                      <FormField
+                        control={form.control}
                             name="inStockPickupTime"
-                            render={({ field }) => (
-                              <FormItem>
+                        render={({ field }) => (
+                          <FormItem>
                                 <FormLabel className="font-sans text-lg">Pickup Time <span className="text-red-500">*</span></FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                  <FormControl>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
                                     <SelectTrigger className="font-sans text-lg">
-                                      <SelectValue placeholder="Select a pickup time" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
+                                  <SelectValue placeholder="Select a pickup time" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
                                     {[
                                       "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM", 
                                       "11:00 AM", "11:30 AM", "12:00 PM", "12:30 PM",
@@ -1096,16 +1096,16 @@ const OrderPage = () => {
                                       "5:00 PM"
                                     ].map((time) => (
                                       <SelectItem key={time} value={time} className="font-sans text-lg">
-                                        {time}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
+                                    {time}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                                 <FormMessage className="font-sans text-base" />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
                       </div>
                     )}
 
