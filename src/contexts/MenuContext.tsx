@@ -44,9 +44,11 @@ export function MenuProvider({ children }: { children: ReactNode }) {
   // Check if GitHub integration is available
   useEffect(() => {
     console.log('Checking GitHub integration...');
+    console.log('Raw token:', import.meta.env.VITE_GITHUB_TOKEN);
     console.log('Environment variables:', {
       hasToken: !!import.meta.env.VITE_GITHUB_TOKEN,
-      tokenLength: import.meta.env.VITE_GITHUB_TOKEN?.length || 0
+      tokenLength: import.meta.env.VITE_GITHUB_TOKEN?.length || 0,
+      tokenPrefix: import.meta.env.VITE_GITHUB_TOKEN?.substring(0, 4) || 'none'
     });
     
     const isEnabled = hasGitHubToken();
@@ -56,6 +58,7 @@ export function MenuProvider({ children }: { children: ReactNode }) {
     if (!isEnabled) {
       console.log('GitHub integration disabled. Token exists:', !!config.githubToken);
       console.log('Token length:', config.githubToken.length);
+      console.log('Token prefix:', config.githubToken.substring(0, 4));
     }
   }, []);
 

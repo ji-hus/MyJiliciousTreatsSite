@@ -1,4 +1,4 @@
-import { MenuItem } from '@/data/menu-items';
+import { MenuItem } from '@/data/types';
 
 const REPO_OWNER = 'ji-hus';
 const REPO_NAME = 'MyJiliciousTreatsSite';
@@ -79,5 +79,10 @@ export const menuItems: MenuItem[] = ${JSON.stringify(menuItems, null, 2)};
 
 // Function to check if we have a valid GitHub token
 export function hasGitHubToken(): boolean {
-  return !!import.meta.env.VITE_GITHUB_TOKEN;
+  const token = import.meta.env.VITE_GITHUB_TOKEN;
+  console.log('Checking GitHub token in hasGitHubToken:');
+  console.log('- Token exists:', !!token);
+  console.log('- Token length:', token?.length || 0);
+  console.log('- Token prefix:', token?.substring(0, 4) || 'none');
+  return !!token;
 } 
