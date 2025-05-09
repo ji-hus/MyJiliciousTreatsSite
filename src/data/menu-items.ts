@@ -213,7 +213,7 @@ export const menuItems: MenuItem[] = [
     "name": "Cinnamon Roll",
     "category": "Pastries",
     "description": "Fluffy, buttery dough swirled with cinnamon sugar and topped with cream cheese glaze.",
-    "price": 6.5,
+    "price": 4.5,
     "image": "",
     "dietaryInfo": {
       "vegan": false,
@@ -245,8 +245,8 @@ export const menuItems: MenuItem[] = [
     "seasonal": false,
     "active": true,
     "createdAt": "2025-05-09T02:28:30.336Z",
-    "updatedAt": "2025-05-09T07:41:22.249Z",
-    "version": 5,
+    "updatedAt": "2025-05-09T07:41:34.009Z",
+    "version": 6,
     "packPricing": {
       "enabled": true,
       "packSize": 2,
