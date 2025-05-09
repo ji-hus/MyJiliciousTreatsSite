@@ -44,13 +44,13 @@ import { orderEmailTemplate, customerOrderEmailTemplate } from '@/email-template
 import { useMenu } from '@/contexts/MenuContext';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { MenuItem } from '@/types/menu';
+import { useOrder } from '@/contexts/OrderContext';
 
 // Constants
 const EMAILJS_PUBLIC_KEY = "jRgg2OkLA0U1pS4WQ";
 const EMAILJS_SERVICE_ID = "service_10tkiq3";
 const EMAILJS_TEMPLATE_ID = "template_34tuje7";
 const BAKERY_EMAIL = "myjilicioustreats@gmail.com";
-const TEST_EMAIL = "sanjidah.hus@gmail.com";
 
 // Dietary options with consistent styling
 const dietaryOptions = [
@@ -189,6 +189,35 @@ const getAvailablePickupDates = (hasMadeToOrderItems: boolean) => {
   return minPickupDate;
 };
 
+// Add payment instructions component
+const PaymentInstructions = () => (
+  <div className="bg-bakery-gold/10 border border-bakery-gold/30 rounded-lg p-6 mb-6">
+    <h2 className="text-xl font-serif font-semibold text-bakery-brown mb-4">
+      Payment Instructions
+    </h2>
+    <div className="space-y-4">
+      <div>
+        <h3 className="font-medium text-bakery-brown mb-2">Zelle Payment</h3>
+        <p className="text-gray-700">
+          Send payment to: <span className="font-semibold">myjilicioustreats@gmail.com</span>
+        </p>
+        <p className="text-sm text-gray-600 mt-1">
+          Please include your order number in the memo field when sending payment.
+        </p>
+      </div>
+      <div>
+        <h3 className="font-medium text-bakery-brown mb-2">Cash Payment</h3>
+        <p className="text-gray-700">
+          Pay with cash when picking up your order.
+        </p>
+      </div>
+      <p className="text-sm text-gray-600 mt-2">
+        Note: Your order will be confirmed once payment is received or when you arrive for pickup with cash.
+      </p>
+    </div>
+  </div>
+);
+
 const OrderPage = () => {
   const [searchParams] = useSearchParams();
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -197,6 +226,7 @@ const OrderPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const { menuItems, categories } = useMenu();
+  const { addOrder } = useOrder();
 
   // Split cart items into in-stock and made-to-order
   const { inStockItems, madeToOrderItems, cartTotal } = formatOrderDetails(cart, menuItems);
@@ -442,7 +472,8 @@ const OrderPage = () => {
         made_to_order_items: madeToOrderItems.length > 0 ? madeToOrderItems.map(item => 
           `${item.name} x${item.quantity} - $${(Number(item.price || 0) * item.quantity).toFixed(2)}`
         ).join('\n') : 'No made-to-order items ordered',
-        total_amount: `$${Number(cartTotal || 0).toFixed(2)}`
+        total_amount: `$${Number(cartTotal || 0).toFixed(2)}`,
+        payment_instructions: `Payment Instructions:\n\n1. Zelle Payment:\nSend payment to: ${BAKERY_EMAIL}\nInclude order number in memo\n\n2. Cash Payment:\nPay with cash when picking up your order\n\nNote: Your order will be confirmed once payment is received or when you arrive for pickup with cash.`
       };
 
       // Send emails in parallel
@@ -460,17 +491,28 @@ const OrderPage = () => {
           EMAILJS_TEMPLATE_ID,
           { ...templateParams, to_email: BAKERY_EMAIL },
           { publicKey: EMAILJS_PUBLIC_KEY }
-        ),
-        // Test email
-        emailjs.send(
-          EMAILJS_SERVICE_ID,
-          EMAILJS_TEMPLATE_ID,
-          { ...templateParams, to_email: TEST_EMAIL },
-          { publicKey: EMAILJS_PUBLIC_KEY }
         )
       ];
 
       await Promise.all(emailPromises);
+
+      // Add order to the system
+      await addOrder({
+        customerName: data.name,
+        customerEmail: data.email,
+        customerPhone: data.phone,
+        inStockItems,
+        madeToOrderItems,
+        inStockPickupDate: data.inStockPickupDate,
+        inStockPickupTime: data.inStockPickupTime,
+        madeToOrderPickupDate: data.madeToOrderPickupDate,
+        madeToOrderPickupTime: data.madeToOrderPickupTime,
+        total: cartTotal,
+        specialInstructions: data.specialInstructions,
+        paymentMethod: 'zelle', // Default to zelle, can be updated at pickup
+        orderType: 'pickup',
+        estimatedCompletionTime: data.inStockPickupDate ? new Date(data.inStockPickupDate) : undefined
+      });
 
       // Create pickup message
       const pickupMessage = [
@@ -482,7 +524,7 @@ const OrderPage = () => {
 
       toast({
         title: "Order received!",
-        description: `Thank you for your order. ${pickupMessage}.`,
+        description: `Thank you for your order. ${pickupMessage}. Please check your email for payment instructions.`,
       });
 
       // Reset form and cart
@@ -509,6 +551,9 @@ const OrderPage = () => {
       <p className="text-xl text-gray-600 text-center max-w-2xl mx-auto mb-12 font-sans">
         Order your freshly baked goods ahead of time for pickup at our location.
       </p>
+
+      {/* Payment Instructions */}
+      <PaymentInstructions />
 
       {/* Order Deadline Notice */}
       <div className="max-w-2xl mx-auto mb-12">

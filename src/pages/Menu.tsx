@@ -67,6 +67,11 @@ const Menu = () => {
                 <span className="text-lg font-bold text-bakery-brown mb-2 block">${Number(item.price || 0).toFixed(2)}</span>
                 <p className="text-gray-600 mb-4">{item.description}</p>
                 <div className="flex flex-wrap gap-2">
+                  {item.madeToOrder && (
+                    <Badge className="bg-bakery-brown">
+                      Made to Order
+                    </Badge>
+                  )}
                   <TooltipProvider>
                     {dietaryRestrictions.map(restriction => {
                       if (item.dietaryInfo[restriction]) {

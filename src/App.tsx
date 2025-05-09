@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, createBrowserRouter, RouterProvider } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { MenuProvider } from "@/contexts/MenuContext";
+import { OrderProvider } from "@/contexts/OrderContext";
 import Layout from "./components/Layout";
 import HomePage from "./pages/Index";
 import MenuPage from "./pages/Menu";
@@ -13,6 +14,8 @@ import FAQPage from "./pages/FAQ";
 import ContactPage from "./pages/Contact";
 import AdminPage from "./pages/Admin";
 import LoginPage from "./pages/Login";
+import OrderManagement from "./pages/OrderManagement";
+import InventoryManagement from "./pages/InventoryManagement";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 
@@ -54,25 +57,42 @@ const router = createBrowserRouter([
     )
   },
   {
+    path: "/admin/orders",
+    element: (
+      <Layout>
+        <ProtectedRoute>
+          <OrderManagement />
+        </ProtectedRoute>
+      </Layout>
+    )
+  },
+  {
+    path: "/admin/inventory",
+    element: (
+      <Layout>
+        <ProtectedRoute>
+          <InventoryManagement />
+        </ProtectedRoute>
+      </Layout>
+    )
+  },
+  {
     path: "*",
     element: <NotFound />
   }
-], {
-  future: {
-    v7_startTransition: true,
-    v7_relativeSplatPath: true
-  }
-});
+]);
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <MenuProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <RouterProvider router={router} />
-        </TooltipProvider>
+        <OrderProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <RouterProvider router={router} />
+          </TooltipProvider>
+        </OrderProvider>
       </MenuProvider>
     </AuthProvider>
   </QueryClientProvider>
