@@ -353,6 +353,33 @@ export function MenuManager() {
         }
 
         const updatedItem = { ...currentItem, ...updates };
+        
+        // For price and stock updates, only validate those fields
+        if (Object.keys(updates).every(key => ['price', 'stock'].includes(key))) {
+          if (updates.price !== undefined && (isNaN(updates.price) || updates.price < 0)) {
+            setErrorDialog({
+              open: true,
+              title: 'Invalid Price',
+              description: 'Price must be a positive number'
+            });
+            setIsSaving(false);
+            return;
+          }
+          if (updates.stock !== undefined && (isNaN(updates.stock) || updates.stock < -1)) {
+            setErrorDialog({
+              open: true,
+              title: 'Invalid Stock',
+              description: 'Stock must be -1 (out of stock), 0 (made to order), or a positive number'
+            });
+            setIsSaving(false);
+            return;
+          }
+          updateMenuItem(id, updates);
+          setIsSaving(false);
+          return;
+        }
+
+        // For other updates, do full validation
         const validation = validateMenuItem(updatedItem);
         if (!validation.isValid) {
           setErrorDialog({
@@ -360,13 +387,6 @@ export function MenuManager() {
             title: 'Validation Error',
             description: validation.errors.join('\n')
           });
-          setIsSaving(false);
-          return;
-        }
-
-        // Skip confirmation for price and stock updates
-        if (Object.keys(updates).every(key => ['price', 'stock'].includes(key))) {
-          updateMenuItem(id, updates);
           setIsSaving(false);
           return;
         }
