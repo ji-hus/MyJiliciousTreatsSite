@@ -3,11 +3,11 @@ import { MenuItem } from './types';
 
 export const menuItems: MenuItem[] = [
   {
-    "id": "7af2190f-7a64-4ddb-95a9-ce0af540aaf9",
+    "id": "6e236ebe-da97-4c4d-a7f2-4599e9fbc0dd",
     "name": "Classic Sourdough",
     "category": "Breads",
     "description": "Traditional sourdough bread made with our well established starter.",
-    "price": 3.5,
+    "price": 10,
     "image": "",
     "dietaryInfo": {
       "vegan": true,
@@ -38,9 +38,9 @@ export const menuItems: MenuItem[] = [
     "bestSeller": true,
     "seasonal": false,
     "active": true,
-    "createdAt": "2025-05-09T02:25:59.900Z",
-    "updatedAt": "2025-05-09T02:55:29.639Z",
-    "version": 4
+    "createdAt": "2025-05-09T02:30:29.839Z",
+    "updatedAt": "2025-05-09T02:31:25.126Z",
+    "version": 3
   },
   {
     "id": "7ba981d7-4d05-482c-af5a-122a074c56bf",
@@ -55,7 +55,8 @@ export const menuItems: MenuItem[] = [
       "nutFree": true,
       "dairyFree": false,
       "halal": false,
-      "kosher": false
+      "kosher": false,
+      "Vegetarian": false
     },
     "allergens": {
       "wheat": true,
@@ -79,7 +80,7 @@ export const menuItems: MenuItem[] = [
     "seasonal": false,
     "active": true,
     "createdAt": "2025-05-09T02:24:20.032Z",
-    "updatedAt": "2025-05-09T02:52:46.071Z",
+    "updatedAt": "2025-05-09T02:59:27.695Z",
     "version": 3
   },
   {
@@ -87,7 +88,7 @@ export const menuItems: MenuItem[] = [
     "name": "Sourdough Rosemary Focaccia",
     "category": "Breads",
     "description": "Airy, olive oil-rich focaccia topped with fresh rosemary and flaky salt.",
-    "price": 11,
+    "price": 0,
     "image": "",
     "dietaryInfo": {
       "vegan": false,
@@ -119,15 +120,15 @@ export const menuItems: MenuItem[] = [
     "seasonal": false,
     "active": true,
     "createdAt": "2025-05-09T02:25:59.900Z",
-    "updatedAt": "2025-05-09T02:54:11.752Z",
-    "version": 2
+    "updatedAt": "2025-05-09T02:25:59.900Z",
+    "version": 1
   },
   {
     "id": "afb2cc18-b7e3-40b3-a2d8-b252b9c190f4",
     "name": "French Onion Sourdough Loaf",
     "category": "Breads",
     "description": "Caramelized onions folded into our classic sourdough for a savory twist.",
-    "price": 12,
+    "price": 0,
     "image": "",
     "dietaryInfo": {
       "vegan": false,
@@ -159,15 +160,15 @@ export const menuItems: MenuItem[] = [
     "seasonal": false,
     "active": true,
     "createdAt": "2025-05-09T02:26:24.349Z",
-    "updatedAt": "2025-05-09T02:54:16.625Z",
-    "version": 2
+    "updatedAt": "2025-05-09T02:26:24.349Z",
+    "version": 1
   },
   {
     "id": "65d8c946-dd46-424b-9a75-f21742041e38",
     "name": "Brown Butter Chocolate Chips Cookie",
     "category": "Cookies",
     "description": "Crispy edges, chewy center with brown butter and dark chocolate chunks.",
-    "price": 3.5,
+    "price": 0,
     "image": "",
     "dietaryInfo": {
       "vegan": false,
@@ -199,15 +200,15 @@ export const menuItems: MenuItem[] = [
     "seasonal": false,
     "active": true,
     "createdAt": "2025-05-09T02:27:04.201Z",
-    "updatedAt": "2025-05-09T02:54:21.591Z",
-    "version": 2
+    "updatedAt": "2025-05-09T02:27:04.201Z",
+    "version": 1
   },
   {
     "id": "eba2cb90-d399-4908-86c7-4e71a6ff9986",
     "name": "Blueberry Muffin",
     "category": "Baked Goods",
     "description": "Bursting with fresh blueberries and topped with a crunchy sugar crust.",
-    "price": 5.5,
+    "price": 0,
     "image": "",
     "dietaryInfo": {
       "vegan": false,
@@ -239,15 +240,15 @@ export const menuItems: MenuItem[] = [
     "seasonal": false,
     "active": true,
     "createdAt": "2025-05-09T02:27:45.750Z",
-    "updatedAt": "2025-05-09T02:54:33.021Z",
-    "version": 2
+    "updatedAt": "2025-05-09T02:27:45.750Z",
+    "version": 1
   },
   {
     "id": "0d6c965c-c36e-46b6-b37a-75563e1e5205",
     "name": "Brownie",
     "category": "Baked Goods",
     "description": "Dense, fudgy, and packed with dark chocolate.",
-    "price": 4,
+    "price": 0,
     "image": "",
     "dietaryInfo": {
       "vegan": false,
@@ -279,15 +280,15 @@ export const menuItems: MenuItem[] = [
     "seasonal": false,
     "active": true,
     "createdAt": "2025-05-09T02:28:09.884Z",
-    "updatedAt": "2025-05-09T02:54:46.075Z",
-    "version": 2
+    "updatedAt": "2025-05-09T02:28:09.884Z",
+    "version": 1
   },
   {
     "id": "15385570-24ab-41d6-a114-c9b37fa6c631",
     "name": "Cinnamon Roll",
     "category": "Pastries",
     "description": "Fluffy, buttery dough swirled with cinnamon sugar and topped with cream cheese glaze.",
-    "price": 6,
+    "price": 0,
     "image": "",
     "dietaryInfo": {
       "vegan": false,
@@ -319,15 +320,15 @@ export const menuItems: MenuItem[] = [
     "seasonal": false,
     "active": true,
     "createdAt": "2025-05-09T02:28:30.336Z",
-    "updatedAt": "2025-05-09T02:54:49.689Z",
-    "version": 2
+    "updatedAt": "2025-05-09T02:28:30.336Z",
+    "version": 1
   },
   {
     "id": "d71c6fb2-1e82-4373-ba80-4e4a73bcfdff",
     "name": "Vanilla Bean Scone",
     "category": "Pastries",
     "description": "Tender, crumbly scone with real vanilla bean specks.",
-    "price": 3,
+    "price": 0,
     "image": "",
     "dietaryInfo": {
       "vegan": false,
@@ -359,15 +360,15 @@ export const menuItems: MenuItem[] = [
     "seasonal": false,
     "active": true,
     "createdAt": "2025-05-09T02:28:55.151Z",
-    "updatedAt": "2025-05-09T02:54:54.488Z",
-    "version": 2
+    "updatedAt": "2025-05-09T02:28:55.151Z",
+    "version": 1
   },
   {
     "id": "80b50280-5824-4396-904f-89b9c8f132ad",
     "name": "Banana Bread",
     "category": "Breads",
     "description": "Moist and sweet, loaded with ripe bananas and a hint of cinnamon.",
-    "price": 6,
+    "price": 0,
     "image": "",
     "dietaryInfo": {
       "vegan": false,
@@ -399,15 +400,15 @@ export const menuItems: MenuItem[] = [
     "seasonal": false,
     "active": true,
     "createdAt": "2025-05-09T02:29:16.619Z",
-    "updatedAt": "2025-05-09T02:55:02.357Z",
-    "version": 2
+    "updatedAt": "2025-05-09T02:29:16.619Z",
+    "version": 1
   },
   {
     "id": "216ecc7e-f557-4069-a900-3759b56edbd9",
     "name": "Mini Vegan Chocolate Cake",
     "category": "Cakes",
     "description": "Rich, fluffy chocolate cake with dairy-free frosting.",
-    "price": 6,
+    "price": 0,
     "image": "",
     "dietaryInfo": {
       "vegan": true,
@@ -439,15 +440,15 @@ export const menuItems: MenuItem[] = [
     "seasonal": false,
     "active": true,
     "createdAt": "2025-05-09T02:29:43.720Z",
-    "updatedAt": "2025-05-09T02:55:07.444Z",
-    "version": 2
+    "updatedAt": "2025-05-09T02:29:43.720Z",
+    "version": 1
   },
   {
     "id": "b8f4b4da-b697-4b4d-9ffc-215886671222",
     "name": "Double Chocolate Espresso Dessert Loaf",
     "category": "Breads",
     "description": "Decadent chocolate loaf with a kick of espresso.",
-    "price": 12,
+    "price": 0,
     "image": "",
     "dietaryInfo": {
       "vegan": false,
@@ -479,30 +480,30 @@ export const menuItems: MenuItem[] = [
     "seasonal": false,
     "active": true,
     "createdAt": "2025-05-09T02:30:07.640Z",
-    "updatedAt": "2025-05-09T02:55:14.904Z",
-    "version": 2
+    "updatedAt": "2025-05-09T02:30:07.640Z",
+    "version": 1
   },
   {
-    "id": "7af2190f-7a64-4ddb-95a9-ce0af540aaf9",
-    "name": "Classic Sourdough",
-    "category": "Breads",
-    "description": "Traditional sourdough bread made with our well established starter.",
-    "price": 3.5,
+    "id": "6e236ebe-da97-4c4d-a7f2-4599e9fbc0dd",
+    "name": "Sourdough Chocolate Chip Cookies",
+    "category": "Cookies",
+    "description": "Chewy cookie with a hint of tang from sourdough discard.",
+    "price": 0,
     "image": "",
     "dietaryInfo": {
-      "vegan": true,
+      "vegan": false,
       "glutenFree": false,
       "nutFree": true,
-      "dairyFree": true,
-      "halal": true,
-      "kosher": true
+      "dairyFree": false,
+      "halal": false,
+      "kosher": false
     },
     "allergens": {
       "wheat": true,
       "nuts": false,
       "coconut": false,
-      "milk": false,
-      "eggs": false,
+      "milk": true,
+      "eggs": true,
       "soy": false,
       "sesame": false,
       "shellfish": false,
@@ -512,14 +513,14 @@ export const menuItems: MenuItem[] = [
       "sulfites": false
     },
     "available": true,
-    "stock": 10,
+    "stock": 0,
     "madeToOrder": false,
     "isSpecial": false,
-    "bestSeller": true,
+    "bestSeller": false,
     "seasonal": false,
     "active": true,
-    "createdAt": "2025-05-09T02:25:59.900Z",
-    "updatedAt": "2025-05-09T02:55:29.639Z",
-    "version": 2
+    "createdAt": "2025-05-09T02:30:29.839Z",
+    "updatedAt": "2025-05-09T02:30:29.839Z",
+    "version": 1
   }
 ];
