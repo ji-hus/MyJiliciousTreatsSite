@@ -367,7 +367,7 @@ export const menuItems: MenuItem[] = [
     "name": "Mini Vegan Chocolate Cake",
     "category": "Cakes",
     "description": "Rich, fluffy chocolate cake with dairy-free frosting.",
-    "price": 0,
+    "price": 8,
     "image": "",
     "dietaryInfo": {
       "vegan": true,
@@ -399,8 +399,8 @@ export const menuItems: MenuItem[] = [
     "seasonal": false,
     "active": true,
     "createdAt": "2025-05-09T02:29:43.720Z",
-    "updatedAt": "2025-05-09T02:29:43.720Z",
-    "version": 1
+    "updatedAt": "2025-05-09T04:19:46.793Z",
+    "version": 2
   },
   {
     "id": "b8f4b4da-b697-4b4d-9ffc-215886671222",
