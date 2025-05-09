@@ -167,7 +167,7 @@ export const menuItems: MenuItem[] = [
     "name": "Blueberry Muffin",
     "category": "Baked Goods",
     "description": "Bursting with fresh blueberries and topped with a crunchy sugar crust.",
-    "price": 0,
+    "price": 4,
     "image": "",
     "dietaryInfo": {
       "vegan": false,
@@ -199,8 +199,8 @@ export const menuItems: MenuItem[] = [
     "seasonal": false,
     "active": true,
     "createdAt": "2025-05-09T02:27:45.750Z",
-    "updatedAt": "2025-05-09T02:27:45.750Z",
-    "version": 1
+    "updatedAt": "2025-05-09T04:14:16.801Z",
+    "version": 2
   },
   {
     "id": "0d6c965c-c36e-46b6-b37a-75563e1e5205",
