@@ -110,6 +110,11 @@ export function hasGitHubToken(): boolean {
   
   if (!hasToken) {
     console.error('Invalid GitHub token. Token must start with "ghp_"');
+    console.error('Environment variables:', {
+      VITE_GITHUB_TOKEN: import.meta.env.VITE_GITHUB_TOKEN,
+      NODE_ENV: import.meta.env.MODE,
+      BASE_URL: import.meta.env.BASE_URL
+    });
   }
   
   return hasToken;
