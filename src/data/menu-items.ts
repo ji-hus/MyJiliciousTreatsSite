@@ -401,5 +401,45 @@ export const menuItems: MenuItem[] = [
     "createdAt": "2025-05-09T02:30:07.640Z",
     "updatedAt": "2025-05-09T02:30:07.640Z",
     "version": 1
+  },
+  {
+    "id": "7b1cc330-8bbf-44a6-974c-a87cc86bbb69",
+    "name": "Sandwich Loaf",
+    "description": "Our golden sandwich loaf! soft, pillowy, and sturdy enough for piled-high fillings. Baked daily with unbleached flour and a touch of honey for subtle sweetness. Perfect for avocado toast, PB&J, or just tearing apart warm with butter.",
+    "price": 9,
+    "category": "Breads",
+    "stock": 0,
+    "madeToOrder": true,
+    "available": true,
+    "active": true,
+    "dietaryInfo": {
+      "vegan": false,
+      "glutenFree": false,
+      "nutFree": true,
+      "dairyFree": false,
+      "halal": false,
+      "kosher": false
+    },
+    "allergens": {
+      "wheat": true,
+      "nuts": false,
+      "coconut": false,
+      "milk": true,
+      "eggs": false,
+      "soy": false,
+      "sesame": false,
+      "shellfish": false,
+      "fish": false,
+      "peanuts": false,
+      "treeNuts": false,
+      "sulfites": false
+    },
+    "isSpecial": false,
+    "bestSeller": false,
+    "seasonal": false,
+    "image": "",
+    "createdAt": "2025-05-09T04:03:07.159Z",
+    "updatedAt": "2025-05-09T04:03:07.159Z",
+    "version": 1
   }
 ];
