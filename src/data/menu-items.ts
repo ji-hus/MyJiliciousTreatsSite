@@ -439,7 +439,7 @@ export const menuItems: MenuItem[] = [
     "price": "09",
     "category": "Breads",
     "stock": 0,
-    "madeToOrder": false,
+    "madeToOrder": true,
     "available": true,
     "active": true,
     "dietaryInfo": {
@@ -465,11 +465,11 @@ export const menuItems: MenuItem[] = [
       "sulfites": false
     },
     "isSpecial": false,
-    "bestSeller": false,
+    "bestSeller": true,
     "seasonal": false,
     "image": "",
     "createdAt": "2025-05-09T23:30:07.301Z",
-    "updatedAt": "2025-05-09T23:30:07.301Z",
-    "version": 1
+    "updatedAt": "2025-05-09T23:30:17.153Z",
+    "version": 2
   }
 ];
