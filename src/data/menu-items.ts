@@ -119,13 +119,13 @@ export const menuItems: MenuItem[] = [
     "seasonal": false,
     "active": true,
     "createdAt": "2025-05-09T02:27:04.201Z",
-    "updatedAt": "2025-05-09T04:31:53.941Z",
-    "version": 3,
+    "updatedAt": "2025-05-09T07:43:22.469Z",
+    "version": 4,
     "packPricing": {
       "enabled": true,
       "packSize": 3,
-      "packPrice": 9.99,
-      "packName": "3-Pack"
+      "packPrice": 9,
+      "packName": ""
     }
   },
   {
