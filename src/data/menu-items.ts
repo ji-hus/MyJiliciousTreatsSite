@@ -3,46 +3,6 @@ import { MenuItem } from './types';
 
 export const menuItems: MenuItem[] = [
   {
-    "id": "7ba981d7-4d05-482c-af5a-122a074c56bf",
-    "name": "Sandwich Loaf",
-    "category": "Breads",
-    "description": "Our golden sandwich loaf! soft, pillowy, and sturdy enough for piled-high fillings. Baked daily with unbleached flour and a touch of honey for subtle sweetness. Perfect for avocado toast, PB&J, or just tearing apart warm with butter.",
-    "price": 9,
-    "image": "",
-    "dietaryInfo": {
-      "vegan": false,
-      "glutenFree": false,
-      "nutFree": true,
-      "dairyFree": false,
-      "halal": true,
-      "kosher": false
-    },
-    "allergens": {
-      "wheat": true,
-      "nuts": false,
-      "coconut": false,
-      "milk": true,
-      "eggs": false,
-      "soy": false,
-      "sesame": false,
-      "shellfish": false,
-      "fish": false,
-      "peanuts": false,
-      "treeNuts": false,
-      "sulfites": false
-    },
-    "available": true,
-    "stock": 0,
-    "madeToOrder": true,
-    "isSpecial": false,
-    "bestSeller": false,
-    "seasonal": false,
-    "active": true,
-    "createdAt": "2025-05-09T02:24:20.032Z",
-    "updatedAt": "2025-05-09T04:05:30.321Z",
-    "version": 4
-  },
-  {
     "id": "7af2190f-7a64-4ddb-95a9-ce0af540aaf9",
     "name": "Sourdough Rosemary Focaccia",
     "category": "Breads",
@@ -152,15 +112,15 @@ export const menuItems: MenuItem[] = [
       "sulfites": false
     },
     "available": true,
-    "stock": 0,
+    "stock": 12,
     "madeToOrder": true,
     "isSpecial": true,
     "bestSeller": false,
     "seasonal": false,
     "active": true,
     "createdAt": "2025-05-09T02:27:04.201Z",
-    "updatedAt": "2025-05-09T03:39:34.928Z",
-    "version": 2
+    "updatedAt": "2025-05-09T04:31:53.941Z",
+    "version": 3
   },
   {
     "id": "eba2cb90-d399-4908-86c7-4e71a6ff9986",
@@ -272,15 +232,15 @@ export const menuItems: MenuItem[] = [
       "sulfites": false
     },
     "available": true,
-    "stock": 0,
+    "stock": 4,
     "madeToOrder": false,
     "isSpecial": false,
     "bestSeller": false,
     "seasonal": false,
     "active": true,
     "createdAt": "2025-05-09T02:28:30.336Z",
-    "updatedAt": "2025-05-09T04:19:44.704Z",
-    "version": 3
+    "updatedAt": "2025-05-09T04:32:08.011Z",
+    "version": 4
   },
   {
     "id": "d71c6fb2-1e82-4373-ba80-4e4a73bcfdff",
@@ -441,45 +401,5 @@ export const menuItems: MenuItem[] = [
     "createdAt": "2025-05-09T02:30:07.640Z",
     "updatedAt": "2025-05-09T04:19:48.734Z",
     "version": 2
-  },
-  {
-    "id": "5532422b-41e6-4338-8bbd-364913c09d0d",
-    "name": "Classic Sourdough",
-    "description": "Crusty outside, tangy inside. Fermented for 48 hours with our well established starter.",
-    "price": 9,
-    "category": "Breads",
-    "stock": 0,
-    "madeToOrder": false,
-    "available": true,
-    "active": true,
-    "dietaryInfo": {
-      "vegan": false,
-      "glutenFree": false,
-      "nutFree": false,
-      "dairyFree": false,
-      "halal": false,
-      "kosher": false
-    },
-    "allergens": {
-      "wheat": false,
-      "nuts": false,
-      "coconut": false,
-      "milk": false,
-      "eggs": false,
-      "soy": false,
-      "sesame": false,
-      "shellfish": false,
-      "fish": false,
-      "peanuts": false,
-      "treeNuts": false,
-      "sulfites": false
-    },
-    "isSpecial": false,
-    "bestSeller": false,
-    "seasonal": false,
-    "image": "",
-    "createdAt": "2025-05-09T04:20:15.747Z",
-    "updatedAt": "2025-05-09T04:20:15.747Z",
-    "version": 1
   }
 ];
