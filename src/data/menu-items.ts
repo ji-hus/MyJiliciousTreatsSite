@@ -478,5 +478,45 @@ export const menuItems: MenuItem[] = [
     "createdAt": "2025-05-09T02:29:43.720Z",
     "updatedAt": "2025-05-09T02:29:43.720Z",
     "version": 1
+  },
+  {
+    "id": "b8f4b4da-b697-4b4d-9ffc-215886671222",
+    "name": "Double Chocolate Espresso Dessert Loaf",
+    "category": "Breads",
+    "description": "Decadent chocolate loaf with a kick of espresso.",
+    "price": 0,
+    "image": "",
+    "dietaryInfo": {
+      "vegan": false,
+      "glutenFree": false,
+      "nutFree": true,
+      "dairyFree": false,
+      "halal": false,
+      "kosher": false
+    },
+    "allergens": {
+      "wheat": true,
+      "nuts": false,
+      "coconut": false,
+      "milk": true,
+      "eggs": true,
+      "soy": false,
+      "sesame": false,
+      "shellfish": false,
+      "fish": false,
+      "peanuts": false,
+      "treeNuts": false,
+      "sulfites": false
+    },
+    "available": true,
+    "stock": 0,
+    "madeToOrder": false,
+    "isSpecial": false,
+    "bestSeller": false,
+    "seasonal": false,
+    "active": true,
+    "createdAt": "2025-05-09T02:30:07.640Z",
+    "updatedAt": "2025-05-09T02:30:07.640Z",
+    "version": 1
   }
 ];
