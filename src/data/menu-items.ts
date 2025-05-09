@@ -78,46 +78,6 @@ export const menuItems: MenuItem[] = [
     "notes": "Our signature bread, made fresh daily"
   },
   {
-    "id": "057038e8-2c17-4a94-9a6a-572e2c523f17",
-    "name": "Test GitHub Item",
-    "category": "Breads",
-    "description": "Testing GitHub Integration",
-    "price": 50,
-    "image": "",
-    "dietaryInfo": {
-      "vegan": false,
-      "glutenFree": false,
-      "nutFree": false,
-      "dairyFree": false,
-      "halal": false,
-      "kosher": false
-    },
-    "allergens": {
-      "wheat": false,
-      "nuts": false,
-      "coconut": false,
-      "milk": false,
-      "eggs": false,
-      "soy": false,
-      "sesame": false,
-      "shellfish": false,
-      "fish": false,
-      "peanuts": false,
-      "treeNuts": false,
-      "sulfites": false
-    },
-    "available": true,
-    "stock": 10,
-    "madeToOrder": false,
-    "isSpecial": false,
-    "bestSeller": false,
-    "seasonal": false,
-    "active": true,
-    "createdAt": "2025-05-09T01:32:19.832Z",
-    "updatedAt": "2025-05-09T02:19:13.202Z",
-    "version": 2
-  },
-  {
     "id": "94401094-407b-4246-b89d-665727f8820e",
     "name": "Test Item",
     "category": "Breads",
