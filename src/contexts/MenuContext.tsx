@@ -80,7 +80,7 @@ export function MenuProvider({ children }: { children: ReactNode }) {
   const updateMenuItem = useCallback(async (id: string, updates: Partial<MenuItem>) => {
     const updated = menuItems.map(item => {
       if (item.id === id) {
-        const newItem = updateMenuItem(item, updates);
+        const newItem = { ...item, ...updates, updatedAt: new Date().toISOString(), version: item.version + 1 };
         const validation = validateMenuItem(newItem);
         if (!validation.isValid) {
           throw new Error(validation.errors.join('\n'));
