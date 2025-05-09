@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode, useMemo, useCallback } from 'react';
+import { createContext, useContext, useState, ReactNode, useMemo, useCallback, useEffect } from 'react';
 import { 
   menuItems as initialMenuItems, 
   MenuItem, 
@@ -9,6 +9,7 @@ import {
   validateMenuItem,
   updateMenuItem as updateMenuItemHelper
 } from '@/data/menu-items';
+import { updateMenuItemsFile, hasGitHubToken } from '@/lib/github';
 
 interface MenuContextType {
   menuItems: MenuItem[];
@@ -25,6 +26,7 @@ interface MenuContextType {
   addAllergen: (allergen: string) => void;
   removeAllergen: (allergen: string) => void;
   getMenuItem: (id: string) => MenuItem | undefined;
+  isGitHubEnabled: boolean;
 }
 
 const MenuContext = createContext<MenuContextType | null>(null);
@@ -34,36 +36,53 @@ export function MenuProvider({ children }: { children: ReactNode }) {
   const [dietaryRestrictions, setDietaryRestrictions] = useState<string[]>([...initialDietaryRestrictions]);
   const [categories, setCategories] = useState<string[]>([...initialCategories]);
   const [allergens, setAllergens] = useState<string[]>([...initialAllergens]);
+  const [isGitHubEnabled, setIsGitHubEnabled] = useState(false);
 
-  // Memoize handlers
-  const updateMenuItem = useCallback((id: string, updates: Partial<MenuItem>) => {
-    setMenuItems(items => {
-      const updated = items.map(item => {
-        if (item.id === id) {
-          const newItem = updateMenuItemHelper(item, updates);
-          const validation = validateMenuItem(newItem);
-          if (!validation.isValid) {
-            throw new Error(validation.errors.join('\n'));
-          }
-          return newItem;
-        }
-        return item;
-      });
-      return updated;
-    });
+  // Check if GitHub integration is available
+  useEffect(() => {
+    setIsGitHubEnabled(hasGitHubToken());
   }, []);
 
-  const addMenuItem = useCallback((item: MenuItem) => {
+  // Function to update menu items and sync with GitHub
+  const updateMenuItems = useCallback(async (newItems: MenuItem[]) => {
+    setMenuItems(newItems);
+    if (isGitHubEnabled) {
+      try {
+        await updateMenuItemsFile(newItems);
+      } catch (error) {
+        console.error('Failed to update menu items on GitHub:', error);
+        // You might want to show an error message to the user here
+      }
+    }
+  }, [isGitHubEnabled]);
+
+  // Memoize handlers
+  const updateMenuItem = useCallback(async (id: string, updates: Partial<MenuItem>) => {
+    const updated = menuItems.map(item => {
+      if (item.id === id) {
+        const newItem = updateMenuItemHelper(item, updates);
+        const validation = validateMenuItem(newItem);
+        if (!validation.isValid) {
+          throw new Error(validation.errors.join('\n'));
+        }
+        return newItem;
+      }
+      return item;
+    });
+    await updateMenuItems(updated);
+  }, [menuItems, updateMenuItems]);
+
+  const addMenuItem = useCallback(async (item: MenuItem) => {
     const validation = validateMenuItem(item);
     if (!validation.isValid) {
       throw new Error(validation.errors.join('\n'));
     }
-    setMenuItems(items => [...items, item]);
-  }, []);
+    await updateMenuItems([...menuItems, item]);
+  }, [menuItems, updateMenuItems]);
 
-  const deleteMenuItem = useCallback((id: string) => {
-    setMenuItems(items => items.filter(item => item.id !== id));
-  }, []);
+  const deleteMenuItem = useCallback(async (id: string) => {
+    await updateMenuItems(menuItems.filter(item => item.id !== id));
+  }, [menuItems, updateMenuItems]);
 
   const addDietaryRestriction = useCallback((restriction: string) => {
     setDietaryRestrictions(prev => {
@@ -160,7 +179,8 @@ export function MenuProvider({ children }: { children: ReactNode }) {
     removeCategory,
     addAllergen,
     removeAllergen,
-    getMenuItem
+    getMenuItem,
+    isGitHubEnabled
   }), [
     menuItems,
     dietaryRestrictions,
@@ -175,7 +195,8 @@ export function MenuProvider({ children }: { children: ReactNode }) {
     removeCategory,
     addAllergen,
     removeAllergen,
-    getMenuItem
+    getMenuItem,
+    isGitHubEnabled
   ]);
 
   return (
