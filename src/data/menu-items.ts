@@ -447,7 +447,7 @@ export const menuItems: MenuItem[] = [
     "name": "Double Chocolate Espresso Dessert Loaf",
     "category": "Breads",
     "description": "Decadent chocolate loaf with a kick of espresso.",
-    "price": 0,
+    "price": 12,
     "image": "",
     "dietaryInfo": {
       "vegan": false,
@@ -479,8 +479,8 @@ export const menuItems: MenuItem[] = [
     "seasonal": false,
     "active": true,
     "createdAt": "2025-05-09T02:30:07.640Z",
-    "updatedAt": "2025-05-09T02:30:07.640Z",
-    "version": 1
+    "updatedAt": "2025-05-09T02:55:14.904Z",
+    "version": 2
   },
   {
     "id": "6e236ebe-da97-4c4d-a7f2-4599e9fbc0dd",
