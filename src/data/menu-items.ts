@@ -327,7 +327,7 @@ export const menuItems: MenuItem[] = [
     "name": "Banana Bread",
     "category": "Breads",
     "description": "Moist and sweet, loaded with ripe bananas and a hint of cinnamon.",
-    "price": 0,
+    "price": 6,
     "image": "",
     "dietaryInfo": {
       "vegan": false,
@@ -359,8 +359,8 @@ export const menuItems: MenuItem[] = [
     "seasonal": false,
     "active": true,
     "createdAt": "2025-05-09T02:29:16.619Z",
-    "updatedAt": "2025-05-09T02:29:16.619Z",
-    "version": 1
+    "updatedAt": "2025-05-09T04:19:41.845Z",
+    "version": 2
   },
   {
     "id": "216ecc7e-f557-4069-a900-3759b56edbd9",
