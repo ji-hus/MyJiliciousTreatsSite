@@ -295,10 +295,10 @@ export const menuItems: MenuItem[] = [
     "isSpecial": false,
     "bestSeller": false,
     "seasonal": false,
-    "active": true,
+    "active": false,
     "createdAt": "2025-05-09T02:28:55.151Z",
-    "updatedAt": "2025-05-09T07:42:55.169Z",
-    "version": 5,
+    "updatedAt": "2025-05-09T23:28:34.170Z",
+    "version": 6,
     "packPricing": {
       "enabled": true,
       "packSize": 3,
