@@ -317,10 +317,10 @@ export const menuItems: MenuItem[] = [
     "isSpecial": false,
     "bestSeller": false,
     "seasonal": false,
-    "active": true,
+    "active": false,
     "createdAt": "2025-05-09T02:29:16.619Z",
-    "updatedAt": "2025-05-09T04:19:41.845Z",
-    "version": 2
+    "updatedAt": "2025-05-09T06:49:07.714Z",
+    "version": 3
   },
   {
     "id": "216ecc7e-f557-4069-a900-3759b56edbd9",
