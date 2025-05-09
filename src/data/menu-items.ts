@@ -158,5 +158,45 @@ export const menuItems: MenuItem[] = [
     "createdAt": "2025-05-09T02:25:59.900Z",
     "updatedAt": "2025-05-09T02:25:59.900Z",
     "version": 1
+  },
+  {
+    "id": "afb2cc18-b7e3-40b3-a2d8-b252b9c190f4",
+    "name": "French Onion Sourdough Loaf",
+    "category": "Breads",
+    "description": "Caramelized onions folded into our classic sourdough for a savory twist.",
+    "price": 0,
+    "image": "",
+    "dietaryInfo": {
+      "vegan": false,
+      "glutenFree": false,
+      "nutFree": true,
+      "dairyFree": false,
+      "halal": false,
+      "kosher": false
+    },
+    "allergens": {
+      "wheat": true,
+      "nuts": false,
+      "coconut": false,
+      "milk": false,
+      "eggs": false,
+      "soy": false,
+      "sesame": false,
+      "shellfish": false,
+      "fish": false,
+      "peanuts": false,
+      "treeNuts": false,
+      "sulfites": false
+    },
+    "available": true,
+    "stock": 0,
+    "madeToOrder": false,
+    "isSpecial": false,
+    "bestSeller": false,
+    "seasonal": false,
+    "active": true,
+    "createdAt": "2025-05-09T02:26:24.349Z",
+    "updatedAt": "2025-05-09T02:26:24.349Z",
+    "version": 1
   }
 ];
