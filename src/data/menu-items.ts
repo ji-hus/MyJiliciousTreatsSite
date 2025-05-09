@@ -167,7 +167,7 @@ export const menuItems: MenuItem[] = [
     "name": "Brown Butter Chocolate Chips Cookie",
     "category": "Cookies",
     "description": "Crispy edges, chewy center with brown butter and dark chocolate chunks.",
-    "price": 0,
+    "price": 3.5,
     "image": "",
     "dietaryInfo": {
       "vegan": false,
@@ -199,8 +199,8 @@ export const menuItems: MenuItem[] = [
     "seasonal": false,
     "active": true,
     "createdAt": "2025-05-09T02:27:04.201Z",
-    "updatedAt": "2025-05-09T02:27:04.201Z",
-    "version": 1
+    "updatedAt": "2025-05-09T02:54:21.591Z",
+    "version": 2
   },
   {
     "id": "eba2cb90-d399-4908-86c7-4e71a6ff9986",
