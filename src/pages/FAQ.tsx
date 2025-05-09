@@ -6,19 +6,19 @@ const FAQPage = () => {
   const faqs = [
     {
       question: "How do I place an order?",
-      answer: "You can place an order through our website by selecting items from our menu and following the checkout process. For made-to-order items, orders must be placed before Wednesday at 6pm for Saturday pickup."
+      answer: "You can place an order through our website by selecting items from our menu and following the checkout process. All orders must be placed at least 24 hours in advance."
     },
     {
       question: "What are your pickup times?",
-      answer: "In-stock items are available for pickup Monday through Friday from 9am to 5pm. Made-to-order items are available for pickup on Saturday between 9am and 5pm, but must be ordered before Wednesday at 6pm."
+      answer: "In-stock items can be picked up Monday through Friday between 9 AM to 5 PM. Made-to-order items can be picked up on Saturdays from 9 AM to 5 PM. All made-to-order items must be ordered before Wednesday at 6 PM. Orders placed before Wednesday 6 PM can be picked up the upcoming Saturday, while orders placed after Wednesday 6 PM will be scheduled for pickup the following Saturday."
     },
     {
       question: "Do you offer delivery?",
-      answer: "Currently, we only offer pickup service. You can choose from our regular pickup location or various farmers market pop-up locations."
+      answer: "Currently, we only offer pickup service at our location."
     },
     {
       question: "What is your order deadline?",
-      answer: "Orders close Wednesdays at 6pm for Saturday pickup. This ensures we have enough time to prepare your fresh baked goods."
+      answer: "Orders for made-to-order items close on Wednesdays at 6 PM. Orders placed before Wednesday 6 PM can be picked up the upcoming Saturday, while orders placed after Wednesday 6 PM will be scheduled for pickup the following Saturday. In-stock items can be ordered anytime during business hours (Monday-Friday, 9 AM-5 PM)."
     },
     {
       question: "Do you accommodate dietary restrictions?",
@@ -30,11 +30,11 @@ const FAQPage = () => {
     },
     {
       question: "What payment methods do you accept?",
-      answer: "We accept cash and Zelle only. Payment is collected when you pick up your order."
+      answer: "We accept cash and Zelle payments at pickup. Payment is collected when you pick up your order."
     },
     {
       question: "Can I modify or cancel my order?",
-      answer: "Orders can be modified or cancelled up until the order deadline (Wednesday at 6pm). Please contact us as soon as possible if you need to make changes."
+      answer: "Orders can be modified or cancelled up until the order deadline (Thursday at 6pm). Please contact us as soon as possible if you need to make changes."
     },
     {
       question: "Do you offer custom orders?",
