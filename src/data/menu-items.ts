@@ -76,45 +76,5 @@ export const menuItems: MenuItem[] = [
       "sourdough"
     ],
     "notes": "Our signature bread, made fresh daily"
-  },
-  {
-    "id": "94401094-407b-4246-b89d-665727f8820e",
-    "name": "Test Item",
-    "category": "Breads",
-    "description": "Testing github",
-    "price": 9.99,
-    "image": "",
-    "dietaryInfo": {
-      "vegan": false,
-      "glutenFree": false,
-      "nutFree": false,
-      "dairyFree": false,
-      "halal": false,
-      "kosher": false
-    },
-    "allergens": {
-      "wheat": false,
-      "nuts": false,
-      "coconut": false,
-      "milk": false,
-      "eggs": false,
-      "soy": false,
-      "sesame": false,
-      "shellfish": false,
-      "fish": false,
-      "peanuts": false,
-      "treeNuts": false,
-      "sulfites": false
-    },
-    "available": true,
-    "stock": 0,
-    "madeToOrder": false,
-    "isSpecial": false,
-    "bestSeller": false,
-    "seasonal": false,
-    "active": true,
-    "createdAt": "2025-05-09T02:18:55.582Z",
-    "updatedAt": "2025-05-09T02:18:55.582Z",
-    "version": 1
   }
 ];
