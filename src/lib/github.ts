@@ -108,5 +108,9 @@ export function hasGitHubToken(): boolean {
   const hasToken = !!token && token.startsWith('ghp_');
   console.log('- Token is valid:', hasToken);
   
+  if (!hasToken) {
+    console.error('Invalid GitHub token. Token must start with "ghp_"');
+  }
+  
   return hasToken;
 } 
