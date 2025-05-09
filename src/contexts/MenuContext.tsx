@@ -1,5 +1,14 @@
-import { createContext, useContext, useState, ReactNode, useEffect, useMemo, useCallback } from 'react';
-import { menuItems as initialMenuItems, MenuItem, categories } from '@/data/menu-items';
+import { createContext, useContext, useState, ReactNode, useMemo, useCallback } from 'react';
+import { 
+  menuItems as initialMenuItems, 
+  MenuItem, 
+  categories as initialCategories,
+  initialDietaryRestrictions,
+  initialAllergens,
+  createMenuItem,
+  validateMenuItem,
+  updateMenuItem as updateMenuItemHelper
+} from '@/data/menu-items';
 
 interface MenuContextType {
   menuItems: MenuItem[];
@@ -20,192 +29,22 @@ interface MenuContextType {
 
 const MenuContext = createContext<MenuContextType | null>(null);
 
-const STORAGE_KEY = 'menu-items';
-const DIETARY_STORAGE_KEY = 'dietary-restrictions';
-const CATEGORIES_STORAGE_KEY = 'menu-categories';
-const ALLERGENS_STORAGE_KEY = 'menu-allergens';
-
-// Initial dietary restrictions
-const initialDietaryRestrictions = ['vegan', 'glutenFree', 'nutFree', 'dairyFree', 'halal', 'kosher'];
-
-// Initial categories
-const initialCategories = ['Breads', 'Pastries', 'Baked Goods', 'Specialty Items'];
-
-// Initial allergens
-const initialAllergens = [
-  'wheat',
-  'nuts',
-  'coconut',
-  'milk',
-  'eggs',
-  'soy',
-  'sesame',
-  'shellfish',
-  'fish',
-  'peanuts',
-  'treeNuts',
-  'sulfites'
-];
-
-interface DietaryInfo {
-  vegan: boolean;
-  glutenFree: boolean;
-  nutFree: boolean;
-  dairyFree: boolean;
-  halal: boolean;
-  kosher: boolean;
-  [key: string]: boolean;
-}
-
-const batchedStorage = {
-  queue: new Map(),
-  timeout: null as NodeJS.Timeout | null,
-  
-  set(key: string, value: any) {
-    this.queue.set(key, value);
-    if (!this.timeout) {
-      this.timeout = setTimeout(() => this.flush(), 1000);
-    }
-  },
-  
-  flush() {
-    this.queue.forEach((value, key) => {
-      localStorage.setItem(key, JSON.stringify(value));
-    });
-    this.queue.clear();
-    if (this.timeout) {
-      clearTimeout(this.timeout);
-      this.timeout = null;
-    }
-  }
-};
-
 export function MenuProvider({ children }: { children: ReactNode }) {
-  const [menuItems, setMenuItems] = useState<MenuItem[]>(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    console.log('Loading menu items from storage:', stored);
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        console.log('Parsed menu items:', parsed);
-        
-        // Ensure all menu items have proper dietary info
-        const normalizedItems = parsed.map((item: MenuItem) => ({
-          ...item,
-          dietaryInfo: {
-            vegan: Boolean(item.dietaryInfo?.vegan),
-            glutenFree: Boolean(item.dietaryInfo?.glutenFree),
-            nutFree: Boolean(item.dietaryInfo?.nutFree),
-            dairyFree: Boolean(item.dietaryInfo?.dairyFree),
-            halal: Boolean(item.dietaryInfo?.halal),
-            kosher: Boolean(item.dietaryInfo?.kosher),
-            ...item.dietaryInfo
-          }
-        }));
-        
-        console.log('Normalized menu items:', normalizedItems);
-        return normalizedItems;
-      } catch (e) {
-        console.error('Failed to parse stored menu items:', e);
-      }
-    }
-    console.log('Using initial menu items');
-    return initialMenuItems;
-  });
-
-  const [dietaryRestrictions, setDietaryRestrictions] = useState<string[]>(() => {
-    const stored = localStorage.getItem(DIETARY_STORAGE_KEY);
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        // Ensure all initial restrictions are included
-        const allRestrictions = new Set([...initialDietaryRestrictions, ...parsed]);
-        return Array.from(allRestrictions);
-      } catch (e) {
-        console.error('Failed to parse stored dietary restrictions:', e);
-      }
-    }
-    return initialDietaryRestrictions;
-  });
-
-  const [categories, setCategories] = useState<string[]>(() => {
-    const stored = localStorage.getItem(CATEGORIES_STORAGE_KEY);
-    if (stored) {
-      try {
-        return JSON.parse(stored);
-      } catch (e) {
-        console.error('Failed to parse stored categories:', e);
-      }
-    }
-    return initialCategories;
-  });
-
-  const [allergens, setAllergens] = useState<string[]>(() => {
-    const stored = localStorage.getItem(ALLERGENS_STORAGE_KEY);
-    if (stored) {
-      try {
-        return JSON.parse(stored);
-      } catch (e) {
-        console.error('Failed to parse stored allergens:', e);
-      }
-    }
-    return initialAllergens;
-  });
-
-  // Save to localStorage whenever menuItems changes
-  useEffect(() => {
-    console.log('Saving menu items to storage:', menuItems);
-    batchedStorage.set(STORAGE_KEY, menuItems);
-  }, [menuItems]);
-
-  // Save to localStorage whenever dietaryRestrictions changes
-  useEffect(() => {
-    localStorage.setItem(DIETARY_STORAGE_KEY, JSON.stringify(dietaryRestrictions));
-  }, [dietaryRestrictions]);
-
-  // Save to localStorage whenever categories changes
-  useEffect(() => {
-    localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(categories));
-  }, [categories]);
-
-  // Save to localStorage whenever allergens changes
-  useEffect(() => {
-    localStorage.setItem(ALLERGENS_STORAGE_KEY, JSON.stringify(allergens));
-  }, [allergens]);
-
-  // Add effect to log menu items changes
-  useEffect(() => {
-    console.log('Menu items updated:', menuItems);
-    // Check for duplicate IDs
-    const ids = menuItems.map(item => item.id);
-    const uniqueIds = new Set(ids);
-    if (ids.length !== uniqueIds.size) {
-      console.warn('Found duplicate menu item IDs:', ids.filter((id, index) => ids.indexOf(id) !== index));
-    }
-  }, [menuItems]);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>(initialMenuItems);
+  const [dietaryRestrictions, setDietaryRestrictions] = useState<string[]>([...initialDietaryRestrictions]);
+  const [categories, setCategories] = useState<string[]>([...initialCategories]);
+  const [allergens, setAllergens] = useState<string[]>([...initialAllergens]);
 
   // Memoize handlers
   const updateMenuItem = useCallback((id: string, updates: Partial<MenuItem>) => {
-    console.log('MenuContext: Updating item', id);
-    console.log('MenuContext: Updates', updates);
     setMenuItems(items => {
       const updated = items.map(item => {
         if (item.id === id) {
-          console.log('MenuContext: Current item', item);
-          const newItem = {
-            ...item,
-            ...updates,
-            dietaryInfo: {
-              vegan: Boolean(updates.dietaryInfo?.vegan ?? item.dietaryInfo?.vegan),
-              glutenFree: Boolean(updates.dietaryInfo?.glutenFree ?? item.dietaryInfo?.glutenFree),
-              nutFree: Boolean(updates.dietaryInfo?.nutFree ?? item.dietaryInfo?.nutFree),
-              dairyFree: Boolean(updates.dietaryInfo?.dairyFree ?? item.dietaryInfo?.dairyFree),
-              halal: Boolean(updates.dietaryInfo?.halal ?? item.dietaryInfo?.halal),
-              kosher: Boolean(updates.dietaryInfo?.kosher ?? item.dietaryInfo?.kosher),
-              ...(updates.dietaryInfo || {})
-            }
-          };
-          console.log('MenuContext: New item', newItem);
+          const newItem = updateMenuItemHelper(item, updates);
+          const validation = validateMenuItem(newItem);
+          if (!validation.isValid) {
+            throw new Error(validation.errors.join('\n'));
+          }
           return newItem;
         }
         return item;
@@ -215,32 +54,15 @@ export function MenuProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const addMenuItem = useCallback((item: MenuItem) => {
-    setMenuItems(items => {
-      // Ensure all dietary restrictions are initialized for the new item
-      const dietaryInfo = {
-        vegan: Boolean(item.dietaryInfo?.vegan),
-        glutenFree: Boolean(item.dietaryInfo?.glutenFree),
-        nutFree: Boolean(item.dietaryInfo?.nutFree),
-        dairyFree: Boolean(item.dietaryInfo?.dairyFree),
-        halal: Boolean(item.dietaryInfo?.halal),
-        kosher: Boolean(item.dietaryInfo?.kosher)
-      };
-      
-      const newItem = {
-        ...item,
-        dietaryInfo
-      };
-      
-      return [...items, newItem];
-    });
+    const validation = validateMenuItem(item);
+    if (!validation.isValid) {
+      throw new Error(validation.errors.join('\n'));
+    }
+    setMenuItems(items => [...items, item]);
   }, []);
 
   const deleteMenuItem = useCallback((id: string) => {
-    setMenuItems(items => {
-      const updated = items.filter(item => item.id !== id);
-      batchedStorage.set(STORAGE_KEY, updated);
-      return updated;
-    });
+    setMenuItems(items => items.filter(item => item.id !== id));
   }, []);
 
   const addDietaryRestriction = useCallback((restriction: string) => {
@@ -255,7 +77,6 @@ export function MenuProvider({ children }: { children: ReactNode }) {
               [restriction]: false
             }
           }));
-          batchedStorage.set(STORAGE_KEY, updated);
           return updated;
         });
         return [...prev, restriction];
@@ -274,10 +95,9 @@ export function MenuProvider({ children }: { children: ReactNode }) {
           delete newDietaryInfo[restriction as keyof typeof newDietaryInfo];
           return {
             ...item,
-            dietaryInfo: newDietaryInfo as DietaryInfo
+            dietaryInfo: newDietaryInfo
           };
         });
-        batchedStorage.set(STORAGE_KEY, updatedItems);
         return updatedItems;
       });
       return updated;
@@ -309,7 +129,6 @@ export function MenuProvider({ children }: { children: ReactNode }) {
               [allergen]: false
             }
           }));
-          batchedStorage.set(STORAGE_KEY, updated);
           return updated;
         });
         return [...prev, allergen];
@@ -358,15 +177,6 @@ export function MenuProvider({ children }: { children: ReactNode }) {
     removeAllergen,
     getMenuItem
   ]);
-
-  // Cleanup storage on unmount
-  useEffect(() => {
-    return () => {
-      if (batchedStorage.timeout) {
-        batchedStorage.flush();
-      }
-    };
-  }, []);
 
   return (
     <MenuContext.Provider value={contextValue}>

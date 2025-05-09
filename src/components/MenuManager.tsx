@@ -16,7 +16,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { CalendarIcon, Plus, Trash2, Pencil, Image as ImageIcon, AlertTriangle, Vegan, EggOff, MilkOff, WheatOff, Star } from "lucide-react";
-import { MenuItem, categories, initialAllergens } from '@/data/menu-items';
+import { MenuItem, categories, initialAllergens, validateMenuItem, updateMenuItem as updateMenuItemHelper, createMenuItem } from '@/data/menu-items';
 import { useMenu, useMenuItem } from '@/contexts/MenuContext';
 import { debounce } from '@/lib/utils';
 import {
@@ -25,6 +25,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 // Form handling hook
 function useMenuForm(initialState: Partial<MenuItem>) {
@@ -130,6 +131,17 @@ export function MenuManager() {
   const selectedItem = useMenuItem(selectedItemId || '');
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean;
+    title: string;
+    description: string;
+    action: () => void;
+  }>({
+    open: false,
+    title: '',
+    description: '',
+    action: () => {}
+  });
 
   const initialFormState = useMemo(() => ({
     name: '',
@@ -216,8 +228,7 @@ export function MenuManager() {
 
   const handleAddItem = useCallback(() => {
     try {
-      const itemToAdd: MenuItem = {
-        id: crypto.randomUUID(),
+      const itemToAdd = createMenuItem({
         name: newItem.name || '',
         description: newItem.description || '',
         price: newItem.price || 0,
@@ -238,11 +249,39 @@ export function MenuManager() {
         isSpecial: newItem.isSpecial || false,
         bestSeller: newItem.bestSeller || false,
         seasonal: newItem.seasonal || false,
-        image: newItem.image || ''
-      };
-      addMenuItem(itemToAdd);
-        setIsAddingNew(false);
-      resetForm();
+        image: newItem.image || '',
+        // New fields
+        sku: newItem.sku,
+        minimumOrderQuantity: newItem.minimumOrderQuantity,
+        maximumOrderQuantity: newItem.maximumOrderQuantity,
+        batchSize: newItem.batchSize,
+        storageInstructions: newItem.storageInstructions,
+        shelfLife: newItem.shelfLife,
+        ingredients: newItem.ingredients,
+        allergensList: newItem.allergensList,
+        crossContamination: newItem.crossContamination,
+        customizations: newItem.customizations,
+        tags: newItem.tags,
+        notes: newItem.notes
+      });
+
+      const validation = validateMenuItem(itemToAdd);
+      if (!validation.isValid) {
+        setError(validation.errors.join('\n'));
+        return;
+      }
+
+      setConfirmDialog({
+        open: true,
+        title: 'Add Menu Item',
+        description: 'Are you sure you want to add this menu item? This action cannot be undone.',
+        action: () => {
+          addMenuItem(itemToAdd);
+          setIsAddingNew(false);
+          resetForm();
+          setConfirmDialog({ open: false, title: '', description: '', action: () => {} });
+        }
+      });
     } catch (error) {
       console.error('Error adding menu item:', error);
       setError('Failed to add menu item. Please try again.');
@@ -252,26 +291,51 @@ export function MenuManager() {
   const debouncedUpdateItem = useMemo(
     () => debounce((id: string, updates: Partial<MenuItem>) => {
       try {
-        console.log('Updating menu item:', id);
-        console.log('Full updates:', updates);
-        console.log('Dietary info in updates:', updates.dietaryInfo);
-        updateMenuItem(id, updates);
-        setSelectedItemId(null);
-    } catch (error) {
-      console.error('Error updating menu item:', error);
+        const currentItem = menuItems.find(item => item.id === id);
+        if (!currentItem) {
+          throw new Error('Item not found');
+        }
+
+        const updatedItem = updateMenuItemHelper(currentItem, updates);
+        const validation = validateMenuItem(updatedItem);
+        if (!validation.isValid) {
+          setError(validation.errors.join('\n'));
+          return;
+        }
+
+        setConfirmDialog({
+          open: true,
+          title: 'Update Menu Item',
+          description: 'Are you sure you want to update this menu item? This action cannot be undone.',
+          action: () => {
+            updateMenuItem(id, updates);
+            setSelectedItemId(null);
+            setConfirmDialog({ open: false, title: '', description: '', action: () => {} });
+          }
+        });
+      } catch (error) {
+        console.error('Error updating menu item:', error);
         setError('Failed to update menu item. Please try again.');
       }
     }, 300),
-    [updateMenuItem]
+    [updateMenuItem, menuItems]
   );
 
   const handleDeleteItem = useCallback((id: string) => {
-    try {
-      deleteMenuItem(id);
-    } catch (error) {
-      console.error('Error deleting menu item:', error);
-      setError('Failed to delete menu item. Please try again.');
-    }
+    setConfirmDialog({
+      open: true,
+      title: 'Delete Menu Item',
+      description: 'Are you sure you want to delete this menu item? This action cannot be undone.',
+      action: () => {
+        try {
+          deleteMenuItem(id);
+          setConfirmDialog({ open: false, title: '', description: '', action: () => {} });
+        } catch (error) {
+          console.error('Error deleting menu item:', error);
+          setError('Failed to delete menu item. Please try again.');
+        }
+      }
+    });
   }, [deleteMenuItem]);
 
   // Add quick edit handlers
@@ -757,6 +821,84 @@ export function MenuManager() {
               </div>
           </div>
 
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="sku">SKU</Label>
+                <Input
+                  id="sku"
+                  value={newItem.sku || ''}
+                  onChange={(e) => handleNewItemChange('sku', e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="batchSize">Batch Size</Label>
+                <Input
+                  id="batchSize"
+                  type="number"
+                  value={newItem.batchSize || ''}
+                  onChange={(e) => handleNewItemChange('batchSize', parseInt(e.target.value))}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="minOrder">Minimum Order Quantity</Label>
+                <Input
+                  id="minOrder"
+                  type="number"
+                  value={newItem.minimumOrderQuantity || ''}
+                  onChange={(e) => handleNewItemChange('minimumOrderQuantity', parseInt(e.target.value))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="maxOrder">Maximum Order Quantity</Label>
+                <Input
+                  id="maxOrder"
+                  type="number"
+                  value={newItem.maximumOrderQuantity || ''}
+                  onChange={(e) => handleNewItemChange('maximumOrderQuantity', parseInt(e.target.value))}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="storage">Storage Instructions</Label>
+              <Textarea
+                id="storage"
+                value={newItem.storageInstructions || ''}
+                onChange={(e) => handleNewItemChange('storageInstructions', e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="shelfLife">Shelf Life (days)</Label>
+              <Input
+                id="shelfLife"
+                type="number"
+                value={newItem.shelfLife || ''}
+                onChange={(e) => handleNewItemChange('shelfLife', parseInt(e.target.value))}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="ingredients">Ingredients (comma-separated)</Label>
+              <Input
+                id="ingredients"
+                value={newItem.ingredients?.join(', ') || ''}
+                onChange={(e) => handleNewItemChange('ingredients', e.target.value.split(',').map(i => i.trim()))}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="notes">Notes</Label>
+              <Textarea
+                id="notes"
+                value={newItem.notes || ''}
+                onChange={(e) => handleNewItemChange('notes', e.target.value)}
+              />
+            </div>
+
             <div className="flex justify-end space-x-2">
             <Button
               variant="outline"
@@ -782,6 +924,27 @@ export function MenuManager() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={confirmDialog.open} onOpenChange={(open) => {
+        if (!open) {
+          setConfirmDialog({ open: false, title: '', description: '', action: () => {} });
+        }
+      }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{confirmDialog.title}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {confirmDialog.description}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDialog.action}>
+              Confirm
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 } 
