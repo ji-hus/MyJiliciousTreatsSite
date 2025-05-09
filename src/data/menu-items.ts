@@ -127,7 +127,7 @@ export const menuItems: MenuItem[] = [
     "name": "French Onion Sourdough Loaf",
     "category": "Breads",
     "description": "Caramelized onions folded into our classic sourdough for a savory twist.",
-    "price": 0,
+    "price": 12,
     "image": "",
     "dietaryInfo": {
       "vegan": false,
@@ -159,8 +159,8 @@ export const menuItems: MenuItem[] = [
     "seasonal": false,
     "active": true,
     "createdAt": "2025-05-09T02:26:24.349Z",
-    "updatedAt": "2025-05-09T02:26:24.349Z",
-    "version": 1
+    "updatedAt": "2025-05-09T02:54:16.625Z",
+    "version": 2
   },
   {
     "id": "65d8c946-dd46-424b-9a75-f21742041e38",
