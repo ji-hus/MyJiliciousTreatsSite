@@ -444,13 +444,13 @@ export const menuItems: MenuItem[] = [
     "version": 1
   },
   {
-    "id": "d95d668a-d806-4bcc-b50d-0bc027509f3a",
+    "id": "7ba981d7-4d05-482c-af5a-122a074c56bf",
     "name": "Classic Sourdough",
     "description": "Crusty outside, tangy inside. Fermented for 48 hours with a well established starter.",
     "price": 9,
     "category": "Breads",
     "stock": 0,
-    "madeToOrder": false,
+    "madeToOrder": true,
     "available": true,
     "active": true,
     "dietaryInfo": {
@@ -459,7 +459,8 @@ export const menuItems: MenuItem[] = [
       "nutFree": true,
       "dairyFree": false,
       "halal": false,
-      "kosher": false
+      "kosher": false,
+      "Vegetarian": false
     },
     "allergens": {
       "wheat": true,
@@ -476,11 +477,11 @@ export const menuItems: MenuItem[] = [
       "sulfites": false
     },
     "isSpecial": false,
-    "bestSeller": false,
+    "bestSeller": true,
     "seasonal": false,
     "image": "",
-    "createdAt": "2025-05-09T03:37:01.512Z",
-    "updatedAt": "2025-05-09T03:37:01.512Z",
-    "version": 1
+    "createdAt": "2025-05-09T02:24:20.032Z",
+    "updatedAt": "2025-05-09T03:43:18.817Z",
+    "version": 2
   }
 ];
