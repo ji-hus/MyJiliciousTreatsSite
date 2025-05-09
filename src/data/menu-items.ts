@@ -248,7 +248,7 @@ export const menuItems: MenuItem[] = [
     "name": "Brownie",
     "category": "Baked Goods",
     "description": "Dense, fudgy, and packed with dark chocolate.",
-    "price": 0,
+    "price": 4,
     "image": "",
     "dietaryInfo": {
       "vegan": false,
@@ -280,8 +280,8 @@ export const menuItems: MenuItem[] = [
     "seasonal": false,
     "active": true,
     "createdAt": "2025-05-09T02:28:09.884Z",
-    "updatedAt": "2025-05-09T02:28:09.884Z",
-    "version": 1
+    "updatedAt": "2025-05-09T03:00:56.368Z",
+    "version": 2
   },
   {
     "id": "15385570-24ab-41d6-a114-c9b37fa6c631",
