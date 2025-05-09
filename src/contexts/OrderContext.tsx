@@ -41,6 +41,7 @@ interface OrderContextType {
   updateOrderStatus: (orderId: string, status: Order['status']) => Promise<void>;
   updateOrderNote: (orderId: string, note: string) => Promise<void>;
   updatePaymentStatus: (orderId: string, paymentMethod: Order['paymentMethod'] | 'refunded') => Promise<void>;
+  resetPaymentStatus: (orderId: string) => Promise<void>;
   deleteOrder: (orderId: string) => Promise<void>;
   getOrder: (orderId: string) => Order | undefined;
   getPendingOrders: () => Order[];
@@ -143,6 +144,25 @@ export function OrderProvider({ children }: { children: ReactNode }) {
     });
   };
 
+  const resetPaymentStatus = async (orderId: string) => {
+    setOrders(prevOrders =>
+      prevOrders.map(order =>
+        order.id === orderId
+          ? {
+              ...order,
+              paymentMethod: undefined,
+              paymentStatus: 'pending',
+              notes: 'Pending'
+            }
+          : order
+      )
+    );
+    toast({
+      title: "Payment status reset",
+      description: `Order #${orderId} payment status has been reset to pending`,
+    });
+  };
+
   const deleteOrder = async (orderId: string) => {
     setOrders(prevOrders => prevOrders.filter(order => order.id !== orderId));
     toast({
@@ -180,6 +200,7 @@ export function OrderProvider({ children }: { children: ReactNode }) {
         updateOrderStatus,
         updateOrderNote,
         updatePaymentStatus,
+        resetPaymentStatus,
         deleteOrder,
         getOrder,
         getPendingOrders,

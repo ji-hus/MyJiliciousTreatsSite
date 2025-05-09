@@ -153,7 +153,7 @@ const OrderManagement = () => {
     }
   };
 
-  const handlePaymentStatusChange = async (orderId: string, paymentMethod: 'zelle' | 'cash' | 'refunded') => {
+  const handlePaymentStatusChange = async (orderId: string, paymentMethod: 'zelle' | 'cash' | 'refunded' | 'payment_option') => {
     try {
       const order = orders.find(o => o.id === orderId);
       if (!order) return;
@@ -161,6 +161,9 @@ const OrderManagement = () => {
       if (paymentMethod === 'refunded') {
         await updateOrderStatus(orderId, 'cancelled');
         await updateOrderNote(orderId, `Payment was refunded - Previous payment was made via ${order.paymentMethod}`);
+      } else if (paymentMethod === 'payment_option') {
+        await updateOrderStatus(orderId, 'pending');
+        await updateOrderNote(orderId, 'Pending');
       } else {
         await updateOrderStatus(orderId, 'preparing');
         await updateOrderNote(orderId, `Payment received via ${paymentMethod}`);
@@ -170,6 +173,8 @@ const OrderManagement = () => {
         title: "Payment updated",
         description: paymentMethod === 'refunded' 
           ? `Order #${orderId} has been refunded`
+          : paymentMethod === 'payment_option'
+          ? `Order #${orderId} payment status reset to pending`
           : `Order #${orderId} payment method set to ${paymentMethod}`,
       });
     } catch (error) {
@@ -392,13 +397,14 @@ const OrderManagement = () => {
                   </TooltipProvider>
                   {order.paymentStatus === 'pending' && (
                     <Select
-                      value={order.paymentMethod}
-                      onValueChange={(value: 'zelle' | 'cash' | 'refunded') => handlePaymentStatusChange(order.id, value)}
+                      value={order.paymentMethod || 'payment_option'}
+                      onValueChange={(value: 'zelle' | 'cash' | 'refunded' | 'payment_option') => handlePaymentStatusChange(order.id, value)}
                     >
                       <SelectTrigger className="w-[180px]">
                         <SelectValue placeholder="Select payment" />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value="payment_option">Payment Option</SelectItem>
                         <SelectItem value="zelle">Zelle</SelectItem>
                         <SelectItem value="cash">Cash</SelectItem>
                         <SelectItem value="refunded" className="text-red-600">Refund</SelectItem>
