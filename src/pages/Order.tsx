@@ -45,6 +45,8 @@ import { useMenu } from '@/contexts/MenuContext';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { MenuItem } from '@/types/menu';
 import { useOrder } from '@/contexts/OrderContext';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 
 // Constants
 const EMAILJS_PUBLIC_KEY = "jRgg2OkLA0U1pS4WQ";
@@ -123,6 +125,12 @@ interface CartItem {
   name: string;
   price: number;
   quantity: number;
+  packPricing?: {
+    enabled: boolean;
+    packSize: number;
+    packPrice: number;
+    packName?: string;
+  };
 }
 
 // Helper functions
@@ -137,7 +145,7 @@ const formatOrderDetails = (cart: CartItem[], menuItems: MenuItem[]) => {
     return menuItem && menuItem.madeToOrder;
   });
 
-  const cartTotal = cart.reduce((total, item) => total + (Number(item.price || 0) * item.quantity), 0);
+  const cartTotal = cart.reduce((total, item) => total + calculateItemTotal(item), 0);
 
   return {
     inStockItems,
@@ -218,6 +226,155 @@ const PaymentInstructions = () => (
   </div>
 );
 
+const QuantitySelector = ({ item, onQuantityChange }: { item: CartItem; onQuantityChange: (id: string, quantity: number) => void }) => {
+  const [quantity, setQuantity] = useState(item.quantity);
+  const [isPack, setIsPack] = useState(item.packPricing?.enabled && item.quantity >= item.packPricing.packSize);
+
+  useEffect(() => {
+    setQuantity(item.quantity);
+    setIsPack(item.packPricing?.enabled && item.quantity >= item.packPricing.packSize);
+  }, [item.quantity, item.packPricing]);
+
+  const handleQuantityChange = (newQuantity: number) => {
+    if (newQuantity >= 1) {
+      setQuantity(newQuantity);
+      onQuantityChange(item.id, newQuantity);
+    }
+  };
+
+  const handlePackToggle = () => {
+    if (item.packPricing?.enabled) {
+      const newIsPack = !isPack;
+      setIsPack(newIsPack);
+      const newQuantity = newIsPack ? item.packPricing.packSize : 1;
+      setQuantity(newQuantity);
+      onQuantityChange(item.id, newQuantity);
+    }
+  };
+
+  const calculateSavings = () => {
+    if (!item.packPricing?.enabled || !isPack) return 0;
+    const regularPrice = item.price * item.packPricing.packSize;
+    return regularPrice - item.packPricing.packPrice;
+  };
+
+  return (
+    <div className="flex flex-col gap-2">
+      {item.packPricing?.enabled && (
+        <div className="flex items-center gap-2">
+          <Button
+            variant={isPack ? "default" : "outline"}
+            size="sm"
+            onClick={handlePackToggle}
+            className="text-xs"
+          >
+            {isPack ? item.packPricing.packName || `${item.packPricing.packSize}-Pack` : "Individual"}
+          </Button>
+          {isPack && (
+            <div className="text-xs text-green-600">
+              Save ${calculateSavings().toFixed(2)}
+            </div>
+          )}
+        </div>
+      )}
+      <div className="flex items-center gap-2">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => handleQuantityChange(quantity - 1)}
+          disabled={quantity <= 1}
+        >
+          -
+        </Button>
+        <span className="w-8 text-center">{quantity}</span>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => handleQuantityChange(quantity + 1)}
+        >
+          +
+        </Button>
+      </div>
+      {isPack && (
+        <div className="text-xs text-muted-foreground">
+          ${(item.packPricing.packPrice / item.packPricing.packSize).toFixed(2)} per item
+        </div>
+      )}
+    </div>
+  );
+};
+
+const calculateItemTotal = (item: CartItem) => {
+  if (item.packPricing?.enabled) {
+    const packs = Math.floor(item.quantity / item.packPricing.packSize);
+    const remaining = item.quantity % item.packPricing.packSize;
+    return (packs * item.packPricing.packPrice) + (remaining * item.price);
+  }
+  return item.price * item.quantity;
+};
+
+// Add this new component for the pack pricing dialog
+const PackPricingDialog = ({ 
+  item, 
+  onConfirm, 
+  onCancel 
+}: { 
+  item: MenuItem; 
+  onConfirm: (usePack: boolean) => void; 
+  onCancel: () => void;
+}) => {
+  const [usePack, setUsePack] = useState(false);
+
+  const calculateSavings = () => {
+    if (!item.packPricing?.enabled) return 0;
+    const regularPrice = item.price * item.packPricing.packSize;
+    return regularPrice - item.packPricing.packPrice;
+  };
+
+  return (
+    <Dialog open={true} onOpenChange={onCancel}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Add to Cart</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4 py-4">
+          <p className="text-lg font-medium">{item.name}</p>
+          <div className="space-y-2">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="usePack"
+                checked={usePack}
+                onCheckedChange={(checked) => setUsePack(checked as boolean)}
+              />
+              <Label htmlFor="usePack" className="text-base">
+                Use {item.packPricing?.packName || `${item.packPricing?.packSize}-Pack`} (${item.packPricing?.packPrice.toFixed(2)})
+              </Label>
+            </div>
+            {usePack && (
+              <div className="text-sm text-green-600">
+                Save ${calculateSavings().toFixed(2)} compared to buying individually
+              </div>
+            )}
+            {!usePack && (
+              <div className="text-sm text-gray-600">
+                Individual price: ${item.price.toFixed(2)} each
+              </div>
+            )}
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button onClick={() => onConfirm(usePack)}>
+            Add to Cart
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 const OrderPage = () => {
   const [searchParams] = useSearchParams();
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -227,6 +384,13 @@ const OrderPage = () => {
   const { toast } = useToast();
   const { menuItems, categories } = useMenu();
   const { addOrder } = useOrder();
+  const [packPricingDialog, setPackPricingDialog] = useState<{
+    open: boolean;
+    item: MenuItem | null;
+  }>({
+    open: false,
+    item: null
+  });
 
   // Split cart items into in-stock and made-to-order
   const { inStockItems, madeToOrderItems, cartTotal } = formatOrderDetails(cart, menuItems);
@@ -277,7 +441,8 @@ const OrderPage = () => {
           id: menuItem.id,
           name: menuItem.name,
           price: menuItem.price,
-          quantity: 1
+          quantity: 1,
+          packPricing: menuItem.packPricing
         }]);
       }
     }
@@ -364,10 +529,8 @@ const OrderPage = () => {
     }
   };
 
-  // Handle adding item to cart
-  const addToCart = (item: typeof menuItems[0]) => {
-    const existingItem = cart.find(cartItem => cartItem.id === item.id);
-    
+  // Update the addToCart function
+  const addToCart = (item: MenuItem) => {
     // Check if item is made to order or has stock available
     if (!item.madeToOrder && item.stock <= 0) {
       toast({
@@ -378,6 +541,23 @@ const OrderPage = () => {
       return;
     }
 
+    // If item has pack pricing, show the dialog
+    if (item.packPricing?.enabled) {
+      setPackPricingDialog({
+        open: true,
+        item
+      });
+      return;
+    }
+
+    // Otherwise, add the item directly
+    addItemToCart(item, false);
+  };
+
+  // Add this new function to handle the actual cart addition
+  const addItemToCart = (item: MenuItem, usePack: boolean) => {
+    const existingItem = cart.find(cartItem => cartItem.id === item.id);
+    
     // Check if adding one more would exceed stock
     if (!item.madeToOrder && existingItem && existingItem.quantity >= item.stock) {
       toast({
@@ -399,7 +579,8 @@ const OrderPage = () => {
         id: item.id,
         name: item.name,
         price: item.price,
-        quantity: 1
+        quantity: usePack ? item.packPricing!.packSize : 1,
+        packPricing: item.packPricing
       }]);
     }
 
@@ -466,12 +647,44 @@ const OrderPage = () => {
         made_to_order_pickup_date: data.madeToOrderPickupDate ? format(data.madeToOrderPickupDate, 'MMMM d, yyyy') : 'Not applicable',
         made_to_order_pickup_time: data.madeToOrderPickupTime || 'Not applicable',
         special_instructions: data.specialInstructions || 'None',
-        in_stock_items: inStockItems.length > 0 ? inStockItems.map(item => 
-          `${item.name} x${item.quantity} - $${(Number(item.price || 0) * item.quantity).toFixed(2)}`
-        ).join('\n') : 'No in-stock items ordered',
-        made_to_order_items: madeToOrderItems.length > 0 ? madeToOrderItems.map(item => 
-          `${item.name} x${item.quantity} - $${(Number(item.price || 0) * item.quantity).toFixed(2)}`
-        ).join('\n') : 'No made-to-order items ordered',
+        in_stock_items: inStockItems.length > 0 ? inStockItems.map(item => {
+          const total = calculateItemTotal(item);
+          let itemDescription = `${item.name} x${item.quantity}`;
+          
+          if (item.packPricing?.enabled) {
+            const packs = Math.floor(item.quantity / item.packPricing.packSize);
+            const remaining = item.quantity % item.packPricing.packSize;
+            
+            if (packs > 0) {
+              itemDescription += ` (${packs} ${item.packPricing.packName || `${item.packPricing.packSize}-Pack`}${packs > 1 ? 's' : ''}`;
+              if (remaining > 0) {
+                itemDescription += ` + ${remaining} individual`;
+              }
+              itemDescription += ')';
+            }
+          }
+          
+          return `${itemDescription} - $${total.toFixed(2)}`;
+        }).join('\n') : 'No in-stock items ordered',
+        made_to_order_items: madeToOrderItems.length > 0 ? madeToOrderItems.map(item => {
+          const total = calculateItemTotal(item);
+          let itemDescription = `${item.name} x${item.quantity}`;
+          
+          if (item.packPricing?.enabled) {
+            const packs = Math.floor(item.quantity / item.packPricing.packSize);
+            const remaining = item.quantity % item.packPricing.packSize;
+            
+            if (packs > 0) {
+              itemDescription += ` (${packs} ${item.packPricing.packName || `${item.packPricing.packSize}-Pack`}${packs > 1 ? 's' : ''}`;
+              if (remaining > 0) {
+                itemDescription += ` + ${remaining} individual`;
+              }
+              itemDescription += ')';
+            }
+          }
+          
+          return `${itemDescription} - $${total.toFixed(2)}`;
+        }).join('\n') : 'No made-to-order items ordered',
         total_amount: `$${Number(cartTotal || 0).toFixed(2)}`,
         payment_instructions: `Payment Instructions:\n\n1. Zelle Payment:\nSend payment to: ${BAKERY_EMAIL}\nInclude order number in memo\n\n2. Cash Payment:\nPay with cash when picking up your order\n\nNote: Your order will be confirmed once payment is received or when you arrive for pickup with cash.`
       };
@@ -646,7 +859,7 @@ const OrderPage = () => {
                           <h3 className="font-serif font-semibold text-lg mb-3">{category}</h3>
                           <div className="space-y-3">
                             {categoryItems.map(item => (
-                              <div key={item.id} className="flex justify-between items-center p-3 rounded-md bg-bakery-cream/20 hover:bg-bakery-cream/40 relative">
+                              <div key={item.id} className="flex justify-between items-center p-4 rounded-md bg-bakery-cream/20 hover:bg-bakery-cream/40 relative">
                                 <div className="absolute top-2 right-2 flex gap-2">
                                   {item.isSpecial && (
                                     <Badge className="bg-bakery-gold text-white">
@@ -798,26 +1011,20 @@ const OrderPage = () => {
                             <div key={item.id} className="flex justify-between items-center p-4 rounded-md bg-white border">
                               <div>
                                 <p className="font-medium font-sans text-lg">{item.name}</p>
-                                <p className="text-base text-gray-600 font-sans">${Number(item.price || 0).toFixed(2)} each</p>
+                                {item.packPricing?.enabled && (
+                                  <div className="text-sm text-gray-600">
+                                    {Math.floor(item.quantity / item.packPricing.packSize)} {Math.floor(item.quantity / item.packPricing.packSize) === 1 ? 'Order' : 'Orders'} of {item.packPricing.packName || `${item.packPricing.packSize}-Pack`}
+                                    {item.quantity % item.packPricing.packSize > 0 && (
+                                      <span> + {item.quantity % item.packPricing.packSize} individual</span>
+                                    )}
+                                  </div>
+                                )}
+                                <p className="text-base text-gray-600 font-sans">
+                                  ${calculateItemTotal(item).toFixed(2)} total
+                                </p>
                               </div>
                               <div className="flex items-center space-x-2">
-                                <Button
-                                  variant="outline"
-                                  size="icon"
-                                  className="h-8 w-8 rounded-full"
-                                  onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                                >
-                                  <Minus className="h-4 w-4" />
-                                </Button>
-                                <span className="w-8 text-center font-sans text-lg">{item.quantity}</span>
-                                <Button
-                                  variant="outline"
-                                  size="icon"
-                                  className="h-8 w-8 rounded-full"
-                                  onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                                >
-                                  <Plus className="h-4 w-4" />
-                                </Button>
+                                <QuantitySelector item={item} onQuantityChange={updateQuantity} />
                                 <Button
                                   variant="ghost"
                                   size="icon"
@@ -841,26 +1048,20 @@ const OrderPage = () => {
                             <div key={item.id} className="flex justify-between items-center p-4 rounded-md bg-white border">
                               <div>
                                 <p className="font-medium font-sans text-lg">{item.name}</p>
-                                <p className="text-base text-gray-600 font-sans">${Number(item.price || 0).toFixed(2)} each</p>
+                                {item.packPricing?.enabled && (
+                                  <div className="text-sm text-gray-600">
+                                    {Math.floor(item.quantity / item.packPricing.packSize)} {Math.floor(item.quantity / item.packPricing.packSize) === 1 ? 'Order' : 'Orders'} of {item.packPricing.packName || `${item.packPricing.packSize}-Pack`}
+                                    {item.quantity % item.packPricing.packSize > 0 && (
+                                      <span> + {item.quantity % item.packPricing.packSize} individual</span>
+                                    )}
+                                  </div>
+                                )}
+                                <p className="text-base text-gray-600 font-sans">
+                                  ${calculateItemTotal(item).toFixed(2)} total
+                                </p>
                               </div>
                               <div className="flex items-center space-x-2">
-                                <Button
-                                  variant="outline"
-                                  size="icon"
-                                  className="h-8 w-8 rounded-full"
-                                  onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                                >
-                                  <Minus className="h-4 w-4" />
-                                </Button>
-                                <span className="w-8 text-center font-sans text-lg">{item.quantity}</span>
-                                <Button
-                                  variant="outline"
-                                  size="icon"
-                                  className="h-8 w-8 rounded-full"
-                                  onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                                >
-                                  <Plus className="h-4 w-4" />
-                                </Button>
+                                <QuantitySelector item={item} onQuantityChange={updateQuantity} />
                                 <Button
                                   variant="ghost"
                                   size="icon"
@@ -879,7 +1080,7 @@ const OrderPage = () => {
                     <div className="border-t pt-4 mt-4">
                       <div className="flex justify-between font-bold text-xl">
                         <span className="font-sans">Total:</span>
-                        <span className="font-sans">${Number(cartTotal || 0).toFixed(2)}</span>
+                        <span className="font-sans">${cartTotal.toFixed(2)}</span>
                       </div>
                     </div>
                   </div>
@@ -1157,6 +1358,18 @@ const OrderPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Add the PackPricingDialog */}
+      {packPricingDialog.open && packPricingDialog.item && (
+        <PackPricingDialog
+          item={packPricingDialog.item}
+          onConfirm={(usePack) => {
+            addItemToCart(packPricingDialog.item!, usePack);
+            setPackPricingDialog({ open: false, item: null });
+          }}
+          onCancel={() => setPackPricingDialog({ open: false, item: null })}
+        />
+      )}
     </div>
   );
 };
