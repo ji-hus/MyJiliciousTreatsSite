@@ -119,12 +119,12 @@ export const menuItems: MenuItem[] = [
     "seasonal": false,
     "active": true,
     "createdAt": "2025-05-09T02:27:04.201Z",
-    "updatedAt": "2025-05-09T07:17:16.754Z",
-    "version": 4,
+    "updatedAt": "2025-05-09T04:31:53.941Z",
+    "version": 3,
     "packPricing": {
       "enabled": true,
       "packSize": 3,
-      "packPrice": 9,
+      "packPrice": 9.99,
       "packName": "3-Pack"
     }
   },
@@ -245,8 +245,14 @@ export const menuItems: MenuItem[] = [
     "seasonal": false,
     "active": true,
     "createdAt": "2025-05-09T02:28:30.336Z",
-    "updatedAt": "2025-05-09T04:32:08.011Z",
-    "version": 4
+    "updatedAt": "2025-05-09T07:41:22.249Z",
+    "version": 5,
+    "packPricing": {
+      "enabled": true,
+      "packSize": 2,
+      "packPrice": 8,
+      "packName": ""
+    }
   },
   {
     "id": "d71c6fb2-1e82-4373-ba80-4e4a73bcfdff",
