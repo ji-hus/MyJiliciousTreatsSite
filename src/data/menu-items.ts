@@ -37,10 +37,10 @@ export const menuItems: MenuItem[] = [
     "isSpecial": true,
     "bestSeller": false,
     "seasonal": false,
-    "active": true,
+    "active": false,
     "createdAt": "2025-05-09T02:25:59.900Z",
-    "updatedAt": "2025-05-09T03:34:11.578Z",
-    "version": 3
+    "updatedAt": "2025-05-09T06:48:44.580Z",
+    "version": 4
   },
   {
     "id": "afb2cc18-b7e3-40b3-a2d8-b252b9c190f4",
@@ -77,10 +77,10 @@ export const menuItems: MenuItem[] = [
     "isSpecial": false,
     "bestSeller": false,
     "seasonal": false,
-    "active": true,
+    "active": false,
     "createdAt": "2025-05-09T02:26:24.349Z",
-    "updatedAt": "2025-05-09T04:14:03.331Z",
-    "version": 2
+    "updatedAt": "2025-05-09T06:48:46.813Z",
+    "version": 3
   },
   {
     "id": "65d8c946-dd46-424b-9a75-f21742041e38",
@@ -157,10 +157,10 @@ export const menuItems: MenuItem[] = [
     "isSpecial": false,
     "bestSeller": false,
     "seasonal": false,
-    "active": true,
+    "active": false,
     "createdAt": "2025-05-09T02:27:45.750Z",
-    "updatedAt": "2025-05-09T04:14:16.801Z",
-    "version": 2
+    "updatedAt": "2025-05-09T06:48:50.279Z",
+    "version": 3
   },
   {
     "id": "0d6c965c-c36e-46b6-b37a-75563e1e5205",
@@ -197,10 +197,10 @@ export const menuItems: MenuItem[] = [
     "isSpecial": false,
     "bestSeller": false,
     "seasonal": false,
-    "active": true,
+    "active": false,
     "createdAt": "2025-05-09T02:28:09.884Z",
-    "updatedAt": "2025-05-09T04:14:19.497Z",
-    "version": 2
+    "updatedAt": "2025-05-09T06:48:59.006Z",
+    "version": 3
   },
   {
     "id": "15385570-24ab-41d6-a114-c9b37fa6c631",
@@ -317,10 +317,10 @@ export const menuItems: MenuItem[] = [
     "isSpecial": false,
     "bestSeller": false,
     "seasonal": false,
-    "active": true,
+    "active": false,
     "createdAt": "2025-05-09T02:29:16.619Z",
-    "updatedAt": "2025-05-09T04:19:41.845Z",
-    "version": 2
+    "updatedAt": "2025-05-09T06:49:07.714Z",
+    "version": 3
   },
   {
     "id": "216ecc7e-f557-4069-a900-3759b56edbd9",
@@ -357,10 +357,10 @@ export const menuItems: MenuItem[] = [
     "isSpecial": false,
     "bestSeller": false,
     "seasonal": false,
-    "active": true,
+    "active": false,
     "createdAt": "2025-05-09T02:29:43.720Z",
-    "updatedAt": "2025-05-09T04:19:46.793Z",
-    "version": 2
+    "updatedAt": "2025-05-09T06:49:11.015Z",
+    "version": 3
   },
   {
     "id": "b8f4b4da-b697-4b4d-9ffc-215886671222",
