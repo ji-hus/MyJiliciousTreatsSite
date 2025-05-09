@@ -3,20 +3,19 @@ import { MenuItem } from './types';
 
 export const menuItems: MenuItem[] = [
   {
-    "id": "1",
+    "id": "6e236ebe-da97-4c4d-a7f2-4599e9fbc0dd",
     "name": "Classic Sourdough",
     "category": "Breads",
-    "description": "Traditional sourdough bread made with our 100-year-old starter",
+    "description": "Traditional sourdough bread made with our well established starter.",
     "price": 10,
-    "image": "/images/sourdough.jpg",
+    "image": "",
     "dietaryInfo": {
       "vegan": true,
       "glutenFree": false,
       "nutFree": true,
       "dairyFree": true,
       "halal": true,
-      "kosher": true,
-      "Vegetarian": false
+      "kosher": true
     },
     "allergens": {
       "wheat": true,
@@ -39,44 +38,9 @@ export const menuItems: MenuItem[] = [
     "bestSeller": true,
     "seasonal": false,
     "active": true,
-    "createdAt": "2025-05-09T01:29:37.422Z",
-    "updatedAt": "2025-05-09T02:19:23.234Z",
-    "version": 2,
-    "sku": "BRD-001",
-    "minimumOrderQuantity": 1,
-    "maximumOrderQuantity": 10,
-    "batchSize": 12,
-    "storageInstructions": "Store in a cool, dry place. Best consumed within 5 days.",
-    "shelfLife": 5,
-    "ingredients": [
-      "organic flour",
-      "water",
-      "salt",
-      "sourdough starter"
-    ],
-    "allergensList": [
-      "wheat"
-    ],
-    "crossContamination": [
-      "gluten"
-    ],
-    "customizations": [
-      {
-        "name": "Size",
-        "options": [
-          "Small",
-          "Medium",
-          "Large"
-        ],
-        "priceAdjustment": 2
-      }
-    ],
-    "tags": [
-      "traditional",
-      "artisan",
-      "sourdough"
-    ],
-    "notes": "Our signature bread, made fresh daily"
+    "createdAt": "2025-05-09T02:30:29.839Z",
+    "updatedAt": "2025-05-09T02:31:25.126Z",
+    "version": 3
   },
   {
     "id": "7ba981d7-4d05-482c-af5a-122a074c56bf",
