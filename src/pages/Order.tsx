@@ -648,9 +648,23 @@ const OrderPage = () => {
                           <h3 className="font-serif font-semibold text-lg mb-3">{category}</h3>
                           <div className="space-y-3">
                             {categoryItems.map(item => (
-                              <div key={item.id} className="flex justify-between items-center p-3 rounded-md bg-bakery-cream/20 hover:bg-bakery-cream/40">
+                              <div key={item.id} className="flex justify-between items-center p-3 rounded-md bg-bakery-cream/20 hover:bg-bakery-cream/40 relative">
+                                <div className="absolute top-2 right-2 flex gap-2">
+                                  {item.isSpecial && (
+                                    <Badge className="bg-bakery-gold text-white">
+                                      Special
+                                    </Badge>
+                                  )}
+                                  {item.bestSeller && (
+                                    <Badge className="bg-bakery-brown text-white">
+                                      Best Seller
+                                    </Badge>
+                                  )}
+                                </div>
                                 <div>
-                                  <p className="font-medium font-sans text-lg">{item.name}</p>
+                                  <div className="flex items-center gap-2">
+                                    <p className="font-medium font-sans text-lg">{item.name}</p>
+                                  </div>
                                   <div className="flex gap-1 mt-1">
                                     <TooltipProvider>
                                       {item.dietaryInfo.vegan && (

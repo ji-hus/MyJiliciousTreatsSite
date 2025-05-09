@@ -15,7 +15,7 @@ import { Switch } from "@/components/ui/switch";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { CalendarIcon, Plus, Trash2, Pencil, Image as ImageIcon, AlertTriangle, Vegan, EggOff, MilkOff, WheatOff, Star, AlertCircle } from "lucide-react";
+import { CalendarIcon, Plus, Trash2, Pencil, Image as ImageIcon, AlertTriangle, Vegan, EggOff, MilkOff, WheatOff, Star, AlertCircle, Loader2 } from "lucide-react";
 import { MenuItem } from '@/data/types';
 import { menuItems as initialMenuItems } from '@/data/menu-items';
 import { initialAllergens, categories, dietaryRestrictions } from '@/data/initial-data';
@@ -160,6 +160,16 @@ export function MenuManager() {
     title: '',
     description: '',
     action: () => {}
+  });
+  const [isSaving, setIsSaving] = useState(false);
+  const [errorDialog, setErrorDialog] = useState<{
+    open: boolean;
+    title: string;
+    description: string;
+  }>({
+    open: false,
+    title: '',
+    description: ''
   });
 
   const initialFormState = useMemo(() => {
@@ -312,7 +322,11 @@ export function MenuManager() {
 
       const validation = validateMenuItem(itemToAdd);
       if (!validation.isValid) {
-        setError(validation.errors.join('\n'));
+        setErrorDialog({
+          open: true,
+          title: 'Validation Error',
+          description: validation.errors.join('\n')
+        });
         return;
       }
 
@@ -321,13 +335,18 @@ export function MenuManager() {
       resetForm();
     } catch (error) {
       console.error('Error adding menu item:', error);
-      setError('Failed to add menu item. Please try again.');
+      setErrorDialog({
+        open: true,
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to add menu item. Please try again.'
+      });
     }
   }, [newItem, addMenuItem, resetForm, categories]);
 
   const debouncedUpdateItem = useMemo(
     () => debounce((id: string, updates: Partial<MenuItem>) => {
       try {
+        setIsSaving(true);
         const currentItem = menuItems.find(item => item.id === id);
         if (!currentItem) {
           throw new Error('Item not found');
@@ -336,13 +355,19 @@ export function MenuManager() {
         const updatedItem = { ...currentItem, ...updates };
         const validation = validateMenuItem(updatedItem);
         if (!validation.isValid) {
-          setError(validation.errors.join('\n'));
+          setErrorDialog({
+            open: true,
+            title: 'Validation Error',
+            description: validation.errors.join('\n')
+          });
+          setIsSaving(false);
           return;
         }
 
         // Skip confirmation for price and stock updates
         if (Object.keys(updates).every(key => ['price', 'stock'].includes(key))) {
           updateMenuItem(id, updates);
+          setIsSaving(false);
           return;
         }
 
@@ -354,13 +379,19 @@ export function MenuManager() {
             updateMenuItem(id, updates);
             setSelectedItemId(null);
             setConfirmDialog({ open: false, title: '', description: '', action: () => {} });
+            setIsSaving(false);
           }
         });
       } catch (error) {
         console.error('Error updating menu item:', error);
-        setError('Failed to update menu item. Please try again.');
+        setErrorDialog({
+          open: true,
+          title: 'Error',
+          description: error instanceof Error ? error.message : 'Failed to update menu item. Please try again.'
+        });
+        setIsSaving(false);
       }
-    }, 300),
+    }, 100),
     [updateMenuItem, menuItems]
   );
 
@@ -614,6 +645,14 @@ export function MenuManager() {
           <AlertDescription>
             Menu items will not be saved to GitHub. Please check your GitHub token configuration.
           </AlertDescription>
+        </Alert>
+      )}
+
+      {isSaving && (
+        <Alert>
+          <Loader2 className="h-4 w-4 animate-spin" />
+          <AlertTitle>Saving Changes</AlertTitle>
+          <AlertDescription>Please wait while your changes are being saved...</AlertDescription>
         </Alert>
       )}
 
@@ -1006,6 +1045,30 @@ export function MenuManager() {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={confirmDialog.action}>
               Confirm
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Error Dialog */}
+      <AlertDialog 
+        open={errorDialog.open} 
+        onOpenChange={(open) => {
+          if (!open) {
+            setErrorDialog({ open: false, title: '', description: '' });
+          }
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{errorDialog.title}</AlertDialogTitle>
+            <AlertDialogDescription className="whitespace-pre-line">
+              {errorDialog.description}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setErrorDialog({ open: false, title: '', description: '' })}>
+              Close
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
