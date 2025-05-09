@@ -40,8 +40,8 @@ export const menuItems: MenuItem[] = [
     "seasonal": false,
     "active": true,
     "createdAt": "2025-05-09T02:24:20.032Z",
-    "updatedAt": "2025-05-09T03:54:47.184Z",
-    "version": 3
+    "updatedAt": "2025-05-09T04:02:42.443Z",
+    "version": 4
   },
   {
     "id": "7af2190f-7a64-4ddb-95a9-ce0af540aaf9",
@@ -481,7 +481,7 @@ export const menuItems: MenuItem[] = [
     "seasonal": false,
     "image": "",
     "createdAt": "2025-05-09T02:24:20.032Z",
-    "updatedAt": "2025-05-09T03:54:47.184Z",
-    "version": 3
+    "updatedAt": "2025-05-09T04:02:42.443Z",
+    "version": 4
   }
 ];
