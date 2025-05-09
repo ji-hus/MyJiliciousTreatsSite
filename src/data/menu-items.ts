@@ -247,7 +247,7 @@ export const menuItems: MenuItem[] = [
     "name": "Cinnamon Roll",
     "category": "Pastries",
     "description": "Fluffy, buttery dough swirled with cinnamon sugar and topped with cream cheese glaze.",
-    "price": 0,
+    "price": 6.5,
     "image": "",
     "dietaryInfo": {
       "vegan": false,
@@ -279,15 +279,15 @@ export const menuItems: MenuItem[] = [
     "seasonal": false,
     "active": true,
     "createdAt": "2025-05-09T02:28:30.336Z",
-    "updatedAt": "2025-05-09T02:28:30.336Z",
-    "version": 1
+    "updatedAt": "2025-05-09T04:19:44.704Z",
+    "version": 3
   },
   {
     "id": "d71c6fb2-1e82-4373-ba80-4e4a73bcfdff",
     "name": "Vanilla Bean Scone",
     "category": "Pastries",
     "description": "Tender, crumbly scone with real vanilla bean specks.",
-    "price": 0,
+    "price": 3,
     "image": "",
     "dietaryInfo": {
       "vegan": false,
@@ -319,15 +319,15 @@ export const menuItems: MenuItem[] = [
     "seasonal": false,
     "active": true,
     "createdAt": "2025-05-09T02:28:55.151Z",
-    "updatedAt": "2025-05-09T02:28:55.151Z",
-    "version": 1
+    "updatedAt": "2025-05-09T04:19:40.028Z",
+    "version": 2
   },
   {
     "id": "80b50280-5824-4396-904f-89b9c8f132ad",
     "name": "Banana Bread",
     "category": "Breads",
     "description": "Moist and sweet, loaded with ripe bananas and a hint of cinnamon.",
-    "price": 0,
+    "price": 6,
     "image": "",
     "dietaryInfo": {
       "vegan": false,
@@ -359,15 +359,15 @@ export const menuItems: MenuItem[] = [
     "seasonal": false,
     "active": true,
     "createdAt": "2025-05-09T02:29:16.619Z",
-    "updatedAt": "2025-05-09T02:29:16.619Z",
-    "version": 1
+    "updatedAt": "2025-05-09T04:19:41.845Z",
+    "version": 2
   },
   {
     "id": "216ecc7e-f557-4069-a900-3759b56edbd9",
     "name": "Mini Vegan Chocolate Cake",
     "category": "Cakes",
     "description": "Rich, fluffy chocolate cake with dairy-free frosting.",
-    "price": 0,
+    "price": 8,
     "image": "",
     "dietaryInfo": {
       "vegan": true,
@@ -399,15 +399,15 @@ export const menuItems: MenuItem[] = [
     "seasonal": false,
     "active": true,
     "createdAt": "2025-05-09T02:29:43.720Z",
-    "updatedAt": "2025-05-09T02:29:43.720Z",
-    "version": 1
+    "updatedAt": "2025-05-09T04:19:46.793Z",
+    "version": 2
   },
   {
     "id": "b8f4b4da-b697-4b4d-9ffc-215886671222",
     "name": "Double Chocolate Espresso Dessert Loaf",
     "category": "Breads",
     "description": "Decadent chocolate loaf with a kick of espresso.",
-    "price": 0,
+    "price": 14,
     "image": "",
     "dietaryInfo": {
       "vegan": false,
@@ -439,8 +439,8 @@ export const menuItems: MenuItem[] = [
     "seasonal": false,
     "active": true,
     "createdAt": "2025-05-09T02:30:07.640Z",
-    "updatedAt": "2025-05-09T02:30:07.640Z",
-    "version": 1
+    "updatedAt": "2025-05-09T04:19:48.734Z",
+    "version": 2
   },
   {
     "id": "7ba981d7-4d05-482c-af5a-122a074c56bf",
@@ -481,5 +481,45 @@ export const menuItems: MenuItem[] = [
     "createdAt": "2025-05-09T02:24:20.032Z",
     "updatedAt": "2025-05-09T04:05:30.321Z",
     "version": 4
+  },
+  {
+    "id": "5532422b-41e6-4338-8bbd-364913c09d0d",
+    "name": "Classic Sourdough",
+    "description": "Crusty outside, tangy inside. Fermented for 48 hours with our well established starter.",
+    "price": "9",
+    "category": "Breads",
+    "stock": 0,
+    "madeToOrder": false,
+    "available": true,
+    "active": true,
+    "dietaryInfo": {
+      "vegan": false,
+      "glutenFree": false,
+      "nutFree": false,
+      "dairyFree": false,
+      "halal": false,
+      "kosher": false
+    },
+    "allergens": {
+      "wheat": false,
+      "nuts": false,
+      "coconut": false,
+      "milk": false,
+      "eggs": false,
+      "soy": false,
+      "sesame": false,
+      "shellfish": false,
+      "fish": false,
+      "peanuts": false,
+      "treeNuts": false,
+      "sulfites": false
+    },
+    "isSpecial": false,
+    "bestSeller": false,
+    "seasonal": false,
+    "image": "",
+    "createdAt": "2025-05-09T04:20:15.747Z",
+    "updatedAt": "2025-05-09T04:20:15.747Z",
+    "version": 1
   }
 ];
