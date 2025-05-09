@@ -197,10 +197,10 @@ export const menuItems: MenuItem[] = [
     "isSpecial": false,
     "bestSeller": false,
     "seasonal": false,
-    "active": true,
+    "active": false,
     "createdAt": "2025-05-09T02:28:09.884Z",
-    "updatedAt": "2025-05-09T04:14:19.497Z",
-    "version": 2
+    "updatedAt": "2025-05-09T06:48:59.006Z",
+    "version": 3
   },
   {
     "id": "15385570-24ab-41d6-a114-c9b37fa6c631",
