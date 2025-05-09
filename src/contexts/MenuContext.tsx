@@ -1,13 +1,13 @@
 import { createContext, useContext, useState, ReactNode, useMemo, useCallback, useEffect } from 'react';
+import { MenuItem } from '@/data/types';
 import { 
   menuItems as initialMenuItems, 
-  MenuItem, 
   categories as initialCategories,
   initialDietaryRestrictions,
   initialAllergens,
   createMenuItem,
   validateMenuItem,
-  updateMenuItem as updateMenuItemHelper
+  updateMenuItem
 } from '@/data/menu-items';
 import { updateMenuItemsFile, hasGitHubToken } from '@/lib/github';
 import { config } from '@/config/env';
@@ -80,7 +80,7 @@ export function MenuProvider({ children }: { children: ReactNode }) {
   const updateMenuItem = useCallback(async (id: string, updates: Partial<MenuItem>) => {
     const updated = menuItems.map(item => {
       if (item.id === id) {
-        const newItem = updateMenuItemHelper(item, updates);
+        const newItem = updateMenuItem(item, updates);
         const validation = validateMenuItem(newItem);
         if (!validation.isValid) {
           throw new Error(validation.errors.join('\n'));

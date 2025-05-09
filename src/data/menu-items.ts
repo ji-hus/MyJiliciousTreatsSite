@@ -211,7 +211,7 @@ export function validateMenuItem(item: MenuItem): { isValid: boolean; errors: st
   };
 }
 
-export function updateMenuItemHelper(item: MenuItem, updates: Partial<MenuItem>): MenuItem {
+export function updateMenuItem(item: MenuItem, updates: Partial<MenuItem>): MenuItem {
   return {
     ...item,
     ...updates,
