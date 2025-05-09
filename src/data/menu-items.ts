@@ -291,12 +291,12 @@ export const menuItems: MenuItem[] = [
     "seasonal": false,
     "active": true,
     "createdAt": "2025-05-09T02:28:55.151Z",
-    "updatedAt": "2025-05-09T07:42:43.038Z",
-    "version": 4,
+    "updatedAt": "2025-05-09T07:42:55.169Z",
+    "version": 5,
     "packPricing": {
       "enabled": true,
       "packSize": 3,
-      "packPrice": 7,
+      "packPrice": 8,
       "packName": ""
     }
   },
