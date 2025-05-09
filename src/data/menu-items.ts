@@ -518,5 +518,45 @@ export const menuItems: MenuItem[] = [
     "createdAt": "2025-05-09T02:30:07.640Z",
     "updatedAt": "2025-05-09T02:30:07.640Z",
     "version": 1
+  },
+  {
+    "id": "6e236ebe-da97-4c4d-a7f2-4599e9fbc0dd",
+    "name": "Sourdough Chocolate Chip Cookies",
+    "category": "Cookies",
+    "description": "Chewy cookie with a hint of tang from sourdough discard.",
+    "price": 0,
+    "image": "",
+    "dietaryInfo": {
+      "vegan": false,
+      "glutenFree": false,
+      "nutFree": true,
+      "dairyFree": false,
+      "halal": false,
+      "kosher": false
+    },
+    "allergens": {
+      "wheat": true,
+      "nuts": false,
+      "coconut": false,
+      "milk": true,
+      "eggs": true,
+      "soy": false,
+      "sesame": false,
+      "shellfish": false,
+      "fish": false,
+      "peanuts": false,
+      "treeNuts": false,
+      "sulfites": false
+    },
+    "available": true,
+    "stock": 0,
+    "madeToOrder": false,
+    "isSpecial": false,
+    "bestSeller": false,
+    "seasonal": false,
+    "active": true,
+    "createdAt": "2025-05-09T02:30:29.839Z",
+    "updatedAt": "2025-05-09T02:30:29.839Z",
+    "version": 1
   }
 ];
