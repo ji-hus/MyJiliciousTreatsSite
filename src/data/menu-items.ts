@@ -232,15 +232,15 @@ export const menuItems: MenuItem[] = [
       "sulfites": false
     },
     "available": true,
-    "stock": 0,
+    "stock": 4,
     "madeToOrder": false,
     "isSpecial": false,
     "bestSeller": false,
     "seasonal": false,
     "active": true,
     "createdAt": "2025-05-09T02:28:30.336Z",
-    "updatedAt": "2025-05-09T04:19:44.704Z",
-    "version": 3
+    "updatedAt": "2025-05-09T04:32:08.011Z",
+    "version": 4
   },
   {
     "id": "d71c6fb2-1e82-4373-ba80-4e4a73bcfdff",
