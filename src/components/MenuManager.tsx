@@ -591,9 +591,18 @@ export function MenuManager() {
                               color = 'text-red-600';
                               break;
                             case 'halal':
-                              Icon = Star;
-                              color = 'text-purple-600';
-                              break;
+                              return (
+                                <TooltipProvider key={key}>
+                                  <Tooltip>
+                                    <TooltipTrigger>
+                                      <img src="/images/halalwhite.jpg" alt="Halal" className="h-4 w-4" />
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p className="capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              );
                             case 'kosher':
                               Icon = Star;
                               color = 'text-yellow-600';

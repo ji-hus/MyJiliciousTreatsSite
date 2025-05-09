@@ -43,9 +43,33 @@ import emailjs from '@emailjs/browser';
 import { orderEmailTemplate, customerOrderEmailTemplate } from '@/email-templates';
 import { useMenu } from '@/contexts/MenuContext';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import type { MenuItem } from '@/types/menu';
 
-// Initialize EmailJS
-emailjs.init("jRgg2OkLA0U1pS4WQ");
+// Constants
+const EMAILJS_PUBLIC_KEY = "jRgg2OkLA0U1pS4WQ";
+const EMAILJS_SERVICE_ID = "service_10tkiq3";
+const EMAILJS_TEMPLATE_ID = "template_34tuje7";
+const BAKERY_EMAIL = "myjilicioustreats@gmail.com";
+const TEST_EMAIL = "sanjidah.hus@gmail.com";
+
+// Dietary options with consistent styling
+const dietaryOptions = [
+  { id: "vegan", label: "Vegan", icon: <Vegan className="mr-1.5" /> },
+  { id: "glutenFree", label: "Gluten Free", icon: <WheatOff className="mr-1.5" /> },
+  { id: "dairyFree", label: "Dairy Free", icon: <MilkOff className="mr-1.5" /> },
+  { id: "nutFree", label: "Nut Free", icon: <EggOff className="mr-1.5" /> },
+  { id: "halal", label: "Halal", icon: <img src="/images/halalwhite.jpg" alt="Halal" className="w-4 h-4 mr-1.5" /> },
+  { id: "kosher", label: "Kosher", icon: <Star className="mr-1.5 text-purple-600" /> }
+] as const;
+
+// Pickup time options
+const PICKUP_TIMES = [
+  "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM", 
+  "11:00 AM", "11:30 AM", "12:00 PM", "12:30 PM",
+  "1:00 PM", "1:30 PM", "2:00 PM", "2:30 PM", 
+  "3:00 PM", "3:30 PM", "4:00 PM", "4:30 PM",
+  "5:00 PM"
+] as const;
 
 // Define form schema
 const orderFormSchema = z.object({
@@ -101,18 +125,8 @@ interface CartItem {
   quantity: number;
 }
 
-// Dietary restrictions for filtering
-const dietaryOptions = [
-  { id: "vegan", label: "Vegan", icon: <Vegan className="mr-1.5" /> },
-  { id: "glutenFree", label: "Gluten Free", icon: <WheatOff className="mr-1.5" /> },
-  { id: "dairyFree", label: "Dairy Free", icon: <MilkOff className="mr-1.5" /> },
-  { id: "nutFree", label: "Nut Free", icon: <EggOff className="mr-1.5" /> },
-  { id: "halal", label: "Halal", icon: <img src="/images/halalwhite.jpg" alt="Halal" className="w-4 h-4 mr-1.5" /> },
-  { id: "kosher", label: "Kosher", icon: <Star className="mr-1.5 text-purple-600" /> }
-];
-
-// Add these helper functions before the OrderPage component
-const formatOrderDetails = (cart: CartItem[]) => {
+// Helper functions
+const formatOrderDetails = (cart: CartItem[], menuItems: MenuItem[]) => {
   const inStockItems = cart.filter(item => {
     const menuItem = menuItems.find(mi => mi.id === item.id);
     return menuItem && !menuItem.madeToOrder;
@@ -125,24 +139,54 @@ const formatOrderDetails = (cart: CartItem[]) => {
 
   const cartTotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
 
-  return `
-    ${inStockItems.length > 0 ? `In-Stock Items:\n${inStockItems.map(item => 
-      `${item.name} x${item.quantity} - $${(item.price * item.quantity).toFixed(2)}`
-    ).join('\n')}\n\n` : ''}
-    ${madeToOrderItems.length > 0 ? `Made-to-Order Items:\n${madeToOrderItems.map(item => 
-      `${item.name} x${item.quantity} - $${(item.price * item.quantity).toFixed(2)}`
-    ).join('\n')}\n\n` : ''}
-    Total Amount: $${cartTotal.toFixed(2)}
-  `;
+  return {
+    inStockItems,
+    madeToOrderItems,
+    cartTotal
+  };
 };
 
-const formatPickupDetails = (data: OrderFormValues) => {
-  return `
-    ${data.inStockPickupDate && data.inStockPickupTime ? 
-      `In-Stock Items Pickup: ${format(data.inStockPickupDate, 'MMMM d, yyyy')} at ${data.inStockPickupTime}\n` : ''}
-    ${data.madeToOrderPickupDate && data.madeToOrderPickupTime ? 
-      `Made-to-Order Items Pickup: ${format(data.madeToOrderPickupDate, 'MMMM d, yyyy')} at ${data.madeToOrderPickupTime}\n` : ''}
-  `;
+const formatPhoneNumber = (value: string) => {
+  const digits = value.replace(/\D/g, '');
+  let formattedValue = '';
+  if (digits.length > 0) {
+    formattedValue = digits.slice(0, 3);
+    if (digits.length > 3) {
+      formattedValue += '-' + digits.slice(3, 6);
+    }
+    if (digits.length > 6) {
+      formattedValue += '-' + digits.slice(6, 10);
+    }
+  }
+  return formattedValue;
+};
+
+const getAvailablePickupDates = (hasMadeToOrderItems: boolean) => {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const currentDay = now.getDay();
+  const currentHour = now.getHours();
+
+  if (hasMadeToOrderItems) {
+    // For made-to-order items, only allow Saturdays
+    const daysUntilNextSaturday = (6 - currentDay + 7) % 7;
+    const upcomingSaturday = new Date(today);
+    upcomingSaturday.setDate(today.getDate() + daysUntilNextSaturday);
+
+    const saturdayAfterNext = new Date(upcomingSaturday);
+    saturdayAfterNext.setDate(upcomingSaturday.getDate() + 7);
+
+    // If past Wednesday or Wednesday after 6 PM
+    if (currentDay > 3 || (currentDay === 3 && currentHour >= 18)) {
+      return saturdayAfterNext;
+    }
+    return upcomingSaturday;
+  }
+
+  // For in-stock items, allow weekdays
+  const minPickupDate = new Date(today);
+  minPickupDate.setDate(today.getDate() + 1);
+  return minPickupDate;
 };
 
 const OrderPage = () => {
@@ -155,15 +199,7 @@ const OrderPage = () => {
   const { menuItems, categories } = useMenu();
 
   // Split cart items into in-stock and made-to-order
-  const inStockItems = cart.filter(item => {
-    const menuItem = menuItems.find(mi => mi.id === item.id);
-    return menuItem && !menuItem.madeToOrder;
-  });
-
-  const madeToOrderItems = cart.filter(item => {
-    const menuItem = menuItems.find(mi => mi.id === item.id);
-    return menuItem && menuItem.madeToOrder;
-  });
+  const { inStockItems, madeToOrderItems, cartTotal } = formatOrderDetails(cart, menuItems);
 
   // Create validation schema with access to cart items
   const createValidationSchema = () => {
@@ -229,9 +265,6 @@ const OrderPage = () => {
     
     return matchesCategory && matchesDietary;
   });
-
-  // Calculate cart total
-  const cartTotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
 
   // Determine if order contains made-to-order items
   const hasMadeToOrderItems = madeToOrderItems.length > 0;
@@ -378,51 +411,20 @@ const OrderPage = () => {
     setSelectedDietary(value);
   };
 
-  // Format phone number helper function
-  const formatPhoneNumber = (value: string) => {
-    const digits = value.replace(/\D/g, '');
-    let formattedValue = '';
-    if (digits.length > 0) {
-      formattedValue = digits.slice(0, 3);
-      if (digits.length > 3) {
-        formattedValue += '-' + digits.slice(3, 6);
-      }
-      if (digits.length > 6) {
-        formattedValue += '-' + digits.slice(6, 10);
-      }
-    }
-    return formattedValue;
-  };
-
   // Handle form submission
   const onSubmit = async (data: OrderFormValues) => {
-    if (isSubmitting) {
-      console.log('Form submission already in progress');
-      return;
-    }
+    if (isSubmitting || cart.length === 0) return;
 
     try {
       setIsSubmitting(true);
-      console.log('Starting order submission...');
-      console.log('Customer email:', data.email);
-      console.log('Customer name:', data.name);
 
-      // Basic validation
-      if (cart.length === 0) {
-        console.log('Cart is empty');
-        return;
-      }
-
-      if (!data.name || !data.email || !data.phone) {
-        console.log('Missing required fields');
-        return;
-      }
+      const { inStockItems, madeToOrderItems, cartTotal } = formatOrderDetails(cart, menuItems);
 
       // Prepare email template parameters
       const templateParams = {
-        to_email: data.email, // Send to customer first
+        to_email: data.email,
         name: 'Ji\'licious Treats',
-        email: 'myjilicioustreats@gmail.com',
+        email: BAKERY_EMAIL,
         customer_name: data.name,
         customer_email: data.email,
         customer_phone: data.phone,
@@ -443,101 +445,52 @@ const OrderPage = () => {
         total_amount: `$${cartTotal.toFixed(2)}`
       };
 
-      try {
-        console.log('Sending customer email...');
-        console.log('Customer email params:', templateParams);
-        
-        // Send confirmation to customer first
-        const customerResponse = await emailjs.send(
-        'service_10tkiq3',
-          'template_34tuje7',
-        templateParams,
-          {
-            publicKey: 'jRgg2OkLA0U1pS4WQ'
-          }
-        );
-        console.log('Customer email sent successfully:', customerResponse);
+      // Send emails in parallel
+      const emailPromises = [
+        // Customer email
+        emailjs.send(
+          EMAILJS_SERVICE_ID,
+          EMAILJS_TEMPLATE_ID,
+          templateParams,
+          { publicKey: EMAILJS_PUBLIC_KEY }
+        ),
+        // Bakery email
+        emailjs.send(
+          EMAILJS_SERVICE_ID,
+          EMAILJS_TEMPLATE_ID,
+          { ...templateParams, to_email: BAKERY_EMAIL },
+          { publicKey: EMAILJS_PUBLIC_KEY }
+        ),
+        // Test email
+        emailjs.send(
+          EMAILJS_SERVICE_ID,
+          EMAILJS_TEMPLATE_ID,
+          { ...templateParams, to_email: TEST_EMAIL },
+          { publicKey: EMAILJS_PUBLIC_KEY }
+        )
+      ];
 
-        console.log('Sending bakery email...');
-        // Send email to bakery
-        const bakeryTemplateParams = {
-          ...templateParams,
-          to_email: 'myjilicioustreats@gmail.com', // Bakery email
-          name: data.name,
-          email: data.email
-        };
-        console.log('Bakery email params:', bakeryTemplateParams);
+      await Promise.all(emailPromises);
 
-        const bakeryResponse = await emailjs.send(
-          'service_10tkiq3',
-          'template_34tuje7',
-          bakeryTemplateParams,
-          {
-            publicKey: 'jRgg2OkLA0U1pS4WQ'
-          }
-        );
-        console.log('Bakery email sent successfully:', bakeryResponse);
-
-        console.log('Sending test copy...');
-        // Send test copy to your email
-        const testTemplateParams = {
-          ...templateParams,
-          to_email: 'sanjidah.hus@gmail.com', // Your test email
-        };
-        console.log('Test email params:', testTemplateParams);
-
-        const testResponse = await emailjs.send(
-          'service_10tkiq3',
-          'template_34tuje7',
-          testTemplateParams,
-          {
-            publicKey: 'jRgg2OkLA0U1pS4WQ'
-          }
-        );
-        console.log('Test email sent successfully:', testResponse);
-
-        console.log('All emails sent successfully');
-
-        // Create pickup message based on available dates
-        let pickupMessage = '';
-        if (data.inStockPickupDate && data.inStockPickupTime) {
-          pickupMessage += `We'll see you on ${format(data.inStockPickupDate, 'MMMM d, yyyy')} at ${data.inStockPickupTime} for in-stock items`;
-        }
-        if (data.madeToOrderPickupDate && data.madeToOrderPickupTime) {
-          if (pickupMessage) pickupMessage += ' and ';
-          pickupMessage += `on ${format(data.madeToOrderPickupDate, 'MMMM d, yyyy')} at ${data.madeToOrderPickupTime} for made-to-order items`;
-        }
+      // Create pickup message
+      const pickupMessage = [
+        data.inStockPickupDate && data.inStockPickupTime && 
+          `We'll see you on ${format(data.inStockPickupDate, 'MMMM d, yyyy')} at ${data.inStockPickupTime} for in-stock items`,
+        data.madeToOrderPickupDate && data.madeToOrderPickupTime && 
+          `on ${format(data.madeToOrderPickupDate, 'MMMM d, yyyy')} at ${data.madeToOrderPickupTime} for made-to-order items`
+      ].filter(Boolean).join(' and ');
 
       toast({
         title: "Order received!",
-          description: `Thank you for your order. ${pickupMessage}.`,
+        description: `Thank you for your order. ${pickupMessage}.`,
       });
 
       // Reset form and cart
       form.reset(defaultValues);
       setCart([]);
 
-      } catch (emailError) {
-        console.error('Error sending emails:', emailError);
-        if (emailError instanceof Error) {
-          console.error('Email error details:', {
-            message: emailError.message,
-            name: emailError.name,
-            stack: emailError.stack
-          });
-        }
-        throw emailError; // Re-throw to be caught by outer catch block
-      }
-
     } catch (error) {
       console.error('Error submitting order:', error);
-      if (error instanceof Error) {
-        console.error('Error details:', {
-          message: error.message,
-          name: error.name,
-          stack: error.stack
-        });
-      }
       toast({
         title: "Error",
         description: "Failed to submit order. Please try again.",
@@ -574,17 +527,17 @@ const OrderPage = () => {
         <div className="lg:col-span-1">
           <Card>
             <CardHeader>
-              <CardTitle className="font-serif">Select Items</CardTitle>
-              <CardDescription className="text-lg font-sans">Browse our menu and add items to your order</CardDescription>
+              <CardTitle className="font-serif text-lg">Select Items</CardTitle>
+              <CardDescription className="text-sm font-sans">Browse our menu and add items to your order</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4">
               {/* Category filter */}
-              <div className="mb-6">
-                <h3 className="font-serif font-medium text-base mb-2">Categories</h3>
-                <div className="flex flex-wrap gap-2">
+              <div className="mb-4">
+                <h3 className="font-serif font-medium text-sm mb-2">Categories</h3>
+                <div className="flex flex-wrap gap-1">
                   <Button
                     variant={selectedCategory === 'all' ? 'default' : 'outline'}
-                    className={selectedCategory === 'all' ? 'bg-bakery-brown hover:bg-bakery-light font-sans text-lg' : 'border-bakery-brown text-bakery-brown hover:bg-bakery-brown/10 font-sans text-lg'}
+                    className={selectedCategory === 'all' ? 'bg-bakery-brown hover:bg-bakery-light font-sans text-sm' : 'border-bakery-brown text-bakery-brown hover:bg-bakery-brown/10 font-sans text-sm'}
                     size="sm"
                     onClick={() => setSelectedCategory('all')}
                   >
@@ -594,7 +547,7 @@ const OrderPage = () => {
                     <Button
                       key={category}
                       variant={selectedCategory === category ? 'default' : 'outline'}
-                      className={selectedCategory === category ? 'bg-bakery-brown hover:bg-bakery-light font-sans text-lg' : 'border-bakery-brown text-bakery-brown hover:bg-bakery-brown/10 font-sans text-lg'}
+                      className={selectedCategory === category ? 'bg-bakery-brown hover:bg-bakery-light font-sans text-sm' : 'border-bakery-brown text-bakery-brown hover:bg-bakery-brown/10 font-sans text-sm'}
                       size="sm"
                       onClick={() => setSelectedCategory(category)}
                     >
@@ -605,12 +558,12 @@ const OrderPage = () => {
               </div>
 
               {/* Dietary restrictions filter */}
-              <div className="mb-6">
-                <h3 className="font-serif font-medium text-base mb-2">Dietary Preferences</h3>
+              <div className="mb-4">
+                <h3 className="font-serif font-medium text-sm mb-2">Dietary Preferences</h3>
                 <ToggleGroup 
                   type="multiple" 
                   variant="outline" 
-                  className="flex flex-wrap gap-2"
+                  className="flex flex-wrap gap-1"
                   value={selectedDietary} 
                   onValueChange={handleDietaryToggle}
                 >
@@ -619,7 +572,7 @@ const OrderPage = () => {
                       key={option.id} 
                       value={option.id} 
                       aria-label={option.label}
-                      className="flex items-center border-bakery-brown text-bakery-brown hover:bg-bakery-brown/10 data-[state=on]:bg-bakery-brown data-[state=on]:text-white font-sans text-lg"
+                      className="flex items-center border-bakery-brown text-bakery-brown hover:bg-bakery-brown/10 data-[state=on]:bg-bakery-brown data-[state=on]:text-white font-sans text-sm"
                     >
                       {option.icon}
                       {option.label}
@@ -728,7 +681,7 @@ const OrderPage = () => {
                                         </Tooltip>
                                       )}
                                     </TooltipProvider>
-                                    </div>
+                                  </div>
                                   {Object.entries(item.allergens).some(([_, value]) => value) && (
                                     <div className="mt-1">
                                       <div className="flex flex-wrap gap-1">
@@ -739,7 +692,7 @@ const OrderPage = () => {
                                             </Badge>
                                           )
                                         )}
-                                  </div>
+                                      </div>
                                     </div>
                                   )}
                                   <div className="mt-1">
@@ -772,81 +725,6 @@ const OrderPage = () => {
                     })
                 )}
               </div>
-              
-              {/* Legend for dietary icons */}
-              <div className="mt-4 pt-4 border-t border-gray-200">
-                <h4 className="text-base font-medium mb-2 font-sans">Dietary Information:</h4>
-                <div className="flex flex-col gap-2 text-sm text-gray-600">
-                  <TooltipProvider>
-                    <div className="flex items-center font-sans">
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <Vegan size={16} className="text-green-600 mr-1.5" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Vegan - Contains no animal products</p>
-                        </TooltipContent>
-                      </Tooltip>
-                      <span>Vegan</span>
-                  </div>
-                    <div className="flex items-center font-sans">
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <WheatOff size={16} className="text-yellow-600 mr-1.5" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Gluten Free - No wheat, rye, or barley</p>
-                        </TooltipContent>
-                      </Tooltip>
-                      <span>Gluten Free</span>
-                  </div>
-                    <div className="flex items-center font-sans">
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <EggOff size={16} className="text-yellow-600 mr-1.5" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Nut Free - No nuts or nut products</p>
-                        </TooltipContent>
-                      </Tooltip>
-                      <span>Nut Free</span>
-                  </div>
-                    <div className="flex items-center font-sans">
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <MilkOff size={16} className="text-blue-600 mr-1.5" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Dairy Free - No milk or dairy products</p>
-                        </TooltipContent>
-                      </Tooltip>
-                      <span>Dairy Free</span>
-                    </div>
-                    <div className="flex items-center font-sans">
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <img src="/images/halalwhite.jpg" alt="Halal" className="w-4 h-4 mr-1.5" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Halal - Prepared according to Islamic dietary laws</p>
-                        </TooltipContent>
-                      </Tooltip>
-                      <span>Halal</span>
-                    </div>
-                    <div className="flex items-center font-sans">
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <Star size={16} className="text-purple-600 mr-1.5" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Kosher - Prepared according to Jewish dietary laws</p>
-                        </TooltipContent>
-                      </Tooltip>
-                      <span>Kosher</span>
-                    </div>
-                  </TooltipProvider>
-                </div>
-              </div>
             </CardContent>
           </Card>
         </div>
@@ -870,42 +748,42 @@ const OrderPage = () => {
                     {inStockItems.length > 0 && (
                       <div>
                         <h3 className="font-medium text-lg mb-3 text-bakery-brown">In-Stock Items</h3>
-                  <div className="space-y-4">
+                        <div className="space-y-4">
                           {inStockItems.map(item => (
-                      <div key={item.id} className="flex justify-between items-center p-4 rounded-md bg-white border">
-                        <div>
+                            <div key={item.id} className="flex justify-between items-center p-4 rounded-md bg-white border">
+                              <div>
                                 <p className="font-medium font-sans text-lg">{item.name}</p>
                                 <p className="text-base text-gray-600 font-sans">${item.price.toFixed(2)} each</p>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            className="h-8 w-8 rounded-full"
-                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          >
-                            <Minus className="h-4 w-4" />
-                          </Button>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  className="h-8 w-8 rounded-full"
+                                  onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                >
+                                  <Minus className="h-4 w-4" />
+                                </Button>
                                 <span className="w-8 text-center font-sans text-lg">{item.quantity}</span>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            className="h-8 w-8 rounded-full"
-                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          >
-                            <Plus className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-gray-500 hover:text-red-500"
-                            onClick={() => removeFromCart(item.id)}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  className="h-8 w-8 rounded-full"
+                                  onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                >
+                                  <Plus className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 text-gray-500 hover:text-red-500"
+                                  onClick={() => removeFromCart(item.id)}
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
                         </div>
                       </div>
                     )}
@@ -1039,87 +917,81 @@ const OrderPage = () => {
                     {inStockItems.length > 0 && (
                       <div className="space-y-6 border-t pt-6">
                         <h3 className="font-medium text-lg text-bakery-brown">In-Stock Items Pickup</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <FormField
-                        control={form.control}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <FormField
+                            control={form.control}
                             name="inStockPickupDate"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-col">
+                            render={({ field }) => (
+                              <FormItem className="flex flex-col">
                                 <FormLabel className="font-sans text-lg">Pickup Date <span className="text-red-500">*</span></FormLabel>
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <FormControl>
-                                  <Button
-                                    variant={"outline"}
-                                    className={cn(
+                                <Popover>
+                                  <PopoverTrigger asChild>
+                                    <FormControl>
+                                      <Button
+                                        variant={"outline"}
+                                        className={cn(
                                           "pl-3 text-left font-normal font-sans text-lg",
-                                      !field.value && "text-muted-foreground"
-                                    )}
-                                  >
-                                    {field.value ? (
-                                      format(field.value, "PPP")
-                                    ) : (
-                                      <span>Select date</span>
-                                    )}
-                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                  </Button>
-                                </FormControl>
-                              </PopoverTrigger>
-                              <PopoverContent className="w-auto p-0" align="start">
-                                <Calendar
-                                  mode="single"
-                                  selected={field.value}
-                                  onSelect={field.onChange}
+                                          !field.value && "text-muted-foreground"
+                                        )}
+                                      >
+                                        {field.value ? (
+                                          format(field.value, "PPP")
+                                        ) : (
+                                          <span>Select date</span>
+                                        )}
+                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                      </Button>
+                                    </FormControl>
+                                  </PopoverTrigger>
+                                  <PopoverContent className="w-auto p-0" align="start">
+                                    <Calendar
+                                      mode="single"
+                                      selected={field.value}
+                                      onSelect={field.onChange}
                                       fromDate={(() => {
                                         const now = new Date();
                                         const minDate = new Date(now);
                                         minDate.setDate(now.getDate() + 1); // Next day pickup
                                         return minDate;
                                       })()}
-                                  disabled={(date) => {
+                                      disabled={(date) => {
                                         // Disable weekends (Saturday = 6, Sunday = 0)
                                         return date.getDay() === 0 || date.getDay() === 6;
-                                  }}
-                                  initialFocus
-                                />
-                              </PopoverContent>
-                            </Popover>
+                                      }}
+                                      initialFocus
+                                    />
+                                  </PopoverContent>
+                                </Popover>
                                 <FormMessage className="font-sans text-base" />
-                          </FormItem>
-                        )}
-                      />
+                              </FormItem>
+                            )}
+                          />
 
-                      <FormField
-                        control={form.control}
+                          <FormField
+                            control={form.control}
                             name="inStockPickupTime"
-                        render={({ field }) => (
-                          <FormItem>
+                            render={({ field }) => (
+                              <FormItem>
                                 <FormLabel className="font-sans text-lg">Pickup Time <span className="text-red-500">*</span></FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <FormControl>
                                     <SelectTrigger className="font-sans text-lg">
-                                  <SelectValue placeholder="Select a pickup time" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                    {[
-                                      "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM", 
-                                      "11:00 AM", "11:30 AM", "12:00 PM", "12:30 PM",
-                                      "1:00 PM", "1:30 PM", "2:00 PM", "2:30 PM", 
-                                      "3:00 PM", "3:30 PM", "4:00 PM", "4:30 PM",
-                                      "5:00 PM"
-                                    ].map((time) => (
+                                      <SelectValue placeholder="Select a pickup time" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {PICKUP_TIMES.map((time) => (
                                       <SelectItem key={time} value={time} className="font-sans text-lg">
-                                    {time}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
+                                        {time}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
                                 <FormMessage className="font-sans text-base" />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
+                              </FormItem>
+                            )}
+                          />
+                        </div>
                       </div>
                     )}
 
@@ -1157,35 +1029,7 @@ const OrderPage = () => {
                                       mode="single"
                                       selected={field.value}
                                       onSelect={field.onChange}
-                                      fromDate={(() => {
-                                        const now = new Date();
-                                        const currentDay = now.getDay();
-                                        const currentHour = now.getHours();
-                                        
-                                        console.log('Current day:', currentDay);
-                                        console.log('Current hour:', currentHour);
-                                        
-                                        // If we're past Wednesday or it's Wednesday after 6 PM
-                                        if (currentDay > 3 || (currentDay === 3 && currentHour >= 18)) {
-                                          // Calculate the next Saturday
-                                          const daysUntilNextSaturday = (6 - currentDay + 7) % 7;
-                                          const upcomingSaturday = new Date(now);
-                                          upcomingSaturday.setDate(now.getDate() + daysUntilNextSaturday);
-                                          
-                                          // Calculate the Saturday after next
-                                          const saturdayAfterNext = new Date(upcomingSaturday);
-                                          saturdayAfterNext.setDate(upcomingSaturday.getDate() + 7);
-                                          
-                                          console.log('After Wednesday 6 PM - Saturday after next:', saturdayAfterNext.toDateString());
-                                          return saturdayAfterNext;
-                                        } else {
-                                          // Before Wednesday 6 PM, allow any Saturday that's at least 3 days away
-                                          const minDate = new Date(now);
-                                          minDate.setDate(now.getDate() + 3); // At least 3 days from now
-                                          console.log('Before Wednesday 6 PM - Min date:', minDate.toDateString());
-                                          return minDate;
-                                        }
-                                      })()}
+                                      fromDate={getAvailablePickupDates(true)}
                                       disabled={(date) => date.getDay() !== 6} // Only allow Saturdays
                                       initialFocus
                                     />
@@ -1209,13 +1053,7 @@ const OrderPage = () => {
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
-                                    {[
-                                      "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM", 
-                                      "11:00 AM", "11:30 AM", "12:00 PM", "12:30 PM",
-                                      "1:00 PM", "1:30 PM", "2:00 PM", "2:30 PM", 
-                                      "3:00 PM", "3:30 PM", "4:00 PM", "4:30 PM",
-                                      "5:00 PM"
-                                    ].map((time) => (
+                                    {PICKUP_TIMES.map((time) => (
                                       <SelectItem key={time} value={time} className="font-sans text-lg">
                                         {time}
                                       </SelectItem>
