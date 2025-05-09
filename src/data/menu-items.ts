@@ -15,7 +15,8 @@ export const menuItems: MenuItem[] = [
       "nutFree": true,
       "dairyFree": true,
       "halal": true,
-      "kosher": true
+      "kosher": true,
+      "Vegetarian": false
     },
     "allergens": {
       "wheat": true,
@@ -90,7 +91,8 @@ export const menuItems: MenuItem[] = [
       "nutFree": true,
       "dairyFree": false,
       "halal": false,
-      "kosher": false
+      "kosher": false,
+      "Vegetarian": false
     },
     "allergens": {
       "wheat": true,
@@ -116,5 +118,45 @@ export const menuItems: MenuItem[] = [
     "createdAt": "2025-05-09T02:24:20.032Z",
     "updatedAt": "2025-05-09T02:24:42.585Z",
     "version": 2
+  },
+  {
+    "id": "7af2190f-7a64-4ddb-95a9-ce0af540aaf9",
+    "name": "Sourdough Rosemary Focaccia",
+    "category": "Breads",
+    "description": "Airy, olive oil-rich focaccia topped with fresh rosemary and flaky salt.",
+    "price": 0,
+    "image": "",
+    "dietaryInfo": {
+      "vegan": false,
+      "glutenFree": false,
+      "nutFree": true,
+      "dairyFree": false,
+      "halal": false,
+      "kosher": false
+    },
+    "allergens": {
+      "wheat": true,
+      "nuts": false,
+      "coconut": false,
+      "milk": true,
+      "eggs": false,
+      "soy": false,
+      "sesame": false,
+      "shellfish": false,
+      "fish": false,
+      "peanuts": false,
+      "treeNuts": false,
+      "sulfites": false
+    },
+    "available": true,
+    "stock": 0,
+    "madeToOrder": true,
+    "isSpecial": false,
+    "bestSeller": false,
+    "seasonal": false,
+    "active": true,
+    "createdAt": "2025-05-09T02:25:59.900Z",
+    "updatedAt": "2025-05-09T02:25:59.900Z",
+    "version": 1
   }
 ];
