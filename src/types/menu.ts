@@ -14,4 +14,10 @@ export interface MenuItem {
   bestSeller: boolean;
   seasonal: boolean;
   image?: string;
+  packPricing?: {
+    enabled: boolean;
+    packSize: number;
+    packPrice: number;
+    packName?: string;
+  };
 } 

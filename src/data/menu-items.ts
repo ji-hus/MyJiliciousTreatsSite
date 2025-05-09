@@ -40,7 +40,13 @@ export const menuItems: MenuItem[] = [
     "active": false,
     "createdAt": "2025-05-09T02:25:59.900Z",
     "updatedAt": "2025-05-09T06:48:44.580Z",
-    "version": 4
+    "version": 4,
+    "packPricing": {
+      "enabled": true,
+      "packSize": 3,
+      "packPrice": 9,
+      "packName": "3-Pack"
+    }
   },
   {
     "id": "afb2cc18-b7e3-40b3-a2d8-b252b9c190f4",
@@ -125,7 +131,7 @@ export const menuItems: MenuItem[] = [
       "enabled": true,
       "packSize": 3,
       "packPrice": 9,
-      "packName": ""
+      "packName": "3-Pack"
     }
   },
   {
@@ -251,7 +257,7 @@ export const menuItems: MenuItem[] = [
       "enabled": true,
       "packSize": 2,
       "packPrice": 8,
-      "packName": ""
+      "packName": "2-Pack"
     }
   },
   {
@@ -297,7 +303,7 @@ export const menuItems: MenuItem[] = [
       "enabled": true,
       "packSize": 3,
       "packPrice": 8,
-      "packName": ""
+      "packName": "3-Pack"
     }
   },
   {
@@ -418,6 +424,12 @@ export const menuItems: MenuItem[] = [
     "active": true,
     "createdAt": "2025-05-09T02:30:07.640Z",
     "updatedAt": "2025-05-09T04:19:48.734Z",
-    "version": 2
+    "version": 2,
+    "packPricing": {
+      "enabled": true,
+      "packSize": 3,
+      "packPrice": 8,
+      "packName": "3-Pack"
+    }
   }
 ];
