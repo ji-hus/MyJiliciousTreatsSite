@@ -45,21 +45,12 @@ export function MenuProvider({ children }: { children: ReactNode }) {
 
   // Check if GitHub integration is available
   useEffect(() => {
-    console.log('Checking GitHub integration...');
     const token = import.meta.env.VITE_GITHUB_TOKEN;
-    console.log('GitHub token details:', {
-      exists: !!token,
-      length: token?.length || 0,
-      prefix: token?.substring(0, 4) || 'none',
-      fullToken: token
-    });
-    
     const isEnabled = hasGitHubToken();
-    console.log('GitHub integration enabled:', isEnabled);
     setIsGitHubEnabled(isEnabled);
     
     if (!isEnabled) {
-      console.error('GitHub integration disabled. Please check your token configuration.');
+      console.warn('GitHub integration disabled. Please check your token configuration.');
     }
   }, []);
 
@@ -68,14 +59,19 @@ export function MenuProvider({ children }: { children: ReactNode }) {
     setMenuItems(newItems);
     if (isGitHubEnabled) {
       try {
+        setIsLoading(true);
         await updateMenuItemsFile(newItems);
         setGitHubError(null);
+        setHasUnsavedChanges(false);
       } catch (error) {
         console.error('Failed to update menu items on GitHub:', error);
         const errorMessage = error instanceof Error 
           ? error.message 
           : 'Failed to update menu items on GitHub';
         setGitHubError(`${errorMessage}. Please check your GitHub token and repository permissions.`);
+        setHasUnsavedChanges(true);
+      } finally {
+        setIsLoading(false);
       }
     }
   }, [isGitHubEnabled]);

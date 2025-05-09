@@ -129,6 +129,12 @@ function useMenuForm(initialState: Partial<MenuItem>) {
   return { formState, handleChange, resetForm };
 }
 
+// Add this helper function at the top level
+const parseNumberInput = (value: string): number => {
+  const parsed = parseFloat(value);
+  return isNaN(parsed) ? 0 : parsed;
+};
+
 export function MenuManager() {
   const { 
     menuItems, 
@@ -790,9 +796,10 @@ export function MenuManager() {
                 <Input
                   id="price"
                   type="number"
+                  min="0"
                   step="0.01"
-                  value={newItem.price}
-                  onChange={(e) => handleNewItemChange('price', parseFloat(e.target.value))}
+                  value={newItem.price || 0}
+                  onChange={(e) => handleNewItemChange('price', e.target.value)}
                 />
               </div>
               <div className="space-y-2">
@@ -800,113 +807,55 @@ export function MenuManager() {
                 <Input
                   id="stock"
                   type="number"
-                  value={newItem.stock}
-                  onChange={(e) => handleStockChange(parseInt(e.target.value))}
+                  min="-1"
+                  value={newItem.stock || 0}
+                  onChange={(e) => handleNewItemChange('stock', e.target.value)}
                 />
-                <p className="text-sm text-gray-500">
-                  {newItem.stock > 0 ? (
-                    "Item is available and in stock"
-                  ) : newItem.stock === 0 ? (
-                    "Item is set to made-to-order"
-                  ) : (
-                    "Item is out of stock"
-                  )}
-                </p>
               </div>
             </div>
 
             <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <Label>Allergens</Label>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    const newAllergen = prompt('Enter new allergen name:');
-                    if (newAllergen) {
-                      addAllergen(newAllergen);
-                      const updatedAllergens = {
-                        ...newItem.allergens,
-                        [newAllergen]: false
-                      };
-                      handleNewItemChange('allergens', updatedAllergens);
-                    }
-                  }}
-                >
-                  <Plus className="h-4 w-4 mr-1" /> Add Allergen
-                </Button>
-                </div>
-              <div className="grid grid-cols-2 gap-2">
-                {allergens.map(allergen => (
-                  <div key={allergen} className="flex items-center space-x-2">
-                  <Checkbox
-                      id={allergen}
-                      checked={Boolean(newItem.allergens?.[allergen])}
-                      onCheckedChange={(checked) => {
-                        console.log('Changing allergen:', allergen, checked);
-                        const updatedAllergens = {
-                          ...newItem.allergens,
-                          [allergen]: checked
-                        };
-                        console.log('Updated allergens:', updatedAllergens);
-                        handleNewItemChange('allergens', updatedAllergens);
-                      }}
-                    />
-                    <Label htmlFor={allergen} className="capitalize">
-                      {allergen.replace(/([A-Z])/g, ' $1').trim()}
-                    </Label>
-                </div>
-                ))}
-              </div>
+              <Label htmlFor="minimumOrderQuantity">Minimum Order Quantity</Label>
+              <Input
+                id="minimumOrderQuantity"
+                type="number"
+                min="1"
+                value={newItem.minimumOrderQuantity || 1}
+                onChange={(e) => handleNewItemChange('minimumOrderQuantity', e.target.value)}
+              />
             </div>
 
             <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <Label>Dietary Information</Label>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    const newDietary = prompt('Enter new dietary restriction name:');
-                    if (newDietary) {
-                      addDietaryRestriction(newDietary);
-                      const updatedDietaryInfo = {
-                        ...newItem.dietaryInfo,
-                        [newDietary]: false
-                      };
-                      handleNewItemChange('dietaryInfo', updatedDietaryInfo);
-                    }
-                  }}
-                >
-                  <Plus className="h-4 w-4 mr-1" /> Add Dietary Restriction
-                </Button>
-                </div>
-              <div className="grid grid-cols-2 gap-2">
-                {dietaryRestrictions.map(restriction => {
-                  const isChecked = Boolean(newItem.dietaryInfo?.[restriction]);
-                  console.log(`Dietary restriction ${restriction} is checked:`, isChecked);
-                  return (
-                    <div key={restriction} className="flex items-center space-x-2">
-                  <Checkbox
-                        id={restriction}
-                        checked={isChecked}
-                        onCheckedChange={(checked) => {
-                          console.log('Changing dietary restriction:', restriction, checked);
-                          const updatedDietaryInfo = {
-                            ...newItem.dietaryInfo,
-                            [restriction]: checked
-                          };
-                          console.log('Updated dietary info:', updatedDietaryInfo);
-                          handleNewItemChange('dietaryInfo', updatedDietaryInfo);
-                        }}
-                      />
-                      <Label htmlFor={restriction} className="capitalize">
-                        {restriction.replace(/([A-Z])/g, ' $1').trim()}
-                      </Label>
-                </div>
-                  );
-                })}
-              </div>
+              <Label htmlFor="maximumOrderQuantity">Maximum Order Quantity</Label>
+              <Input
+                id="maximumOrderQuantity"
+                type="number"
+                min="1"
+                value={newItem.maximumOrderQuantity || 1}
+                onChange={(e) => handleNewItemChange('maximumOrderQuantity', e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="batchSize">Batch Size</Label>
+              <Input
+                id="batchSize"
+                type="number"
+                min="1"
+                value={newItem.batchSize || 1}
+                onChange={(e) => handleNewItemChange('batchSize', e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="shelfLife">Shelf Life (days)</Label>
+              <Input
+                id="shelfLife"
+                type="number"
+                min="1"
+                value={newItem.shelfLife || 1}
+                onChange={(e) => handleNewItemChange('shelfLife', e.target.value)}
+              />
             </div>
 
             <div className="space-y-2">
@@ -971,47 +920,15 @@ export function MenuManager() {
                   </div>
                 </div>
               </div>
-          </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="sku">SKU</Label>
-                <Input
-                  id="sku"
-                  value={newItem.sku || ''}
-                  onChange={(e) => handleNewItemChange('sku', e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="batchSize">Batch Size</Label>
-                <Input
-                  id="batchSize"
-                  type="number"
-                  value={newItem.batchSize || ''}
-                  onChange={(e) => handleNewItemChange('batchSize', parseInt(e.target.value))}
-                />
-              </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="minOrder">Minimum Order Quantity</Label>
-                <Input
-                  id="minOrder"
-                  type="number"
-                  value={newItem.minimumOrderQuantity || ''}
-                  onChange={(e) => handleNewItemChange('minimumOrderQuantity', parseInt(e.target.value))}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="maxOrder">Maximum Order Quantity</Label>
-                <Input
-                  id="maxOrder"
-                  type="number"
-                  value={newItem.maximumOrderQuantity || ''}
-                  onChange={(e) => handleNewItemChange('maximumOrderQuantity', parseInt(e.target.value))}
-                />
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="sku">SKU</Label>
+              <Input
+                id="sku"
+                value={newItem.sku || ''}
+                onChange={(e) => handleNewItemChange('sku', e.target.value)}
+              />
             </div>
 
             <div className="space-y-2">
@@ -1020,25 +937,6 @@ export function MenuManager() {
                 id="storage"
                 value={newItem.storageInstructions || ''}
                 onChange={(e) => handleNewItemChange('storageInstructions', e.target.value)}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="shelfLife">Shelf Life (days)</Label>
-              <Input
-                id="shelfLife"
-                type="number"
-                value={newItem.shelfLife || ''}
-                onChange={(e) => handleNewItemChange('shelfLife', parseInt(e.target.value))}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="ingredients">Ingredients (comma-separated)</Label>
-              <Input
-                id="ingredients"
-                value={newItem.ingredients?.join(', ') || ''}
-                onChange={(e) => handleNewItemChange('ingredients', e.target.value.split(',').map(i => i.trim()))}
               />
             </div>
 

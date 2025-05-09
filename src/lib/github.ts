@@ -61,38 +61,69 @@ export async function updateMenuItemsFile(menuItems: MenuItem[]): Promise<void> 
     throw new Error('Invalid GitHub token format');
   }
 
-  // Get the current file content and SHA
-  const { sha } = await getMenuItemsFile();
+  let retries = 3;
+  let lastError: Error | null = null;
 
-  // Create the new file content
-  const fileContent = `// This file is auto-generated. Do not edit manually.
+  while (retries > 0) {
+    try {
+      // Get the current file content and SHA
+      const { sha } = await getMenuItemsFile();
+
+      // Create the new file content
+      const fileContent = `// This file is auto-generated. Do not edit manually.
 import { MenuItem } from './types';
 
 export const menuItems: MenuItem[] = ${JSON.stringify(menuItems, null, 2)};
 `;
 
-  // Update the file on GitHub
-  const response = await fetch(
-    `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`,
-    {
-      method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: 'application/vnd.github.v3+json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        message: 'Update menu items',
-        content: btoa(fileContent),
-        sha,
-      }),
-    }
-  );
+      // Update the file on GitHub
+      const response = await fetch(
+        `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`,
+        {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/vnd.github.v3+json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            message: 'Update menu items',
+            content: btoa(fileContent),
+            sha,
+          }),
+        }
+      );
 
-  if (!response.ok) {
-    console.error('Failed to update menu items file:', response.status, response.statusText);
-    throw new Error(`Failed to update menu items file: ${response.status} ${response.statusText}`);
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        console.error('Failed to update menu items file:', response.status, response.statusText, errorData);
+        
+        if (response.status === 409) {
+          // Conflict error - wait and retry
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          retries--;
+          continue;
+        }
+        
+        throw new Error(`Failed to update menu items file: ${response.status} ${response.statusText}`);
+      }
+
+      // Success - exit the retry loop
+      return;
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+      console.error('Error updating menu items:', lastError);
+      
+      if (retries > 1) {
+        // Wait before retrying
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+      retries--;
+    }
   }
+
+  // If we get here, all retries failed
+  throw lastError || new Error('Failed to update menu items after multiple attempts');
 }
 
 // Function to check if we have a valid GitHub token
