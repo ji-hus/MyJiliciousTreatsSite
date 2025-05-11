@@ -39,8 +39,8 @@ export const menuItems: MenuItem[] = [
     "seasonal": false,
     "active": false,
     "createdAt": "2025-05-09T02:25:59.900Z",
-    "updatedAt": "2025-05-09T06:48:44.580Z",
-    "version": 4,
+    "updatedAt": "2025-05-11T02:19:53.976Z",
+    "version": 5,
     "packPricing": {
       "enabled": true,
       "packSize": 3,
